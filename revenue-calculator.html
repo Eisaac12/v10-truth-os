@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V10 Truth OS - Revenue Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .calculator-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .calc-section {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .calc-section h2 {
+            color: var(--primary-light);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.5rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: var(--spacing-md);
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+
+        .input-row label {
+            color: var(--text-secondary);
+        }
+
+        .input-row input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            text-align: right;
+        }
+
+        .input-row .result {
+            text-align: right;
+            color: var(--success);
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .total-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            margin: var(--spacing-xl) 0;
+        }
+
+        .total-box h3 {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .total-box .amount {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: var(--font-mono);
+        }
+
+        .timeline-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .timeline-tabs button {
+            flex: 1;
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .timeline-tabs button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .projection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .projection-card {
+            background: var(--bg-tertiary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--primary);
+        }
+
+        .projection-card .label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .projection-card .value {
+            color: var(--primary-light);
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .assumptions {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--accent);
+            margin-top: var(--spacing-md);
+        }
+
+        .assumptions h4 {
+            color: var(--accent);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .assumptions ul {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cosmic-background"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container calculator-container">
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">V10</div>
+                <div class="logo-text">
+                    <h1>Revenue Calculator</h1>
+                    <p class="subtitle">Calculate Your Empire's Potential</p>
+                </div>
+            </div>
+            <a href="index.html" class="btn-ghost">← Back to Dashboard</a>
+        </header>
+
+        <div class="timeline-tabs">
+            <button class="active" onclick="switchTimeline('month6')">Month 6</button>
+            <button onclick="switchTimeline('month12')">Month 12</button>
+            <button onclick="switchTimeline('month18')">Month 18</button>
+            <button onclick="switchTimeline('month36')">Month 36</button>
+        </div>
+
+        <!-- B2C SaaS Revenue -->
+        <div class="calc-section">
+            <h2>💼 B2C SaaS Subscriptions</h2>
+
+            <div class="input-row">
+                <label>Free Plan Users</label>
+                <input type="number" id="free-users" value="500" onchange="calculate()">
+                <div class="result">$0</div>
+            </div>
+
+            <div class="input-row">
+                <label>Creator Plan @ $29/mo</label>
+                <input type="number" id="creator-users" value="50" onchange="calculate()">
+                <div class="result" id="creator-revenue">$1,450</div>
+            </div>
+
+            <div class="input-row">
+                <label>Visionary Plan @ $99/mo</label>
+                <input type="number" id="visionary-users" value="30" onchange="calculate()">
+                <div class="result" id="visionary-revenue">$2,970</div>
+            </div>
+
+            <div class="input-row">
+                <label>Empire Plan @ $299/mo</label>
+                <input type="number" id="empire-users" value="10" onchange="calculate()">
+                <div class="result" id="empire-revenue">$2,990</div>
+            </div>
+
+            <div class="input-row" style="background: var(--bg-panel); border-top: 2px solid var(--primary);">
+                <label style="font-weight: 600; color: var(--text-primary);">B2C SaaS Total MRR</label>
+                <div></div>
+                <div class="result" id="b2c-total" style="font-size: 1.3rem;">$7,410</div>
+            </div>
+        </div>
+
+        <!-- B2B Revenue -->
+        <div class="calc-section">
+            <h2>🏢 B2B & Enterprise</h2>
+
+            <div class="input-row">
+                <label>Teams Plan @ $499/mo</label>
+                <input type="number" id="teams-clients" value="5" onchange="calculate()">
+                <div class="result" id="teams-revenue">$2,495</div>
+            </div>
+
+            <div class="input-row">
+                <label>Enterprise Clients @ $5,000/mo avg</label>
+                <input type="number" id="enterprise-clients" value="2" onchange="calculate()">
+                <div class="result" id="enterprise-revenue">$10,000</div>
+            </div>
+
+            <div class="input-row">
+                <label>White-Label Clients @ $5,000/mo avg</label>
+                <input type="number" id="whitelabel-clients" value="1" onchange="calculate()">
+                <div class="result" id="whitelabel-revenue">$5,000</div>
+            </div>
+
+            <div class="input-row" style="background: var(--bg-panel); border-top: 2px solid var(--primary);">
+                <label style="font-weight: 600; color: var(--text-primary);">B2B Total MRR</label>
+                <div></div>
+                <div class="result" id="b2b-total" style="font-size: 1.3rem;">$17,495</div>
+            </div>
+        </div>
+
+        <!-- Platform & API Revenue -->
+        <div class="calc-section">
+            <h2>🔌 Platform & API</h2>
+
+            <div class="input-row">
+                <label>API Starter @ $99/mo</label>
+                <input type="number" id="api-starter" value="10" onchange="calculate()">
+                <div class="result" id="api-starter-revenue">$990</div>
+            </div>
+
+            <div class="input-row">
+                <label>API Growth @ $299/mo</label>
+                <input type="number" id="api-growth" value="5" onchange="calculate()">
+                <div class="result" id="api-growth-revenue">$1,495</div>
+            </div>
+
+            <div class="input-row">
+                <label>Marketplace Commission (monthly avg)</label>
+                <input type="number" id="marketplace-revenue" value="2000" onchange="calculate()">
+                <div class="result" id="marketplace-result">$2,000</div>
+            </div>
+
+            <div class="input-row" style="background: var(--bg-panel); border-top: 2px solid var(--primary);">
+                <label style="font-weight: 600; color: var(--text-primary);">Platform Total MRR</label>
+                <div></div>
+                <div class="result" id="platform-total" style="font-size: 1.3rem;">$4,485</div>
+            </div>
+        </div>
+
+        <!-- Education Revenue -->
+        <div class="calc-section">
+            <h2>🎓 Courses & Education</h2>
+
+            <div class="input-row">
+                <label>"Build Your AI" Course @ $497</label>
+                <input type="number" id="course1-sales" value="20" onchange="calculate()" placeholder="Sales per month">
+                <div class="result" id="course1-revenue">$9,940</div>
+            </div>
+
+            <div class="input-row">
+                <label>"AI Business Automation" @ $997</label>
+                <input type="number" id="course2-sales" value="10" onchange="calculate()">
+                <div class="result" id="course2-revenue">$9,970</div>
+            </div>
+
+            <div class="input-row">
+                <label>Membership @ $97/mo</label>
+                <input type="number" id="membership-users" value="50" onchange="calculate()">
+                <div class="result" id="membership-revenue">$4,850</div>
+            </div>
+
+            <div class="input-row" style="background: var(--bg-panel); border-top: 2px solid var(--primary);">
+                <label style="font-weight: 600; color: var(--text-primary);">Education Total (Monthly)</label>
+                <div></div>
+                <div class="result" id="education-total" style="font-size: 1.3rem;">$24,760</div>
+            </div>
+        </div>
+
+        <!-- Services Revenue -->
+        <div class="calc-section">
+            <h2>⚙️ Services & Consulting</h2>
+
+            <div class="input-row">
+                <label>Personal AI Setup @ $3,000 avg</label>
+                <input type="number" id="setup-clients" value="3" onchange="calculate()"
+                    placeholder="Clients per month">
+                <div class="result" id="setup-revenue">$9,000</div>
+            </div>
+
+            <div class="input-row">
+                <label>Business Implementation @ $25,000 avg</label>
+                <input type="number" id="implementation-clients" value="1" onchange="calculate()">
+                <div class="result" id="implementation-revenue">$25,000</div>
+            </div>
+
+            <div class="input-row">
+                <label>Monthly Retainers @ $10,000 avg</label>
+                <input type="number" id="retainer-clients" value="2" onchange="calculate()">
+                <div class="result" id="retainer-revenue">$20,000</div>
+            </div>
+
+            <div class="input-row" style="background: var(--bg-panel); border-top: 2px solid var(--primary);">
+                <label style="font-weight: 600; color: var(--text-primary);">Services Total (Monthly)</label>
+                <div></div>
+                <div class="result" id="services-total" style="font-size: 1.3rem;">$54,000</div>
+            </div>
+        </div>
+
+        <!-- Other Revenue -->
+        <div class="calc-section">
+            <h2>💰 Other Revenue Streams</h2>
+
+            <div class="input-row">
+                <label>Affiliate Commissions</label>
+                <input type="number" id="affiliate-revenue" value="3000" onchange="calculate()">
+                <div class="result" id="affiliate-result">$3,000</div>
+            </div>
+
+            <div class="input-row">
+                <label>YouTube Ad Revenue</label>
+                <input type="number" id="youtube-revenue" value="2000" onchange="calculate()">
+                <div class="result" id="youtube-result">$2,000</div>
+            </div>
+
+            <div class="input-row">
+                <label>Sponsorships & Partnerships</label>
+                <input type="number" id="sponsorship-revenue" value="5000" onchange="calculate()">
+                <div class="result" id="sponsorship-result">$5,000</div>
+            </div>
+
+            <div class="input-row" style="background: var(--bg-panel); border-top: 2px solid var(--primary);">
+                <label style="font-weight: 600; color: var(--text-primary);">Other Total MRR</label>
+                <div></div>
+                <div class="result" id="other-total" style="font-size: 1.3rem;">$10,000</div>
+            </div>
+        </div>
+
+        <!-- Grand Total -->
+        <div class="total-box">
+            <h3>TOTAL MONTHLY REVENUE</h3>
+            <div class="amount" id="grand-total-mrr">$118,150</div>
+            <div style="margin-top: var(--spacing-md); color: var(--text-secondary);">
+                <span style="font-size: 1.2rem; font-family: var(--font-mono);" id="grand-total-arr">$1,417,800</span>
+                <span style="color: var(--text-muted);"> ARR</span>
+            </div>
+        </div>
+
+        <!-- Projections -->
+        <div class="calc-section">
+            <h2>📊 Financial Projections</h2>
+
+            <div class="projection-grid">
+                <div class="projection-card">
+                    <div class="label">Monthly Revenue</div>
+                    <div class="value" id="proj-mrr">$118K</div>
+                </div>
+
+                <div class="projection-card">
+                    <div class="label">Annual Revenue</div>
+                    <div class="value" id="proj-arr">$1.42M</div>
+                </div>
+
+                <div class="projection-card">
+                    <div class="label">Gross Margin (80%)</div>
+                    <div class="value" id="proj-margin">$1.13M</div>
+                </div>
+
+                <div class="projection-card">
+                    <div class="label">Net Profit (40%)</div>
+                    <div class="value" id="proj-profit">$567K</div>
+                </div>
+
+                <div class="projection-card">
+                    <div class="label">Company Valuation (5x ARR)</div>
+                    <div class="value" id="proj-valuation">$7.1M</div>
+                </div>
+
+                <div class="projection-card">
+                    <div class="label">Total Users</div>
+                    <div class="value" id="proj-users">698</div>
+                </div>
+            </div>
+
+            <div class="assumptions">
+                <h4>💡 Assumptions</h4>
+                <ul>
+                    <li><strong>Gross Margin:</strong> 80% (typical for SaaS - AI costs ~15%, other ~5%)</li>
+                    <li><strong>Operating Expenses:</strong> 40% of revenue (team, marketing, infrastructure)</li>
+                    <li><strong>Net Profit:</strong> 40% (very strong for SaaS)</li>
+                    <li><strong>Valuation Multiple:</strong> 5x ARR (conservative for profitable SaaS)</li>
+                    <li><strong>Churn Rate:</strong> 5% monthly (industry average)</li>
+                    <li><strong>Growth Rate:</strong> 20-30% month-over-month in early stages</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Scenario Presets -->
+        <div class="calc-section">
+            <h2>🎯 Scenario Presets</h2>
+            <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                <button class="btn-primary" onclick="loadScenario('modest')">Modest Growth (Month 6)</button>
+                <button class="btn-primary" onclick="loadScenario('realistic')">Realistic (Month 12)</button>
+                <button class="btn-primary" onclick="loadScenario('aggressive')">Aggressive (Month 18)</button>
+                <button class="btn-primary" onclick="loadScenario('empire')">Empire (Month 36)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = {
+            modest: { // Month 6
+                freeUsers: 500,
+                creator: 50,
+                visionary: 30,
+                empire: 10,
+                teams: 5,
+                enterprise: 2,
+                whitelabel: 1,
+                apiStarter: 10,
+                apiGrowth: 5,
+                marketplace: 2000,
+                course1: 20,
+                course2: 10,
+                membership: 50,
+                setup: 3,
+                implementation: 1,
+                retainer: 2,
+                affiliate: 3000,
+                youtube: 2000,
+                sponsorship: 5000
+            },
+            realistic: { // Month 12
+                freeUsers: 2000,
+                creator: 150,
+                visionary: 80,
+                empire: 25,
+                teams: 15,
+                enterprise: 5,
+                whitelabel: 3,
+                apiStarter: 30,
+                apiGrowth: 15,
+                marketplace: 8000,
+                course1: 50,
+                course2: 25,
+                membership: 150,
+                setup: 8,
+                implementation: 3,
+                retainer: 5,
+                affiliate: 10000,
+                youtube: 5000,
+                sponsorship: 15000
+            },
+            aggressive: { // Month 18
+                freeUsers: 5000,
+                creator: 300,
+                visionary: 150,
+                empire: 50,
+                teams: 30,
+                enterprise: 10,
+                whitelabel: 8,
+                apiStarter: 80,
+                apiGrowth: 40,
+                marketplace: 25000,
+                course1: 100,
+                course2: 50,
+                membership: 300,
+                setup: 15,
+                implementation: 5,
+                retainer: 10,
+                affiliate: 25000,
+                youtube: 15000,
+                sponsorship: 35000
+            },
+            empire: { // Month 36
+                freeUsers: 15000,
+                creator: 800,
+                visionary: 400,
+                empire: 150,
+                teams: 80,
+                enterprise: 30,
+                whitelabel: 20,
+                apiStarter: 200,
+                apiGrowth: 100,
+                marketplace: 80000,
+                course1: 200,
+                course2: 100,
+                membership: 800,
+                setup: 30,
+                implementation: 10,
+                retainer: 25,
+                affiliate: 50000,
+                youtube: 30000,
+                sponsorship: 70000
+            }
+        };
+
+        function loadScenario(scenario) {
+            const data = scenarios[scenario];
+            document.getElementById('free-users').value = data.freeUsers;
+            document.getElementById('creator-users').value = data.creator;
+            document.getElementById('visionary-users').value = data.visionary;
+            document.getElementById('empire-users').value = data.empire;
+            document.getElementById('teams-clients').value = data.teams;
+            document.getElementById('enterprise-clients').value = data.enterprise;
+            document.getElementById('whitelabel-clients').value = data.whitelabel;
+            document.getElementById('api-starter').value = data.apiStarter;
+            document.getElementById('api-growth').value = data.apiGrowth;
+            document.getElementById('marketplace-revenue').value = data.marketplace;
+            document.getElementById('course1-sales').value = data.course1;
+            document.getElementById('course2-sales').value = data.course2;
+            document.getElementById('membership-users').value = data.membership;
+            document.getElementById('setup-clients').value = data.setup;
+            document.getElementById('implementation-clients').value = data.implementation;
+            document.getElementById('retainer-clients').value = data.retainer;
+            document.getElementById('affiliate-revenue').value = data.affiliate;
+            document.getElementById('youtube-revenue').value = data.youtube;
+            document.getElementById('sponsorship-revenue').value = data.sponsorship;
+
+            calculate();
+        }
+
+        function calculate() {
+            // B2C
+            const creator = parseInt(document.getElementById('creator-users').value) * 29;
+            const visionary = parseInt(document.getElementById('visionary-users').value) * 99;
+            const empire = parseInt(document.getElementById('empire-users').value) * 299;
+            const b2cTotal = creator + visionary + empire;
+
+            // B2B
+            const teams = parseInt(document.getElementById('teams-clients').value) * 499;
+            const enterprise = parseInt(document.getElementById('enterprise-clients').value) * 5000;
+            const whitelabel = parseInt(document.getElementById('whitelabel-clients').value) * 5000;
+            const b2bTotal = teams + enterprise + whitelabel;
+
+            // Platform
+            const apiStarter = parseInt(document.getElementById('api-starter').value) * 99;
+            const apiGrowth = parseInt(document.getElementById('api-growth').value) * 299;
+            const marketplace = parseInt(document.getElementById('marketplace-revenue').value);
+            const platformTotal = apiStarter + apiGrowth + marketplace;
+
+            // Education
+            const course1 = parseInt(document.getElementById('course1-sales').value) * 497;
+            const course2 = parseInt(document.getElementById('course2-sales').value) * 997;
+            const membership = parseInt(document.getElementById('membership-users').value) * 97;
+            const educationTotal = course1 + course2 + membership;
+
+            // Services
+            const setup = parseInt(document.getElementById('setup-clients').value) * 3000;
+            const implementation = parseInt(document.getElementById('implementation-clients').value) * 25000;
+            const retainer = parseInt(document.getElementById('retainer-clients').value) * 10000;
+            const servicesTotal = setup + implementation + retainer;
+
+            // Other
+            const affiliate = parseInt(document.getElementById('affiliate-revenue').value);
+            const youtube = parseInt(document.getElementById('youtube-revenue').value);
+            const sponsorship = parseInt(document.getElementById('sponsorship-revenue').value);
+            const otherTotal = affiliate + youtube + sponsorship;
+
+            // Update displays
+            document.getElementById('creator-revenue').textContent = '$' + creator.toLocaleString();
+            document.getElementById('visionary-revenue').textContent = '$' + visionary.toLocaleString();
+            document.getElementById('empire-revenue').textContent = '$' + empire.toLocaleString();
+            document.getElementById('b2c-total').textContent = '$' + b2cTotal.toLocaleString();
+
+            document.getElementById('teams-revenue').textContent = '$' + teams.toLocaleString();
+            document.getElementById('enterprise-revenue').textContent = '$' + enterprise.toLocaleString();
+            document.getElementById('whitelabel-revenue').textContent = '$' + whitelabel.toLocaleString();
+            document.getElementById('b2b-total').textContent = '$' + b2bTotal.toLocaleString();
+
+            document.getElementById('api-starter-revenue').textContent = '$' + apiStarter.toLocaleString();
+            document.getElementById('api-growth-revenue').textContent = '$' + apiGrowth.toLocaleString();
+            document.getElementById('marketplace-result').textContent = '$' + marketplace.toLocaleString();
+            document.getElementById('platform-total').textContent = '$' + platformTotal.toLocaleString();
+
+            document.getElementById('course1-revenue').textContent = '$' + course1.toLocaleString();
+            document.getElementById('course2-revenue').textContent = '$' + course2.toLocaleString();
+            document.getElementById('membership-revenue').textContent = '$' + membership.toLocaleString();
+            document.getElementById('education-total').textContent = '$' + educationTotal.toLocaleString();
+
+            document.getElementById('setup-revenue').textContent = '$' + setup.toLocaleString();
+            document.getElementById('implementation-revenue').textContent = '$' + implementation.toLocaleString();
+            document.getElementById('retainer-revenue').textContent = '$' + retainer.toLocaleString();
+            document.getElementById('services-total').textContent = '$' + servicesTotal.toLocaleString();
+
+            document.getElementById('affiliate-result').textContent = '$' + affiliate.toLocaleString();
+            document.getElementById('youtube-result').textContent = '$' + youtube.toLocaleString();
+            document.getElementById('sponsorship-result').textContent = '$' + sponsorship.toLocaleString();
+            document.getElementById('other-total').textContent = '$' + otherTotal.toLocaleString();
+
+            // Grand totals
+            const grandTotal = b2cTotal + b2bTotal + platformTotal + educationTotal + servicesTotal + otherTotal;
+            const arr = grandTotal * 12;
+            const margin = arr * 0.8;
+            const profit = arr * 0.4;
+            const valuation = arr * 5;
+
+            const totalUsers = parseInt(document.getElementById('free-users').value) +
+                parseInt(document.getElementById('creator-users').value) +
+                parseInt(document.getElementById('visionary-users').value) +
+                parseInt(document.getElementById('empire-users').value);
+
+            document.getElementById('grand-total-mrr').textContent = '$' + grandTotal.toLocaleString();
+            document.getElementById('grand-total-arr').textContent = '$' + arr.toLocaleString();
+
+            document.getElementById('proj-mrr').textContent = '$' + (grandTotal / 1000).toFixed(0) + 'K';
+            document.getElementById('proj-arr').textContent = '$' + (arr / 1000000).toFixed(2) + 'M';
+            document.getElementById('proj-margin').textContent = '$' + (margin / 1000000).toFixed(2) + 'M';
+            document.getElementById('proj-profit').textContent = '$' + (profit / 1000).toFixed(0) + 'K';
+            document.getElementById('proj-valuation').textContent = '$' + (valuation / 1000000).toFixed(1) + 'M';
+            document.getElementById('proj-users').textContent = totalUsers.toLocaleString();
+        }
+
+        function switchTimeline(timeline) {
+            document.querySelectorAll('.timeline-tabs button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            switch (timeline) {
+                case 'month6':
+                    loadScenario('modest');
+                    break;
+                case 'month12':
+                    loadScenario('realistic');
+                    break;
+                case 'month18':
+                    loadScenario('aggressive');
+                    break;
+                case 'month36':
+                    loadScenario('empire');
+                    break;
+            }
+        }
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V10 Truth OS - Personal AI Command Center</title>
+    <meta name="description" content="V10 Truth OS - Your 24/7 AI Operating System built on the Master Vision philosophy">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="cosmic-background"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">V10</div>
+                <div class="logo-text">
+                    <h1>Truth OS</h1>
+                    <p class="subtitle">Personal AI Command Center</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot pulse"></div>
+                <span id="system-status">System Active</span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard">
+            
+            <!-- Master Vision Panel -->
+            <section class="panel vision-panel" id="vision-panel">
+                <div class="panel-header">
+                    <h2>🔮 Master Vision Core</h2>
+                    <button class="btn-icon" onclick="toggleVisionExpand()">
+                        <span id="expand-icon">▼</span>
+                    </button>
+                </div>
+                <div class="panel-content" id="vision-content">
+                    <div class="vision-summary">
+                        <p class="emphasis">"I build with clarity. I create from truth. I move with peace."</p>
+                        <p class="vision-tagline">Your AI operates on these foundational principles from the Master Vision.</p>
+                    </div>
+                    <div class="vision-full" id="vision-full" style="display: none;">
+                        <!-- Full Master Vision will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Agent Status -->
+            <section class="panel agent-panel">
+                <div class="panel-header">
+                    <h2>🤖 AI Agent Status</h2>
+                    <div class="agent-controls">
+                        <button class="btn-sm btn-success" id="agent-toggle">Active</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Current Task</div>
+                            <div class="stat-value" id="current-task">Monitoring & Planning</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Tasks Completed</div>
+                            <div class="stat-value" id="tasks-completed">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-value" id="uptime">00:00:00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Alignment Score</div>
+                            <div class="stat-value alignment-score">98%</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Execution Queue -->
+            <section class="panel execution-panel">
+                <div class="panel-header">
+                    <h2>⚡ Execution Queue</h2>
+                    <button class="btn-sm btn-primary" onclick="addTask()">+ New Task</button>
+                </div>
+                <div class="panel-content">
+                    <div class="task-list" id="task-list">
+                        <div class="empty-state">
+                            <p>No active tasks. The AI is ready to execute.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Command Input -->
+            <section class="panel command-panel">
+                <div class="panel-header">
+                    <h2>💬 Command Interface</h2>
+                </div>
+                <div class="panel-content">
+                    <div class="command-input-container">
+                        <textarea 
+                            id="command-input" 
+                            placeholder="Enter your command or vision for the AI to execute...&#10;&#10;Examples:&#10;• Research and create content about [topic]&#10;• Build a system for [purpose]&#10;• Analyze and plan [project]"
+                            rows="4"
+                        ></textarea>
+                        <div class="command-actions">
+                            <button class="btn-primary btn-lg" onclick="executeCommand()">
+                                <span>Execute Command</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ai-response" id="ai-response" style="display: none;">
+                        <div class="response-header">AI Response:</div>
+                        <div class="response-content" id="response-content"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Log -->
+            <section class="panel log-panel">
+                <div class="panel-header">
+                    <h2>📋 Activity Log</h2>
+                    <button class="btn-icon" onclick="clearLog()">Clear</button>
+                </div>
+                <div class="panel-content">
+                    <div class="log-container" id="log-container">
+                        <div class="log-entry">
+                            <span class="log-time">${new Date().toLocaleTimeString()}</span>
+                            <span class="log-message">V10 Truth OS initialized successfully</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">${new Date().toLocaleTimeString()}</span>
+                            <span class="log-message">Master Vision Core loaded</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">${new Date().toLocaleTimeString()}</span>
+                            <span class="log-message">AI Agent ready for commands</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Energy & Alignment Tracker -->
+            <section class="panel energy-panel">
+                <div class="panel-header">
+                    <h2>🌟 Energy & Alignment</h2>
+                </div>
+                <div class="panel-content">
+                    <div class="energy-tracker">
+                        <div class="energy-item">
+                            <label>Mental Clarity</label>
+                            <div class="energy-bar">
+                                <div class="energy-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="energy-item">
+                            <label>Creative Energy</label>
+                            <div class="energy-bar">
+                                <div class="energy-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <div class="energy-item">
+                            <label>Emotional Balance</label>
+                            <div class="energy-bar">
+                                <div class="energy-fill" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="energy-item">
+                            <label>Purpose Alignment</label>
+                            <div class="energy-bar">
+                                <div class="energy-fill alignment" style="width: 95%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-sm btn-ghost" onclick="updateEnergy()">Update Energy Levels</button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>V10 Truth OS © 2025 • Running on Master Vision Philosophy • Built for Creation, Not Manipulation</p>
+        </footer>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="master-vision.js"></script>
+    <script src="ai-engine.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
