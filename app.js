@@ -117,7 +117,7 @@ function displayAIResponse(result) {
         return;
     }
 
-    // v2.0 — Accepted command with foresight
+    // v2.0 — Accepted command with foresight + Dubai Standard
     if (result.success && result.foresight) {
         const f = result.foresight;
         const scenariosHtml = f.scenarios.map(s => `
@@ -127,6 +127,28 @@ function displayAIResponse(result) {
                 <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">→ ${s.outcome}</div>
             </div>
         `).join('');
+
+        // Dubai Standard plan block
+        let dubaiHtml = '';
+        if (result.dubaiPlan && result.dubaiPlan.valid) {
+            const p = result.dubaiPlan.plan;
+            const nextStepsHtml = p.nextSteps.map((s, i) => `<li>${s}</li>`).join('');
+            const risksHtml = p.risks.map(r => `<li style="color: var(--danger);">${r}</li>`).join('');
+            dubaiHtml = `
+                <div style="margin-top: 1rem; border: 1px solid rgba(251,191,36,0.25); border-radius: var(--radius-sm); overflow: hidden;">
+                    <div style="padding: 0.5rem 0.875rem; background: rgba(251,191,36,0.1); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24;">
+                        🏙️ DUBAI STANDARD — LOCKED EXECUTION
+                    </div>
+                    <div style="padding: 0.75rem 0.875rem; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary);">
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-primary);">OBJECTIVE:</strong> ${p.objective}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: #fbbf24;">CURRENT STEP:</strong> ${p.currentStep}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-primary);">NEXT STEPS:</strong><ol style="margin: 0.25rem 0 0 1rem; padding: 0;">${nextStepsHtml}</ol></div>
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-primary);">RISKS:</strong><ul style="margin: 0.25rem 0 0 1rem; padding: 0;">${risksHtml}</ul></div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;"><strong>OPTIMIZATION:</strong> ${p.optimization}</div>
+                    </div>
+                </div>
+            `;
+        }
 
         html = `
             <div style="color: var(--success); font-weight: 600; margin-bottom: 0.5rem;">
@@ -142,11 +164,12 @@ function displayAIResponse(result) {
                 ${scenariosHtml}
                 <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Recommended: <strong style="color: var(--primary-light);">${f.recommended}</strong> — ${f.reasoning}</div>
             </div>
+            ${dubaiHtml}
         `;
 
         responseContent.innerHTML = html;
         responseEl.style.display = 'block';
-        setTimeout(() => { responseEl.style.display = 'none'; }, 15000);
+        setTimeout(() => { responseEl.style.display = 'none'; }, 20000);
         return;
     }
 
