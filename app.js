@@ -26,7 +26,16 @@ function loadFullVision() {
     const visionFullEl = document.getElementById('vision-full');
     if (!visionFullEl) return;
 
-    let html = `<h3>The Master Statement</h3>`;
+    // v2.0 identity header
+    let html = `
+        <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.1)); border-radius: var(--radius-sm); border: 1px solid rgba(139,92,246,0.3);">
+            <div style="color: var(--primary-light); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.25rem;">${MASTER_VISION.identity.codename} — v${MASTER_VISION.identity.version}</div>
+            <div style="color: var(--text-primary); font-weight: 600;">${MASTER_VISION.identity.name}</div>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Activation phrase: <code style="color: var(--primary-light);">${MASTER_VISION.identity.activationPhrase}</code></div>
+        </div>
+    `;
+
+    html += `<h3>The Master Statement</h3>`;
     html += `<p style="font-style: italic; line-height: 1.8;">${MASTER_VISION.masterStatement.replace(/\n/g, '<br>')}</p>`;
 
     html += `<h3 style="margin-top: 2rem;">The 10 Core Principles</h3>`;
@@ -94,47 +103,108 @@ function displayAIResponse(result) {
 
     let html = '';
 
+    // v2.0 — I AM activation: render full 7-block response
+    if (result.type === 'IAM_ACTIVATION' && result.html) {
+        html = `
+            <div style="color: var(--primary-light); font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem; letter-spacing: 0.05em;">
+                ✨ I AM — FULLY ACTIVATED
+            </div>
+            ${result.html}
+        `;
+        responseContent.innerHTML = html;
+        responseEl.style.display = 'block';
+        // Keep I AM response visible — user dismisses manually
+        return;
+    }
+
+    // v2.0 — Accepted command with foresight + Dubai Standard
+    if (result.success && result.foresight) {
+        const f = result.foresight;
+        const scenariosHtml = f.scenarios.map(s => `
+            <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                <strong style="color: var(--primary-light);">${s.path}:</strong>
+                <span style="color: var(--text-secondary); font-size: 0.85rem;"> ${s.moves}</span>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">→ ${s.outcome}</div>
+            </div>
+        `).join('');
+
+        // Dubai Standard plan block
+        let dubaiHtml = '';
+        if (result.dubaiPlan && result.dubaiPlan.valid) {
+            const p = result.dubaiPlan.plan;
+            const nextStepsHtml = p.nextSteps.map((s, i) => `<li>${s}</li>`).join('');
+            const risksHtml = p.risks.map(r => `<li style="color: var(--danger);">${r}</li>`).join('');
+            dubaiHtml = `
+                <div style="margin-top: 1rem; border: 1px solid rgba(251,191,36,0.25); border-radius: var(--radius-sm); overflow: hidden;">
+                    <div style="padding: 0.5rem 0.875rem; background: rgba(251,191,36,0.1); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24;">
+                        🏙️ DUBAI STANDARD — LOCKED EXECUTION
+                    </div>
+                    <div style="padding: 0.75rem 0.875rem; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary);">
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-primary);">OBJECTIVE:</strong> ${p.objective}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: #fbbf24;">CURRENT STEP:</strong> ${p.currentStep}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-primary);">NEXT STEPS:</strong><ol style="margin: 0.25rem 0 0 1rem; padding: 0;">${nextStepsHtml}</ol></div>
+                        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--text-primary);">RISKS:</strong><ul style="margin: 0.25rem 0 0 1rem; padding: 0;">${risksHtml}</ul></div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;"><strong>OPTIMIZATION:</strong> ${p.optimization}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        html = `
+            <div style="color: var(--success); font-weight: 600; margin-bottom: 0.5rem;">
+                ✅ Command Accepted
+            </div>
+            <div style="margin-bottom: 0.5rem;">${result.message}</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">${result.reasoning}</div>
+            <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-sm);">
+                <strong>Task Created:</strong> ${result.task.command}
+            </div>
+            <div style="margin-top: 0.5rem;">
+                <div style="font-size: 0.8rem; color: var(--primary-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">⚡ Multi-Step Foresight — ${f.scenarios.length} Paths</div>
+                ${scenariosHtml}
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Recommended: <strong style="color: var(--primary-light);">${f.recommended}</strong> — ${f.reasoning}</div>
+            </div>
+            ${dubaiHtml}
+        `;
+
+        responseContent.innerHTML = html;
+        responseEl.style.display = 'block';
+        setTimeout(() => { responseEl.style.display = 'none'; }, 20000);
+        return;
+    }
+
+    // Standard success (no foresight)
     if (result.success) {
         html = `
             <div style="color: var(--success); font-weight: 600; margin-bottom: 0.5rem;">
                 ✅ Command Accepted
             </div>
-            <div style="margin-bottom: 0.5rem;">
-                ${result.message}
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;">
-                ${result.reasoning}
-            </div>
+            <div style="margin-bottom: 0.5rem;">${result.message}</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">${result.reasoning}</div>
             <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-sm);">
                 <strong>Task Created:</strong> ${result.task.command}
             </div>
         `;
-    } else {
-        html = `
-            <div style="color: var(--danger); font-weight: 600; margin-bottom: 0.5rem;">
-                ⚠️ Command Rejected
-            </div>
-            <div style="margin-bottom: 0.5rem;">
-                ${result.message}
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;">
-                ${result.reasoning}
-            </div>
-            <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
-                <strong>Suggestion:</strong> Ensure your command aligns with the Master Vision principles of creation, truth, peace, and growth.
-            </div>
-        `;
+        responseContent.innerHTML = html;
+        responseEl.style.display = 'block';
+        setTimeout(() => { responseEl.style.display = 'none'; }, 10000);
+        return;
     }
+
+    // Rejection
+    html = `
+        <div style="color: var(--danger); font-weight: 600; margin-bottom: 0.5rem;">
+            ⚠️ Command Rejected
+        </div>
+        <div style="margin-bottom: 0.5rem;">${result.message}</div>
+        <div style="color: var(--text-muted); font-size: 0.9rem;">${result.reasoning}</div>
+        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
+            <strong>Suggestion:</strong> Ensure your command aligns with the Master Vision principles of creation, truth, peace, and growth.
+        </div>
+    `;
 
     responseContent.innerHTML = html;
     responseEl.style.display = 'block';
-
-    // Auto-hide after 10 seconds for success, keep visible for failures
-    if (result.success) {
-        setTimeout(() => {
-            responseEl.style.display = 'none';
-        }, 10000);
-    }
 }
 
 // Add Task (Manual)

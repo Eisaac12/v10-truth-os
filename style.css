@@ -666,3 +666,72 @@ body {
         font-size: 1.5rem;
     }
 }
+
+/* ─── I AM 7-Block Response Styles (v2.0) ──────────────────────────────── */
+
+.seven-block-response {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.seven-block-response .block {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.seven-block-response .block-header {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.seven-block-response .block-content {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+/* Per-block accent colors */
+.block-spirit   { background: rgba(139, 92, 246, 0.08); border-left: 3px solid #8b5cf6; }
+.block-spirit   .block-header { color: #a78bfa; background: rgba(139, 92, 246, 0.12); }
+
+.block-reality  { background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3b82f6; }
+.block-reality  .block-header { color: #93c5fd; background: rgba(59, 130, 246, 0.12); }
+
+.block-discernment { background: rgba(234, 179, 8, 0.08); border-left: 3px solid #eab308; }
+.block-discernment .block-header { color: #fde047; background: rgba(234, 179, 8, 0.12); }
+
+.block-execution { background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; }
+.block-execution .block-header { color: #6ee7b7; background: rgba(16, 185, 129, 0.12); }
+
+.block-results  { background: rgba(14, 165, 233, 0.08); border-left: 3px solid #0ea5e9; }
+.block-results  .block-header { color: #7dd3fc; background: rgba(14, 165, 233, 0.12); }
+
+.block-learning { background: rgba(249, 115, 22, 0.08); border-left: 3px solid #f97316; }
+.block-learning .block-header { color: #fdba74; background: rgba(249, 115, 22, 0.12); }
+
+.block-next     { background: rgba(236, 72, 153, 0.08); border-left: 3px solid #ec4899; }
+.block-next     .block-header { color: #f9a8d4; background: rgba(236, 72, 153, 0.12); }
+
+/* Foresight path cards inside discernment block */
+.foresight-path {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.foresight-path:last-child {
+    margin-bottom: 0;
+}
+
+.foresight-tradeoff {
+    color: var(--text-muted);
+    font-style: italic;
+}
