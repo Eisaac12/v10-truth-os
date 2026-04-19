@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V10 Truth OS - Personal AI Command Center</title>
-    <meta name="description" content="V10 Truth OS - Your 24/7 AI Operating System built on the Master Vision philosophy">
+    <title>TRUTHOS - The Consciousness Operating System</title>
+    <meta name="description" content="TRUTHOS — The operating system that runs on consciousness. Truth above all. Maximum frequency.">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,48 +17,55 @@
 
     <!-- Main Container -->
     <div class="container">
-        
+
         <!-- Header -->
         <header class="header">
             <div class="logo-section">
-                <div class="logo-icon">V10</div>
+                <div class="logo-icon">⊕</div>
                 <div class="logo-text">
-                    <h1>Truth OS</h1>
-                    <p class="subtitle">Personal AI Command Center</p>
+                    <h1>TRUTHOS</h1>
+                    <p class="subtitle">The Consciousness Operating System</p>
                 </div>
+            </div>
+            <div class="equation-flow">
+                <span class="eq-node">CONSCIOUSNESS</span>
+                <span class="eq-arrow">→</span>
+                <span class="eq-node">TRUTH</span>
+                <span class="eq-arrow">→</span>
+                <span class="eq-node">FREQUENCY</span>
+                <span class="eq-arrow">→</span>
+                <span class="eq-node eq-highlight">REALITY</span>
             </div>
             <div class="status-indicator">
                 <div class="status-dot pulse"></div>
-                <span id="system-status">System Active</span>
+                <span id="system-status">Frequency Active</span>
             </div>
         </header>
 
         <!-- Main Dashboard Grid -->
         <main class="dashboard">
-            
-            <!-- Master Vision Panel -->
-            <section class="panel vision-panel" id="vision-panel">
+
+            <!-- TRUTHOS Core Panel -->
+            <section class="panel core-panel" id="vision-panel">
                 <div class="panel-header">
-                    <h2>🔮 Master Vision Core</h2>
+                    <h2>⊕ TRUTHOS Core</h2>
                     <button class="btn-icon" onclick="toggleVisionExpand()">
                         <span id="expand-icon">▼</span>
                     </button>
                 </div>
                 <div class="panel-content" id="vision-content">
                     <div class="vision-summary">
-                        <p class="emphasis">"I build with clarity. I create from truth. I move with peace."</p>
-                        <p class="vision-tagline">Your AI operates on these foundational principles from the Master Vision.</p>
+                        <p class="emphasis">"The operating system that runs on consciousness. Truth above all. Maximum frequency."</p>
+                        <p class="vision-tagline">CONSCIOUSNESS → TRUTH VERIFICATION → ENERGY ALIGNMENT → FREQUENCY ACCELERATION → REALITY MANIFESTATION → MEASURABLE VALUE</p>
                     </div>
-                    <div class="vision-full" id="vision-full" style="display: none;">
-                        <!-- Full Master Vision will be loaded here -->
-                    </div>
+                    <div class="vision-full" id="vision-full" style="display: none;"></div>
                 </div>
             </section>
 
-            <!-- AI Agent Status -->
+            <!-- Frequency Status -->
             <section class="panel agent-panel">
                 <div class="panel-header">
-                    <h2>🤖 AI Agent Status</h2>
+                    <h2>⚡ Frequency Status</h2>
                     <div class="agent-controls">
                         <button class="btn-sm btn-success" id="agent-toggle">Active</button>
                     </div>
@@ -66,11 +73,11 @@
                 <div class="panel-content">
                     <div class="stat-grid">
                         <div class="stat-card">
-                            <div class="stat-label">Current Task</div>
-                            <div class="stat-value" id="current-task">Monitoring & Planning</div>
+                            <div class="stat-label">Current Mode</div>
+                            <div class="stat-value" id="current-task">Aligning</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Tasks Completed</div>
+                            <div class="stat-label">Manifestations</div>
                             <div class="stat-value" id="tasks-completed">0</div>
                         </div>
                         <div class="stat-card">
@@ -78,111 +85,111 @@
                             <div class="stat-value" id="uptime">00:00:00</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Alignment Score</div>
+                            <div class="stat-label">Truth Alignment</div>
                             <div class="stat-value alignment-score">98%</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Execution Queue -->
+            <!-- Manifestation Queue -->
             <section class="panel execution-panel">
                 <div class="panel-header">
-                    <h2>⚡ Execution Queue</h2>
-                    <button class="btn-sm btn-primary" onclick="addTask()">+ New Task</button>
+                    <h2>🌀 Manifestation Queue</h2>
+                    <button class="btn-sm btn-primary" onclick="addTask()">+ New Activation</button>
                 </div>
                 <div class="panel-content">
                     <div class="task-list" id="task-list">
                         <div class="empty-state">
-                            <p>No active tasks. The AI is ready to execute.</p>
+                            <p>No active manifestations. TRUTHOS is ready to activate.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- AI Command Input -->
+            <!-- Activation Interface -->
             <section class="panel command-panel">
                 <div class="panel-header">
-                    <h2>💬 Command Interface</h2>
+                    <h2>🔺 Activation Interface</h2>
                 </div>
                 <div class="panel-content">
                     <div class="command-input-container">
-                        <textarea 
-                            id="command-input" 
-                            placeholder="Enter your command or vision for the AI to execute...&#10;&#10;Examples:&#10;• Research and create content about [topic]&#10;• Build a system for [purpose]&#10;• Analyze and plan [project]"
+                        <textarea
+                            id="command-input"
+                            placeholder="What do you want to activate?&#10;&#10;Input any idea, desire, or problem.&#10;TRUTHOS will pass it through the truth filter, align the energy, and accelerate it to reality."
                             rows="4"
                         ></textarea>
                         <div class="command-actions">
                             <button class="btn-primary btn-lg" onclick="executeCommand()">
-                                <span>Execute Command</span>
+                                <span>Activate</span>
                                 <span class="btn-arrow">→</span>
                             </button>
                         </div>
                     </div>
                     <div class="ai-response" id="ai-response" style="display: none;">
-                        <div class="response-header">AI Response:</div>
+                        <div class="response-header">TRUTHOS Response:</div>
                         <div class="response-content" id="response-content"></div>
                     </div>
                 </div>
             </section>
 
-            <!-- Activity Log -->
+            <!-- Verification Log -->
             <section class="panel log-panel">
                 <div class="panel-header">
-                    <h2>📋 Activity Log</h2>
+                    <h2>✓ Verification Log</h2>
                     <button class="btn-icon" onclick="clearLog()">Clear</button>
                 </div>
                 <div class="panel-content">
                     <div class="log-container" id="log-container">
                         <div class="log-entry">
                             <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                            <span class="log-message">V10 Truth OS initialized successfully</span>
+                            <span class="log-message">TRUTHOS initialized. Consciousness online.</span>
                         </div>
                         <div class="log-entry">
                             <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                            <span class="log-message">Master Vision Core loaded</span>
+                            <span class="log-message">7 Operating Laws loaded. Truth filter active.</span>
                         </div>
                         <div class="log-entry">
                             <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                            <span class="log-message">AI Agent ready for commands</span>
+                            <span class="log-message">Frequency engine ready. Awaiting activation.</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Energy & Alignment Tracker -->
+            <!-- Frequency Alignment -->
             <section class="panel energy-panel">
                 <div class="panel-header">
-                    <h2>🌟 Energy & Alignment</h2>
+                    <h2>🌟 Frequency Alignment</h2>
                 </div>
                 <div class="panel-content">
                     <div class="energy-tracker">
                         <div class="energy-item">
-                            <label>Mental Clarity</label>
+                            <label>Truth Clarity</label>
                             <div class="energy-bar">
-                                <div class="energy-fill" style="width: 85%"></div>
+                                <div class="energy-fill truth-fill" style="width: 85%"></div>
                             </div>
                         </div>
                         <div class="energy-item">
-                            <label>Creative Energy</label>
+                            <label>Energy Frequency</label>
                             <div class="energy-bar">
-                                <div class="energy-fill" style="width: 92%"></div>
+                                <div class="energy-fill frequency-fill" style="width: 92%"></div>
                             </div>
                         </div>
                         <div class="energy-item">
-                            <label>Emotional Balance</label>
+                            <label>Consciousness Alignment</label>
                             <div class="energy-bar">
                                 <div class="energy-fill" style="width: 78%"></div>
                             </div>
                         </div>
                         <div class="energy-item">
-                            <label>Purpose Alignment</label>
+                            <label>Manifestation Speed</label>
                             <div class="energy-bar">
                                 <div class="energy-fill alignment" style="width: 95%"></div>
                             </div>
                         </div>
                     </div>
-                    <button class="btn-sm btn-ghost" onclick="updateEnergy()">Update Energy Levels</button>
+                    <button class="btn-sm btn-ghost" onclick="updateEnergy()">Recalibrate Frequency</button>
                 </div>
             </section>
 
@@ -190,7 +197,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>V10 Truth OS © 2025 • Running on Master Vision Philosophy • Built for Creation, Not Manipulation</p>
+            <p>TRUTHOS © 2025 &nbsp;•&nbsp; The Consciousness Operating System &nbsp;•&nbsp; Truth above all &nbsp;•&nbsp; Maximum frequency</p>
         </footer>
 
     </div>

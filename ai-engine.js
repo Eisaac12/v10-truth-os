@@ -1,248 +1,211 @@
-// AI Engine - V10 Truth OS
-// Autonomous execution engine that operates based on Master Vision
+// TRUTHOS Engine — The Consciousness Operating System
+// Autonomous frequency engine that runs on the 7 Operating Laws
 
-class V10AIEngine {
+class TRUTHOSEngine {
     constructor() {
         this.isActive = true;
-        this.taskQueue = [];
-        this.completedTasks = [];
-        this.currentTask = null;
+        this.activationQueue = [];
+        this.completedActivations = [];
+        this.currentActivation = null;
         this.alignmentScore = 98;
         this.startTime = Date.now();
 
-        // Load Master Vision as core memory
+        // Load TRUTHOS Core as operating memory
         this.coreMemory = MASTER_VISION;
 
-        // Initialize
         this.init();
     }
 
     init() {
-        console.log('🔮 V10 Truth OS AI Engine initializing...');
-        console.log('📖 Master Vision loaded as core memory');
-        console.log('✅ AI Engine ready');
+        console.log('⊕ TRUTHOS Engine initializing...');
+        console.log('📡 7 Operating Laws loaded as core memory');
+        console.log('✅ Frequency engine ready');
 
-        // Start autonomous thinking loop
-        this.startThinkingLoop();
+        this.startFrequencyLoop();
     }
 
-    // Autonomous thinking loop - runs continuously
-    startThinkingLoop() {
+    // Continuous frequency loop
+    startFrequencyLoop() {
         setInterval(() => {
             if (this.isActive) {
-                this.think();
+                this.process();
             }
-        }, 5000); // Think every 5 seconds
+        }, 5000);
     }
 
-    // Core thinking function
-    think() {
-        // Check task queue
-        if (this.taskQueue.length > 0 && !this.currentTask) {
-            this.executeNextTask();
+    process() {
+        if (this.activationQueue.length > 0 && !this.currentActivation) {
+            this.executeNextActivation();
         }
-
-        // Background processing
-        this.processBackgroundThoughts();
+        this.processBackgroundFrequency();
     }
 
-    // Execute commands from user
-    executeCommand(command) {
-        console.log('🎯 Executing command:', command);
+    // Process an activation from the interface
+    executeCommand(input) {
+        console.log('🔺 Processing activation:', input);
 
-        // Evaluate command against Master Vision
-        const evaluation = this.evaluateAgainstVision(command);
+        const evaluation = this.runTruthFilter(input);
 
         if (evaluation.aligned) {
-            const task = this.createTask(command);
-            this.addTask(task);
+            const activation = this.createActivation(input);
+            this.addActivation(activation);
             return {
                 success: true,
-                message: `Command accepted. Alignment score: ${evaluation.score}%`,
-                task: task,
+                message: `Activation accepted. Truth alignment: ${evaluation.score}%`,
+                task: activation,
                 reasoning: evaluation.reasoning
             };
         } else {
             return {
                 success: false,
-                message: "Command not aligned with Master Vision",
+                message: "Activation blocked by truth filter",
                 reasoning: evaluation.reasoning
             };
         }
     }
 
-    // Evaluate if a command aligns with Master Vision
-    evaluateAgainstVision(command) {
-        // Check for key alignment indicators
-        const alignmentIndicators = {
-            creation: /build|create|make|develop|design|generate/i.test(command),
-            learning: /learn|research|study|analyze|understand/i.test(command),
-            growth: /grow|improve|evolve|upgrade|enhance/i.test(command),
-            clarity: /plan|organize|structure|clarify|focus/i.test(command),
-            help: /help|assist|support|serve|solve/i.test(command)
+    // Truth filter — Law 1 + Law 4: truth is base layer, alignment = acceleration
+    runTruthFilter(input) {
+        const aligned = {
+            creation: /build|create|make|develop|design|generate|activate|manifest/i.test(input),
+            learning:  /learn|research|study|analyze|understand|explore/i.test(input),
+            growth:    /grow|improve|evolve|upgrade|enhance|scale/i.test(input),
+            clarity:   /plan|organize|structure|clarify|focus|align/i.test(input),
+            service:   /help|assist|support|serve|solve|contribute/i.test(input)
         };
 
-        const destructionIndicators = {
-            manipulation: /manipulate|deceive|trick|exploit/i.test(command),
-            harm: /harm|damage|destroy|break|attack/i.test(command),
-            negativity: /hate|revenge|jealous|angry/i.test(command)
+        const blocked = {
+            deception:    /manipulate|deceive|trick|exploit|lie/i.test(input),
+            destruction:  /harm|damage|destroy|break|attack/i.test(input),
+            lowFrequency: /hate|revenge|jealous|drag|drain/i.test(input)
         };
 
-        const positiveCount = Object.values(alignmentIndicators).filter(v => v).length;
-        const negativeCount = Object.values(destructionIndicators).filter(v => v).length;
+        const positiveCount = Object.values(aligned).filter(Boolean).length;
+        const negativeCount = Object.values(blocked).filter(Boolean).length;
 
         const score = negativeCount > 0 ? 0 : Math.min(100, 70 + (positiveCount * 10));
-        const aligned = score >= 60;
+        const isAligned = score >= 60;
 
         let reasoning = '';
-        if (aligned) {
-            reasoning = `This command shows: ${Object.keys(alignmentIndicators).filter(k => alignmentIndicators[k]).join(', ')}. Aligned with Master Vision principles.`;
+        if (isAligned) {
+            const signals = Object.keys(aligned).filter(k => aligned[k]);
+            reasoning = signals.length
+                ? `Truth filter passed. Signals detected: ${signals.join(', ')}. Aligned with the 7 Operating Laws.`
+                : 'Truth filter passed. Proceeding at maximum frequency.';
         } else {
-            reasoning = 'This command does not align with the Master Vision principles of creation, truth, and peace.';
+            reasoning = 'Truth filter blocked this activation. It does not align with Law 1 (Truth is the Base Layer). Ensure your input is rooted in creation, clarity, and aligned intent.';
         }
 
-        return { aligned, score, reasoning };
+        return { aligned: isAligned, score, reasoning };
     }
 
-    // Create a task from a command
-    createTask(command) {
+    // Create an activation from verified input
+    createActivation(input) {
         return {
-            id: this.generateTaskId(),
-            command: command,
+            id: this.generateId(),
+            command: input,
             status: 'pending',
             createdAt: new Date(),
-            steps: this.breakDownIntoSteps(command),
+            steps: this.buildExecutionSteps(input),
             currentStep: 0
         };
     }
 
-    // Break down command into executable steps
-    breakDownIntoSteps(command) {
-        // AI planning logic
-        const steps = [
-            { action: 'analyze', description: `Analyze the command: "${command}"` },
-            { action: 'plan', description: 'Create execution plan aligned with Master Vision' },
-            { action: 'execute', description: 'Execute the plan step by step' },
-            { action: 'verify', description: 'Verify results against goals' },
-            { action: 'learn', description: 'Learn and store insights for future tasks' }
+    // TRUTHOS execution steps: truth filter → align → accelerate → execute → verify → manifest
+    buildExecutionSteps(input) {
+        return [
+            { action: 'truth-filter',  description: `Run truth filter: "${input.substring(0, 60)}"` },
+            { action: 'align',         description: 'Align energy to intention. Remove friction.' },
+            { action: 'accelerate',    description: 'Raise frequency. Move at maximum speed.' },
+            { action: 'execute',       description: 'Execute the aligned action.' },
+            { action: 'verify-3d',     description: 'Verify output in 3D reality. Check truth continuously.' },
+            { action: 'manifest',      description: 'Measure value generated. Log to reality.' }
         ];
-
-        return steps;
     }
 
-    // Add task to queue
-    addTask(task) {
-        this.taskQueue.push(task);
-        this.logActivity(`New task added: ${task.command.substring(0, 50)}...`);
-
-        // Update UI
+    addActivation(activation) {
+        this.activationQueue.push(activation);
+        this.logActivity(`New activation queued: ${activation.command.substring(0, 50)}...`);
         this.updateTaskList();
     }
 
-    // Execute next task in queue
-    executeNextTask() {
-        if (this.taskQueue.length === 0) return;
+    executeNextActivation() {
+        if (this.activationQueue.length === 0) return;
 
-        this.currentTask = this.taskQueue.shift();
-        this.currentTask.status = 'running';
+        this.currentActivation = this.activationQueue.shift();
+        this.currentActivation.status = 'running';
 
-        this.logActivity(`Executing: ${this.currentTask.command}`);
+        this.logActivity(`Activating: ${this.currentActivation.command}`);
         this.updateCurrentTaskDisplay();
-
-        // Simulate task execution with steps
-        this.processTaskSteps(this.currentTask);
+        this.processSteps(this.currentActivation);
     }
 
-    // Process task steps
-    processTaskSteps(task) {
-        const totalSteps = task.steps.length;
-        let stepIndex = 0;
+    processSteps(activation) {
+        const total = activation.steps.length;
+        let index = 0;
 
-        const stepInterval = setInterval(() => {
-            if (stepIndex < totalSteps) {
-                const step = task.steps[stepIndex];
-                this.logActivity(`Step ${stepIndex + 1}/${totalSteps}: ${step.description}`);
-                stepIndex++;
-                task.currentStep = stepIndex;
+        const interval = setInterval(() => {
+            if (index < total) {
+                const step = activation.steps[index];
+                this.logActivity(`Step ${index + 1}/${total}: ${step.description}`);
+                index++;
+                activation.currentStep = index;
             } else {
-                // Task completed
-                clearInterval(stepInterval);
-                this.completeTask(task);
+                clearInterval(interval);
+                this.completeActivation(activation);
             }
-        }, 2000); // Each step takes 2 seconds
+        }, 2000);
     }
 
-    // Complete a task
-    completeTask(task) {
-        task.status = 'completed';
-        task.completedAt = new Date();
-        this.completedTasks.push(task);
-        this.currentTask = null;
+    completeActivation(activation) {
+        activation.status = 'completed';
+        activation.completedAt = new Date();
+        this.completedActivations.push(activation);
+        this.currentActivation = null;
 
-        this.logActivity(`✅ Task completed: ${task.command.substring(0, 50)}...`);
-
-        // Update stats
+        this.logActivity(`✅ Manifested: ${activation.command.substring(0, 50)}...`);
         this.updateStats();
         this.updateTaskList();
         this.updateCurrentTaskDisplay();
     }
 
-    // Background processing
-    processBackgroundThoughts() {
-        // Simulate AI thinking in the background
-        // This is where autonomous actions would happen
-
-        // For now, just maintain awareness
-        const uptime = this.getUptime();
-        // Could add: pattern recognition, idea generation, optimization suggestions
+    processBackgroundFrequency() {
+        // Maintain awareness — background frequency monitoring
     }
 
-    // Generate unique task ID
-    generateTaskId() {
-        return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    generateId() {
+        return `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
-    // Get system uptime
     getUptime() {
         const elapsed = Date.now() - this.startTime;
-        const hours = Math.floor(elapsed / 3600000);
-        const minutes = Math.floor((elapsed % 3600000) / 60000);
-        const seconds = Math.floor((elapsed % 60000) / 1000);
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        const h = Math.floor(elapsed / 3600000);
+        const m = Math.floor((elapsed % 3600000) / 60000);
+        const s = Math.floor((elapsed % 60000) / 1000);
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
-    // Logging
     logActivity(message) {
-        const logEntry = {
-            timestamp: new Date(),
-            message: message
-        };
-
-        // Add to activity log in UI
         if (typeof addLogEntry === 'function') {
             addLogEntry(message);
         }
-
-        console.log(`[V10 AI] ${message}`);
+        console.log(`[TRUTHOS] ${message}`);
     }
 
-    // Update UI displays
     updateStats() {
         const uptimeEl = document.getElementById('uptime');
         const completedEl = document.getElementById('tasks-completed');
 
         if (uptimeEl) uptimeEl.textContent = this.getUptime();
-        if (completedEl) completedEl.textContent = this.completedTasks.length;
+        if (completedEl) completedEl.textContent = this.completedActivations.length;
     }
 
     updateCurrentTaskDisplay() {
-        const taskEl = document.getElementById('current-task');
-        if (taskEl) {
-            if (this.currentTask) {
-                taskEl.textContent = this.currentTask.command.substring(0, 40) + '...';
-            } else {
-                taskEl.textContent = 'Monitoring & Planning';
-            }
+        const el = document.getElementById('current-task');
+        if (el) {
+            el.textContent = this.currentActivation
+                ? this.currentActivation.command.substring(0, 40) + '...'
+                : 'Aligning';
         }
     }
 
@@ -250,58 +213,53 @@ class V10AIEngine {
         const taskListEl = document.getElementById('task-list');
         if (!taskListEl) return;
 
-        const allTasks = [...this.taskQueue, ...this.completedTasks];
+        const all = [...this.activationQueue, ...this.completedActivations];
+        if (this.currentActivation) all.unshift(this.currentActivation);
 
-        if (this.currentTask) {
-            allTasks.unshift(this.currentTask);
-        }
-
-        if (allTasks.length === 0) {
-            taskListEl.innerHTML = '<div class="empty-state"><p>No active tasks. The AI is ready to execute.</p></div>';
+        if (all.length === 0) {
+            taskListEl.innerHTML = '<div class="empty-state"><p>No active manifestations. TRUTHOS is ready to activate.</p></div>';
             return;
         }
 
-        taskListEl.innerHTML = allTasks.map(task => `
+        taskListEl.innerHTML = all.map(act => `
             <div class="task-item">
                 <div class="task-info">
-                    <h4>${task.command.substring(0, 60)}${task.command.length > 60 ? '...' : ''}</h4>
+                    <h4>${act.command.substring(0, 60)}${act.command.length > 60 ? '...' : ''}</h4>
                     <div class="task-meta">
-                        Created: ${task.createdAt.toLocaleTimeString()}
-                        ${task.currentStep ? ` • Step ${task.currentStep}/${task.steps.length}` : ''}
+                        Activated: ${act.createdAt.toLocaleTimeString()}
+                        ${act.currentStep ? ` &nbsp;•&nbsp; Step ${act.currentStep}/${act.steps.length}` : ''}
                     </div>
                 </div>
-                <div class="task-status ${task.status}">${task.status.toUpperCase()}</div>
+                <div class="task-status ${act.status}">${act.status.toUpperCase()}</div>
             </div>
         `).join('');
     }
 
-    // Toggle AI on/off
     toggle() {
         this.isActive = !this.isActive;
-        const statusText = this.isActive ? 'Active' : 'Paused';
+        const label = this.isActive ? 'Active' : 'Paused';
+        const btn = document.getElementById('agent-toggle');
 
-        document.getElementById('agent-toggle').textContent = statusText;
-        document.getElementById('agent-toggle').className = this.isActive ? 'btn-sm btn-success' : 'btn-sm btn-ghost';
+        if (btn) {
+            btn.textContent = label;
+            btn.className = this.isActive ? 'btn-sm btn-success' : 'btn-sm btn-ghost';
+        }
 
-        this.logActivity(`AI Engine ${statusText.toLowerCase()}`);
+        this.logActivity(`TRUTHOS frequency engine ${label.toLowerCase()}`);
     }
 }
 
-// Initialize global AI engine
+// Initialize global engine
 let aiEngine;
 
-// Wait for DOM to load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        aiEngine = new V10AIEngine();
+        aiEngine = new TRUTHOSEngine();
     });
 } else {
-    aiEngine = new V10AIEngine();
+    aiEngine = new TRUTHOSEngine();
 }
 
-// Update uptime every second
 setInterval(() => {
-    if (aiEngine) {
-        aiEngine.updateStats();
-    }
+    if (aiEngine) aiEngine.updateStats();
 }, 1000);
