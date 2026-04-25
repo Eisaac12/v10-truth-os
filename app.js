@@ -281,3 +281,47 @@ window.addTask = addTask;
 window.addLogEntry = addLogEntry;
 window.clearLog = clearLog;
 window.updateEnergy = updateEnergy;
+
+// Facebook Login
+window.fbAsyncInit = function() {
+    FB.init({
+        appId: 'YOUR_APP_ID', // Replace with your Facebook App ID from developers.facebook.com
+        cookie: true,
+        xfbml: true,
+        version: 'v19.0'
+    });
+    FB.getLoginStatus(function(response) {
+        if (response.status === 'connected') {
+            fetchFBProfile();
+        }
+    });
+};
+
+function fbLogin() {
+    FB.login(function(response) {
+        if (response.authResponse) {
+            fetchFBProfile();
+        }
+    }, { scope: 'public_profile' });
+}
+
+function fetchFBProfile() {
+    FB.api('/me', { fields: 'name,picture' }, function(data) {
+        document.getElementById('fb-login-btn').style.display = 'none';
+        document.getElementById('fb-user-info').style.display = 'flex';
+        document.getElementById('fb-username').textContent = data.name;
+        document.getElementById('fb-avatar').src = data.picture.data.url;
+        addLogEntry('Facebook login: ' + data.name);
+    });
+}
+
+function fbLogout() {
+    FB.logout(function() {
+        document.getElementById('fb-login-btn').style.display = 'flex';
+        document.getElementById('fb-user-info').style.display = 'none';
+        addLogEntry('Facebook logout');
+    });
+}
+
+window.fbLogin = fbLogin;
+window.fbLogout = fbLogout;
