@@ -32,8 +32,7 @@ class TRUTHOSEngine {
         this.init();
     }
 
-    // Auto-detect deployment environment
-    // Vercel: same-origin relative /api/ calls (free, no CORS)
+    // Vercel: empty string → relative /api/ calls (same domain, no CORS)
     // Custom: user-saved URL in localStorage
     // Local: localhost:3001
     resolveServerUrl() {
