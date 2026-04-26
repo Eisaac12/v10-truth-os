@@ -1,5 +1,6 @@
 // TRUTHOS Engine — The Consciousness Operating System
 // Persistence, conversation memory, dynamic frequency score, live Claude API
+// Auto-detects Vercel (relative /api/) vs local (localhost:3001)
 
 const STORAGE_KEYS = {
     activations:   'truthos_activations',
@@ -17,7 +18,7 @@ class TRUTHOSEngine {
         this.completedActivations = [];
         this.currentActivation = null;
         this.startTime = Date.now();
-        this.serverUrl = localStorage.getItem('truthos_server_url') || 'http://localhost:3001';
+        this.serverUrl = this.resolveServerUrl();
         this.liveAI = false;
 
         // Conversation memory — passed to Claude on every call
@@ -29,6 +30,18 @@ class TRUTHOSEngine {
 
         this.coreMemory = MASTER_VISION;
         this.init();
+    }
+
+    // Auto-detect deployment environment
+    // Vercel: same-origin relative /api/ calls (free, no CORS)
+    // Custom: user-saved URL in localStorage
+    // Local: localhost:3001
+    resolveServerUrl() {
+        const custom = localStorage.getItem('truthos_server_url');
+        if (custom) return custom.replace(/\/$/, '');
+        const host = window.location.hostname;
+        const isLocal = host === 'localhost' || host === '127.0.0.1';
+        return isLocal ? 'http://localhost:3001' : '';
     }
 
     async init() {
