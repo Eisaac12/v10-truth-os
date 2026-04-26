@@ -1,56 +1,62 @@
-// App.js - V10 Truth OS
+// TRUTHOS — The Consciousness Operating System
 // Main application logic and UI interactions
 
-// Global state
 let visionExpanded = false;
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔮 V10 Truth OS Loading...');
+    console.log('⊕ TRUTHOS Loading...');
 
-    // Load full Master Vision
-    loadFullVision();
-
-    // Set up event listeners
+    loadCoreContent();
     setupEventListeners();
-
-    // Initialize displays
     updateDateTime();
     setInterval(updateDateTime, 1000);
 
-    console.log('✅ V10 Truth OS Ready');
+    console.log('✅ TRUTHOS Active');
 });
 
-// Load full Master Vision content
-function loadFullVision() {
+// Load TRUTHOS Core content into the expandable panel
+function loadCoreContent() {
     const visionFullEl = document.getElementById('vision-full');
     if (!visionFullEl) return;
 
     let html = `<h3>The Master Statement</h3>`;
     html += `<p style="font-style: italic; line-height: 1.8;">${MASTER_VISION.masterStatement.replace(/\n/g, '<br>')}</p>`;
 
-    html += `<h3 style="margin-top: 2rem;">The 10 Core Principles</h3>`;
+    html += `<h3 style="margin-top: 2rem;">The One Equation</h3>`;
+    html += `<div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">`;
+    MASTER_VISION.equation.forEach((step, i) => {
+        const isLast = i === MASTER_VISION.equation.length - 1;
+        html += `
+            <div style="padding: 0.75rem 1rem; background: var(--bg-tertiary); border-radius: var(--radius-sm); border-left: 3px solid ${isLast ? 'var(--truth)' : 'var(--primary)'};">
+                <span style="color: ${isLast ? 'var(--truth)' : 'var(--primary-light)'}; font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">${step.node}</span>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem; margin-bottom: 0;">${step.description}</p>
+            </div>
+            ${!isLast ? '<div style="text-align: center; color: var(--primary-light); opacity: 0.5; font-size: 1.2rem;">↓</div>' : ''}
+        `;
+    });
+    html += `</div>`;
 
-    MASTER_VISION.principles.forEach((principle, index) => {
+    html += `<h3 style="margin-top: 2rem;">The 7 Operating Laws</h3>`;
+    MASTER_VISION.principles.forEach((law) => {
         html += `
             <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary);">
-                <h4 style="color: var(--primary-light); margin-bottom: 0.5rem;">${index + 1}. ${principle.title}</h4>
-                <p style="color: var(--text-secondary); line-height: 1.8; white-space: pre-line;">${principle.content}</p>
+                <h4 style="color: var(--primary-light); margin-bottom: 0.5rem;">Law ${law.id}: ${law.title}</h4>
+                <p style="color: var(--text-secondary); line-height: 1.8; white-space: pre-line; margin: 0;">${law.content}</p>
             </div>
         `;
     });
 
-    html += `<h3 style="margin-top: 2rem;">Energy Protection Guidelines</h3>`;
-    html += `<ul style="color: var(--text-secondary); line-height: 2;">`;
-    MASTER_VISION.energyProtection.forEach(guideline => {
-        html += `<li>${guideline}</li>`;
+    html += `<h3 style="margin-top: 2rem;">Frequency Protection</h3>`;
+    html += `<ul style="color: var(--text-secondary); line-height: 2; padding-left: 1.5rem;">`;
+    MASTER_VISION.energyProtection.forEach(g => {
+        html += `<li>${g}</li>`;
     });
     html += `</ul>`;
 
     visionFullEl.innerHTML = html;
 }
 
-// Toggle Vision Panel Expansion
+// Toggle TRUTHOS Core expansion
 function toggleVisionExpand() {
     visionExpanded = !visionExpanded;
     const visionFullEl = document.getElementById('vision-full');
@@ -65,28 +71,23 @@ function toggleVisionExpand() {
     }
 }
 
-// Execute Command
+// Process an activation
 function executeCommand() {
     const commandInput = document.getElementById('command-input');
-    const command = commandInput.value.trim();
+    const input = commandInput.value.trim();
 
-    if (!command) {
-        alert('Please enter a command');
+    if (!input) {
+        alert('Enter an activation — an idea, desire, or problem to run through TRUTHOS.');
         return;
     }
 
-    // Send to AI Engine
-    const result = aiEngine.executeCommand(command);
-
-    // Show response
-    displayAIResponse(result);
-
-    // Clear input
+    const result = aiEngine.executeCommand(input);
+    displayResponse(result);
     commandInput.value = '';
 }
 
-// Display AI Response
-function displayAIResponse(result) {
+// Display TRUTHOS response
+function displayResponse(result) {
     const responseEl = document.getElementById('ai-response');
     const responseContent = document.getElementById('response-content');
 
@@ -97,31 +98,23 @@ function displayAIResponse(result) {
     if (result.success) {
         html = `
             <div style="color: var(--success); font-weight: 600; margin-bottom: 0.5rem;">
-                ✅ Command Accepted
+                ✅ Truth filter passed — activation accepted
             </div>
-            <div style="margin-bottom: 0.5rem;">
-                ${result.message}
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;">
-                ${result.reasoning}
-            </div>
+            <div style="margin-bottom: 0.5rem;">${result.message}</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">${result.reasoning}</div>
             <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-sm);">
-                <strong>Task Created:</strong> ${result.task.command}
+                <strong>Manifesting:</strong> ${result.task.command}
             </div>
         `;
     } else {
         html = `
             <div style="color: var(--danger); font-weight: 600; margin-bottom: 0.5rem;">
-                ⚠️ Command Rejected
+                ⚠️ Truth filter blocked — activation rejected
             </div>
-            <div style="margin-bottom: 0.5rem;">
-                ${result.message}
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;">
-                ${result.reasoning}
-            </div>
+            <div style="margin-bottom: 0.5rem;">${result.message}</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">${result.reasoning}</div>
             <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
-                <strong>Suggestion:</strong> Ensure your command aligns with the Master Vision principles of creation, truth, peace, and growth.
+                <strong>TRUTHOS Law 1:</strong> Everything runs on truth. Ensure your activation is rooted in creation, clarity, and aligned intent.
             </div>
         `;
     }
@@ -129,7 +122,6 @@ function displayAIResponse(result) {
     responseContent.innerHTML = html;
     responseEl.style.display = 'block';
 
-    // Auto-hide after 10 seconds for success, keep visible for failures
     if (result.success) {
         setTimeout(() => {
             responseEl.style.display = 'none';
@@ -137,144 +129,124 @@ function displayAIResponse(result) {
     }
 }
 
-// Add Task (Manual)
+// Manual activation via prompt
 function addTask() {
-    const taskName = prompt('Enter task name:');
-    if (taskName) {
-        aiEngine.executeCommand(taskName);
+    const input = prompt('Enter activation — idea, desire, or problem:');
+    if (input) {
+        aiEngine.executeCommand(input);
     }
 }
 
-// Add Log Entry
+// Add entry to verification log
 function addLogEntry(message) {
     const logContainer = document.getElementById('log-container');
     if (!logContainer) return;
 
-    const logEntry = document.createElement('div');
-    logEntry.className = 'log-entry';
-    logEntry.innerHTML = `
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `
         <span class="log-time">${new Date().toLocaleTimeString()}</span>
         <span class="log-message">${message}</span>
     `;
 
-    logContainer.insertBefore(logEntry, logContainer.firstChild);
+    logContainer.insertBefore(entry, logContainer.firstChild);
 
-    // Keep only last 50 entries
     while (logContainer.children.length > 50) {
         logContainer.removeChild(logContainer.lastChild);
     }
 }
 
-// Clear Log
+// Clear verification log
 function clearLog() {
     const logContainer = document.getElementById('log-container');
     if (logContainer) {
         logContainer.innerHTML = '';
-        addLogEntry('Activity log cleared');
+        addLogEntry('Verification log cleared');
     }
 }
 
-// Update Energy Levels
+// Recalibrate frequency alignment
 function updateEnergy() {
     const questions = [
-        'Mental Clarity (0-100): How clear is your thinking right now?',
-        'Creative Energy (0-100): How creative and inspired do you feel?',
-        'Emotional Balance (0-100): How balanced and stable are your emotions?',
-        'Purpose Alignment (0-100): How aligned do you feel with your purpose?'
+        'Truth Clarity (0-100): How clear is your truth right now?',
+        'Energy Frequency (0-100): How high is your operating frequency?',
+        'Consciousness Alignment (0-100): How aligned is your consciousness?',
+        'Manifestation Speed (0-100): How fast are you moving toward reality?'
     ];
 
-    const energyBars = document.querySelectorAll('.energy-fill');
+    const bars = document.querySelectorAll('.energy-fill');
 
-    questions.forEach((question, index) => {
-        const value = prompt(question);
-        if (value !== null && !isNaN(value)) {
-            const percentage = Math.max(0, Math.min(100, parseInt(value)));
-            if (energyBars[index]) {
-                energyBars[index].style.width = percentage + '%';
-            }
+    questions.forEach((q, i) => {
+        const val = prompt(q);
+        if (val !== null && !isNaN(val)) {
+            const pct = Math.max(0, Math.min(100, parseInt(val)));
+            if (bars[i]) bars[i].style.width = pct + '%';
         }
     });
 
-    addLogEntry('Energy levels updated');
+    addLogEntry('Frequency alignment recalibrated');
 }
 
-// Update Date/Time
 function updateDateTime() {
-    // Could add a date/time display if needed
+    // Reserved for clock display if added
 }
 
-// Setup Event Listeners
 function setupEventListeners() {
-    // Agent toggle
     const agentToggle = document.getElementById('agent-toggle');
     if (agentToggle) {
-        agentToggle.addEventListener('click', () => {
-            aiEngine.toggle();
-        });
+        agentToggle.addEventListener('click', () => aiEngine.toggle());
     }
 
-    // Command input - Enter key
     const commandInput = document.getElementById('command-input');
     if (commandInput) {
         commandInput.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                executeCommand();
-            }
+            if (e.ctrlKey && e.key === 'Enter') executeCommand();
         });
     }
 }
 
-// Keyboard Shortcuts
+// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    // Ctrl + K = Focus command input
     if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         document.getElementById('command-input')?.focus();
     }
-
-    // Ctrl + L = Clear log
     if (e.ctrlKey && e.key === 'l') {
         e.preventDefault();
         clearLog();
     }
-
-    // Ctrl + E = Update energy
     if (e.ctrlKey && e.key === 'e') {
         e.preventDefault();
         updateEnergy();
     }
 });
 
-// Prebuilt command suggestions
-const COMMAND_SUGGESTIONS = [
-    "Research and summarize the latest developments in AI automation",
-    "Create a content calendar for the next 30 days",
-    "Analyze my current projects and suggest priorities",
-    "Build a system for tracking daily habits and alignment",
-    "Generate ideas for a new creative project",
-    "Plan the next steps for building my business platform",
-    "Research tools for automating content creation",
-    "Create a learning roadmap for advanced JavaScript",
-    "Analyze market trends in personal development technology",
-    "Design a workflow for daily creative practice"
+// Activation suggestions — TRUTHOS domains
+const ACTIVATION_SUGGESTIONS = [
+    "Activate a system for converting this idea into a revenue stream",
+    "Run truth filter on my current business strategy",
+    "Align energy around my most important creative project",
+    "Accelerate frequency: build a content system that runs without me",
+    "Manifest a daily operating ritual at maximum alignment",
+    "Verify 3D reality: what is actually true about my situation?",
+    "Activate leadership frequency: what would I do if I operated at 100% truth?",
+    "Build a system that scales my impact while I focus on creation",
+    "Align relationships to truth: who deserves my energy?",
+    "Accelerate: what is the single highest-frequency action I can take today?"
 ];
 
-// Show command suggestion
-function showCommandSuggestion() {
-    const suggestion = COMMAND_SUGGESTIONS[Math.floor(Math.random() * COMMAND_SUGGESTIONS.length)];
-    const commandInput = document.getElementById('command-input');
-    if (commandInput && !commandInput.value) {
-        commandInput.placeholder = `Example: ${suggestion}`;
+function rotateSuggestion() {
+    const suggestion = ACTIVATION_SUGGESTIONS[Math.floor(Math.random() * ACTIVATION_SUGGESTIONS.length)];
+    const input = document.getElementById('command-input');
+    if (input && !input.value) {
+        input.placeholder = `Example: ${suggestion}`;
     }
 }
 
-// Rotate suggestions every 10 seconds
-setInterval(showCommandSuggestion, 10000);
+setInterval(rotateSuggestion, 10000);
+setTimeout(rotateSuggestion, 2000);
 
-// Initial suggestion
-setTimeout(showCommandSuggestion, 2000);
-
-// Export functions for global access
+// Expose globals
 window.toggleVisionExpand = toggleVisionExpand;
 window.executeCommand = executeCommand;
 window.addTask = addTask;

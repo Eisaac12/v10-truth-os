@@ -1,5 +1,5 @@
-/* V10 Truth OS - Stylesheet */
-/* Premium, powerful, futuristic design */
+/* TRUTHOS - The Consciousness Operating System */
+/* Premium dark cosmic design */
 
 :root {
     /* Color Palette - Deep cosmic theme */
@@ -11,6 +11,11 @@
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
+    /* TRUTHOS brand accents */
+    --truth: #f59e0b;
+    --truth-glow: rgba(245, 158, 11, 0.35);
+    --frequency: #f97316;
+    --frequency-glow: rgba(249, 115, 22, 0.3);
     
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
@@ -148,7 +153,7 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 2rem;
     box-shadow: var(--glow-primary);
     animation: logoFloat 3s ease-in-out infinite;
 }
@@ -244,8 +249,37 @@ body {
     color: var(--text-secondary);
 }
 
-/* Vision Panel */
-.vision-panel {
+/* Equation Flow — header */
+.equation-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.eq-node {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+}
+
+.eq-arrow {
+    color: var(--primary-light);
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+.eq-highlight {
+    color: var(--truth);
+    text-shadow: 0 0 8px var(--truth-glow);
+}
+
+/* TRUTHOS Core Panel (full-width) */
+.core-panel {
     grid-column: 1 / -1;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
     border-color: var(--primary);
@@ -528,6 +562,14 @@ body {
     background: linear-gradient(90deg, var(--success), var(--accent));
 }
 
+.energy-fill.truth-fill {
+    background: linear-gradient(90deg, var(--truth), #fbbf24);
+}
+
+.energy-fill.frequency-fill {
+    background: linear-gradient(90deg, var(--frequency), #fb923c);
+}
+
 @keyframes shimmer {
     0% { left: -100%; }
     100% { left: 100%; }
@@ -652,16 +694,20 @@ body {
     .dashboard {
         grid-template-columns: 1fr;
     }
-    
+
     .header {
         flex-direction: column;
         gap: var(--spacing-md);
     }
-    
+
+    .equation-flow {
+        display: none;
+    }
+
     .stat-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .logo-text h1 {
         font-size: 1.5rem;
     }
