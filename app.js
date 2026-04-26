@@ -37,7 +37,7 @@ function setServerUrl() {
         addLogEntry(`Server URL set: ${url}`);
     }
     if (aiEngine) {
-        aiEngine.serverUrl = url || 'http://localhost:3001';
+        aiEngine.serverUrl = url || aiEngine.resolveServerUrl();
         aiEngine.checkLiveAI();
     }
 }
