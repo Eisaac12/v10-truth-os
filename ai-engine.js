@@ -1,5 +1,5 @@
 // TRUTHOS Engine — The Consciousness Operating System
-// Autonomous frequency engine that runs on the 7 Operating Laws
+// Calls live Claude API via server.js when available, falls back to local truth filter
 
 class TRUTHOSEngine {
     constructor() {
@@ -9,27 +9,46 @@ class TRUTHOSEngine {
         this.currentActivation = null;
         this.alignmentScore = 98;
         this.startTime = Date.now();
+        this.serverUrl = 'http://localhost:3001';
+        this.liveAI = false;
 
-        // Load TRUTHOS Core as operating memory
         this.coreMemory = MASTER_VISION;
-
         this.init();
     }
 
-    init() {
+    async init() {
         console.log('⊕ TRUTHOS Engine initializing...');
-        console.log('📡 7 Operating Laws loaded as core memory');
-        console.log('✅ Frequency engine ready');
-
+        await this.checkLiveAI();
         this.startFrequencyLoop();
+        console.log(`✅ TRUTHOS ready — AI: ${this.liveAI ? 'LIVE (Claude)' : 'LOCAL (truth filter)'}`);
     }
 
-    // Continuous frequency loop
+    // Check if the Claude API server is running
+    async checkLiveAI() {
+        try {
+            const res = await fetch(`${this.serverUrl}/api/health`, { signal: AbortSignal.timeout(2000) });
+            if (res.ok) {
+                const data = await res.json();
+                this.liveAI = data.ai === 'connected';
+                this.updateAIStatusBadge();
+            }
+        } catch {
+            this.liveAI = false;
+            this.updateAIStatusBadge();
+        }
+    }
+
+    updateAIStatusBadge() {
+        const statusEl = document.getElementById('system-status');
+        if (statusEl) {
+            statusEl.textContent = this.liveAI ? 'Claude AI Active' : 'Local Mode';
+            statusEl.style.color = this.liveAI ? 'var(--truth)' : '';
+        }
+    }
+
     startFrequencyLoop() {
         setInterval(() => {
-            if (this.isActive) {
-                this.process();
-            }
+            if (this.isActive) this.process();
         }, 5000);
     }
 
@@ -37,13 +56,53 @@ class TRUTHOSEngine {
         if (this.activationQueue.length > 0 && !this.currentActivation) {
             this.executeNextActivation();
         }
-        this.processBackgroundFrequency();
     }
 
-    // Process an activation from the interface
-    executeCommand(input) {
+    // Main entry point — called from app.js
+    async executeCommand(input) {
         console.log('🔺 Processing activation:', input);
 
+        if (this.liveAI) {
+            return await this.activateWithClaude(input);
+        } else {
+            return this.activateLocally(input);
+        }
+    }
+
+    // Live path: call Claude via server.js
+    async activateWithClaude(input) {
+        try {
+            const res = await fetch(`${this.serverUrl}/api/activate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ input })
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+            const data = await res.json();
+
+            if (data.success) {
+                const activation = this.createActivation(input);
+                this.addActivation(activation);
+                return {
+                    success: true,
+                    message: 'Activation accepted by Claude. Running through The One Equation.',
+                    task: activation,
+                    reasoning: data.response,
+                    liveAI: true
+                };
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            this.logActivity(`Live AI error: ${err.message} — falling back to local`);
+            return this.activateLocally(input);
+        }
+    }
+
+    // Local fallback: pattern-based truth filter
+    activateLocally(input) {
         const evaluation = this.runTruthFilter(input);
 
         if (evaluation.aligned) {
@@ -53,21 +112,23 @@ class TRUTHOSEngine {
                 success: true,
                 message: `Activation accepted. Truth alignment: ${evaluation.score}%`,
                 task: activation,
-                reasoning: evaluation.reasoning
+                reasoning: evaluation.reasoning,
+                liveAI: false
             };
         } else {
             return {
                 success: false,
-                message: "Activation blocked by truth filter",
-                reasoning: evaluation.reasoning
+                message: 'Activation blocked by truth filter',
+                reasoning: evaluation.reasoning,
+                liveAI: false
             };
         }
     }
 
-    // Truth filter — Law 1 + Law 4: truth is base layer, alignment = acceleration
+    // Local truth filter (Law 1: Truth is the base layer)
     runTruthFilter(input) {
         const aligned = {
-            creation: /build|create|make|develop|design|generate|activate|manifest/i.test(input),
+            creation:  /build|create|make|develop|design|generate|activate|manifest/i.test(input),
             learning:  /learn|research|study|analyze|understand|explore/i.test(input),
             growth:    /grow|improve|evolve|upgrade|enhance|scale/i.test(input),
             clarity:   /plan|organize|structure|clarify|focus|align/i.test(input),
@@ -90,19 +151,18 @@ class TRUTHOSEngine {
         if (isAligned) {
             const signals = Object.keys(aligned).filter(k => aligned[k]);
             reasoning = signals.length
-                ? `Truth filter passed. Signals detected: ${signals.join(', ')}. Aligned with the 7 Operating Laws.`
+                ? `Truth filter passed. Signals: ${signals.join(', ')}. Aligned with the 7 Operating Laws.`
                 : 'Truth filter passed. Proceeding at maximum frequency.';
         } else {
-            reasoning = 'Truth filter blocked this activation. It does not align with Law 1 (Truth is the Base Layer). Ensure your input is rooted in creation, clarity, and aligned intent.';
+            reasoning = 'Truth filter blocked this activation. Ensure your input is rooted in creation, clarity, and aligned intent (Law 1: Truth is the base layer).';
         }
 
         return { aligned: isAligned, score, reasoning };
     }
 
-    // Create an activation from verified input
     createActivation(input) {
         return {
-            id: this.generateId(),
+            id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             command: input,
             status: 'pending',
             createdAt: new Date(),
@@ -111,15 +171,14 @@ class TRUTHOSEngine {
         };
     }
 
-    // TRUTHOS execution steps: truth filter → align → accelerate → execute → verify → manifest
     buildExecutionSteps(input) {
         return [
-            { action: 'truth-filter',  description: `Run truth filter: "${input.substring(0, 60)}"` },
+            { action: 'truth-filter',  description: `Truth filter: "${input.substring(0, 50)}"` },
             { action: 'align',         description: 'Align energy to intention. Remove friction.' },
             { action: 'accelerate',    description: 'Raise frequency. Move at maximum speed.' },
             { action: 'execute',       description: 'Execute the aligned action.' },
-            { action: 'verify-3d',     description: 'Verify output in 3D reality. Check truth continuously.' },
-            { action: 'manifest',      description: 'Measure value generated. Log to reality.' }
+            { action: 'verify-3d',     description: 'Verify output in 3D reality.' },
+            { action: 'manifest',      description: 'Measure value. Log to reality.' }
         ];
     }
 
@@ -134,7 +193,6 @@ class TRUTHOSEngine {
 
         this.currentActivation = this.activationQueue.shift();
         this.currentActivation.status = 'running';
-
         this.logActivity(`Activating: ${this.currentActivation.command}`);
         this.updateCurrentTaskDisplay();
         this.processSteps(this.currentActivation);
@@ -146,8 +204,7 @@ class TRUTHOSEngine {
 
         const interval = setInterval(() => {
             if (index < total) {
-                const step = activation.steps[index];
-                this.logActivity(`Step ${index + 1}/${total}: ${step.description}`);
+                this.logActivity(`Step ${index + 1}/${total}: ${activation.steps[index].description}`);
                 index++;
                 activation.currentStep = index;
             } else {
@@ -169,10 +226,6 @@ class TRUTHOSEngine {
         this.updateCurrentTaskDisplay();
     }
 
-    processBackgroundFrequency() {
-        // Maintain awareness — background frequency monitoring
-    }
-
     generateId() {
         return `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
@@ -186,16 +239,13 @@ class TRUTHOSEngine {
     }
 
     logActivity(message) {
-        if (typeof addLogEntry === 'function') {
-            addLogEntry(message);
-        }
+        if (typeof addLogEntry === 'function') addLogEntry(message);
         console.log(`[TRUTHOS] ${message}`);
     }
 
     updateStats() {
         const uptimeEl = document.getElementById('uptime');
         const completedEl = document.getElementById('tasks-completed');
-
         if (uptimeEl) uptimeEl.textContent = this.getUptime();
         if (completedEl) completedEl.textContent = this.completedActivations.length;
     }
@@ -239,12 +289,10 @@ class TRUTHOSEngine {
         this.isActive = !this.isActive;
         const label = this.isActive ? 'Active' : 'Paused';
         const btn = document.getElementById('agent-toggle');
-
         if (btn) {
             btn.textContent = label;
             btn.className = this.isActive ? 'btn-sm btn-success' : 'btn-sm btn-ghost';
         }
-
         this.logActivity(`TRUTHOS frequency engine ${label.toLowerCase()}`);
     }
 }
@@ -253,13 +301,9 @@ class TRUTHOSEngine {
 let aiEngine;
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        aiEngine = new TRUTHOSEngine();
-    });
+    document.addEventListener('DOMContentLoaded', () => { aiEngine = new TRUTHOSEngine(); });
 } else {
     aiEngine = new TRUTHOSEngine();
 }
 
-setInterval(() => {
-    if (aiEngine) aiEngine.updateStats();
-}, 1000);
+setInterval(() => { if (aiEngine) aiEngine.updateStats(); }, 1000);

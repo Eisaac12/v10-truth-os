@@ -72,7 +72,7 @@ function toggleVisionExpand() {
 }
 
 // Process an activation
-function executeCommand() {
+async function executeCommand() {
     const commandInput = document.getElementById('command-input');
     const input = commandInput.value.trim();
 
@@ -81,9 +81,16 @@ function executeCommand() {
         return;
     }
 
-    const result = aiEngine.executeCommand(input);
-    displayResponse(result);
+    // Show loading state
+    const btn = document.querySelector('.btn-primary.btn-lg');
+    if (btn) { btn.textContent = 'Activating...'; btn.disabled = true; }
+
     commandInput.value = '';
+
+    const result = await aiEngine.executeCommand(input);
+    displayResponse(result);
+
+    if (btn) { btn.innerHTML = '<span>Activate</span><span class="btn-arrow">→</span>'; btn.disabled = false; }
 }
 
 // Display TRUTHOS response
@@ -93,28 +100,41 @@ function displayResponse(result) {
 
     if (!responseEl || !responseContent) return;
 
+    const aiLabel = result.liveAI
+        ? '<span style="color:var(--truth);font-size:0.8rem;font-weight:600;">⚡ LIVE — Claude AI</span>'
+        : '<span style="color:var(--text-muted);font-size:0.8rem;">LOCAL — truth filter</span>';
+
     let html = '';
 
     if (result.success) {
+        // Format Claude's response: preserve line breaks
+        const formatted = (result.reasoning || '')
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\n/g, '<br>');
+
         html = `
-            <div style="color: var(--success); font-weight: 600; margin-bottom: 0.5rem;">
-                ✅ Truth filter passed — activation accepted
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                <div style="color:var(--success);font-weight:600;">✅ Activation accepted</div>
+                ${aiLabel}
             </div>
-            <div style="margin-bottom: 0.5rem;">${result.message}</div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;">${result.reasoning}</div>
-            <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-sm);">
-                <strong>Manifesting:</strong> ${result.task.command}
-            </div>
+            <div style="line-height:1.8;color:var(--text-secondary);">${formatted}</div>
+            ${!result.liveAI ? `<div style="margin-top:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-muted);">
+                Start <code>server.js</code> with your API key to get live Claude responses.
+            </div>` : ''}
         `;
     } else {
+        const formatted = (result.reasoning || '')
+            .replace(/\n/g, '<br>');
+
         html = `
-            <div style="color: var(--danger); font-weight: 600; margin-bottom: 0.5rem;">
-                ⚠️ Truth filter blocked — activation rejected
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                <div style="color:var(--danger);font-weight:600;">⚠️ Truth filter blocked</div>
+                ${aiLabel}
             </div>
-            <div style="margin-bottom: 0.5rem;">${result.message}</div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;">${result.reasoning}</div>
-            <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
-                <strong>TRUTHOS Law 1:</strong> Everything runs on truth. Ensure your activation is rooted in creation, clarity, and aligned intent.
+            <div style="margin-bottom:0.5rem;">${result.message}</div>
+            <div style="color:var(--text-muted);font-size:0.9rem;">${formatted}</div>
+            <div style="margin-top:1rem;padding:0.75rem;background:rgba(239,68,68,0.1);border-radius:var(--radius-sm);border:1px solid rgba(239,68,68,0.3);">
+                <strong>Law 1:</strong> Everything runs on truth. Ensure your activation is rooted in creation, clarity, and aligned intent.
             </div>
         `;
     }
@@ -122,10 +142,8 @@ function displayResponse(result) {
     responseContent.innerHTML = html;
     responseEl.style.display = 'block';
 
-    if (result.success) {
-        setTimeout(() => {
-            responseEl.style.display = 'none';
-        }, 10000);
+    if (result.success && !result.liveAI) {
+        setTimeout(() => { responseEl.style.display = 'none'; }, 12000);
     }
 }
 
