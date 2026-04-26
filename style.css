@@ -374,6 +374,19 @@ body {
     line-height: 1.6;
 }
 
+.infinity-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.infinity-status {
+    margin-top: var(--spacing-sm);
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
 /* Task List */
 .task-list {
     min-height: 150px;

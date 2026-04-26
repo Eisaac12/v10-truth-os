@@ -233,6 +233,23 @@ function setupEventListeners() {
         });
     });
 
+    const activateComputer = document.getElementById('activate-computer');
+    if (activateComputer) {
+        activateComputer.addEventListener('click', () => {
+            activateInfinityMode();
+        });
+    }
+
+    const deactivateComputer = document.getElementById('deactivate-computer');
+    if (deactivateComputer) {
+        deactivateComputer.addEventListener('click', () => {
+            if (aiEngine && typeof aiEngine.deactivateInfinityMode === 'function') {
+                aiEngine.deactivateInfinityMode();
+                setInfinityStatus('Infinity execution paused.');
+            }
+        });
+    }
+
     // Command input - Enter key
     const commandInput = document.getElementById('command-input');
     if (commandInput) {
@@ -265,6 +282,28 @@ function setAgentMood(mode) {
     }
 
     addLogEntry(`Mood updated to ${modeResult.label}`);
+}
+
+
+function setInfinityStatus(message) {
+    const infinityStatus = document.getElementById('infinity-status');
+    if (infinityStatus) {
+        infinityStatus.textContent = message;
+    }
+}
+
+function activateInfinityMode() {
+    if (!aiEngine || typeof aiEngine.activateInfinityMode !== 'function') return;
+
+    const seedCommandInput = document.getElementById('command-input');
+    const seedCommand = seedCommandInput?.value.trim() || 'Build and evolve my online computer as an active agent';
+
+    const result = aiEngine.activateInfinityMode(seedCommand);
+    setInfinityStatus(result.message);
+
+    if (seedCommandInput) {
+        seedCommandInput.value = '';
+    }
 }
 
 // Keyboard Shortcuts
@@ -324,3 +363,4 @@ window.addTask = addTask;
 window.addLogEntry = addLogEntry;
 window.clearLog = clearLog;
 window.updateEnergy = updateEnergy;
+window.activateInfinityMode = activateInfinityMode;

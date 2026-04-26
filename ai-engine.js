@@ -34,6 +34,9 @@ class V10AIEngine {
             }
         };
         this.thinkingTimer = null;
+        this.infinityMode = false;
+        this.infinitySeedCommand = null;
+        this.infinityCycleCount = 0;
 
         // Load Master Vision as core memory
         this.coreMemory = MASTER_VISION;
@@ -163,6 +166,45 @@ class V10AIEngine {
         };
     }
 
+    activateInfinityMode(seedCommand) {
+        this.infinityMode = true;
+        this.infinitySeedCommand = seedCommand;
+        this.infinityCycleCount = 0;
+
+        const command = `Infinity Mission: ${seedCommand}`;
+        const result = this.executeCommand(command);
+
+        if (!result.success) {
+            this.infinityMode = false;
+            return {
+                success: false,
+                message: 'Infinity mode could not start because the mission did not pass alignment checks.'
+            };
+        }
+
+        this.logActivity('♾️ Infinity mode activated');
+
+        return {
+            success: true,
+            message: 'Infinity mode active. Computer is executing continuously with adaptive planning.'
+        };
+    }
+
+    deactivateInfinityMode() {
+        this.infinityMode = false;
+        this.infinitySeedCommand = null;
+        this.infinityCycleCount = 0;
+        this.logActivity('Infinity mode deactivated');
+    }
+
+    queueNextInfinityTask() {
+        if (!this.infinityMode || !this.infinitySeedCommand) return;
+
+        this.infinityCycleCount += 1;
+        const cycleTask = this.createTask(`Infinity Cycle ${this.infinityCycleCount}: ${this.infinitySeedCommand}`);
+        this.addTask(cycleTask);
+    }
+
     // Create a task from a command
     createTask(command) {
         return {
@@ -233,6 +275,8 @@ class V10AIEngine {
         const totalSteps = task.steps.length;
         let stepIndex = 0;
 
+        const perStepMs = this.infinityMode ? 1200 : 2000;
+
         const stepInterval = setInterval(() => {
             if (stepIndex < totalSteps) {
                 const step = task.steps[stepIndex];
@@ -244,7 +288,7 @@ class V10AIEngine {
                 clearInterval(stepInterval);
                 this.completeTask(task);
             }
-        }, 2000); // Each step takes 2 seconds
+        }, perStepMs);
     }
 
     // Complete a task
@@ -260,6 +304,10 @@ class V10AIEngine {
         this.updateStats();
         this.updateTaskList();
         this.updateCurrentTaskDisplay();
+
+        if (this.infinityMode) {
+            this.queueNextInfinityTask();
+        }
     }
 
     // Background processing

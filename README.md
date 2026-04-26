@@ -47,6 +47,7 @@ Dynamically tune your agent behavior:
 - Step-by-step execution tracking
 - Autonomous task processing
 - Smart prioritization
+- Infinity-cycle chaining when Computer Activation is enabled
 
 ### 5. **Command Interface**
 Natural language command system:
