@@ -3,6 +3,7 @@
 
 // Global state
 let visionExpanded = false;
+let activeMood = 'advanced';
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 
     // Initialize displays
+    if (aiEngine && typeof aiEngine.setMood === 'function') {
+        setAgentMood(activeMood);
+    }
+
     updateDateTime();
     setInterval(updateDateTime, 1000);
 
@@ -105,6 +110,9 @@ function displayAIResponse(result) {
             <div style="color: var(--text-muted); font-size: 0.9rem;">
                 ${result.reasoning}
             </div>
+            <div style="margin-top: 0.5rem; color: var(--accent); font-size: 0.9rem;">
+                Operating mood: <strong>${result.mood?.toUpperCase() || activeMood.toUpperCase()}</strong>
+            </div>
             <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-sm);">
                 <strong>Task Created:</strong> ${result.task.command}
             </div>
@@ -119,6 +127,9 @@ function displayAIResponse(result) {
             </div>
             <div style="color: var(--text-muted); font-size: 0.9rem;">
                 ${result.reasoning}
+            </div>
+            <div style="margin-top: 0.5rem; color: var(--accent); font-size: 0.9rem;">
+                Operating mood: <strong>${result.mood?.toUpperCase() || activeMood.toUpperCase()}</strong>
             </div>
             <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
                 <strong>Suggestion:</strong> Ensure your command aligns with the Master Vision principles of creation, truth, peace, and growth.
@@ -213,6 +224,15 @@ function setupEventListeners() {
         });
     }
 
+    // Mood profile selector
+    const moodButtons = document.querySelectorAll('.mood-btn');
+    moodButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const mode = button.dataset.mode;
+            setAgentMood(mode);
+        });
+    });
+
     // Command input - Enter key
     const commandInput = document.getElementById('command-input');
     if (commandInput) {
@@ -222,6 +242,29 @@ function setupEventListeners() {
             }
         });
     }
+}
+
+function setAgentMood(mode) {
+    if (!aiEngine || typeof aiEngine.setMood !== 'function') return;
+
+    activeMood = mode;
+    const modeResult = aiEngine.setMood(mode);
+
+    document.querySelectorAll('.mood-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.mode === modeResult.mood);
+    });
+
+    const modeStatus = document.getElementById('mode-status');
+    if (modeStatus) {
+        modeStatus.textContent = modeResult.mood.toUpperCase();
+    }
+
+    const moodNote = document.getElementById('mood-note');
+    if (moodNote) {
+        moodNote.textContent = modeResult.description;
+    }
+
+    addLogEntry(`Mood updated to ${modeResult.label}`);
 }
 
 // Keyboard Shortcuts

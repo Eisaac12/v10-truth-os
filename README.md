@@ -34,27 +34,34 @@ Real-time monitoring of:
 - Tasks completed
 - System uptime
 - Alignment score (how well your actions match your vision)
+- Active operating mood (Advanced / Builder / Focus)
 
-### 3. **Execution Queue**
+### 3. **Advanced Mood Engine**
+Dynamically tune your agent behavior:
+- **Advanced**: Balanced autonomy + deep planning guardrails
+- **Builder**: Faster creation loops and aggressive execution cadence
+- **Focus**: Deliberate, high-alignment, low-noise operations
+
+### 4. **Execution Queue**
 - Visual task management
 - Step-by-step execution tracking
 - Autonomous task processing
 - Smart prioritization
 
-### 4. **Command Interface**
+### 5. **Command Interface**
 Natural language command system:
 - Give the AI instructions in plain English
 - AI evaluates alignment before execution
 - Creates multi-step execution plans
 - Provides reasoning for decisions
 
-### 5. **Activity Log**
+### 6. **Activity Log**
 Complete transparency:
 - Every action logged with timestamp
 - Real-time system updates
 - Full audit trail
 
-### 6. **Energy & Alignment Tracker**
+### 7. **Energy & Alignment Tracker**
 Monitor your state:
 - Mental Clarity
 - Creative Energy
