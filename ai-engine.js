@@ -17,7 +17,7 @@ class TRUTHOSEngine {
         this.completedActivations = [];
         this.currentActivation = null;
         this.startTime = Date.now();
-        this.serverUrl = 'http://localhost:3001';
+        this.serverUrl = localStorage.getItem('truthos_server_url') || 'http://localhost:3001';
         this.liveAI = false;
 
         // Conversation memory — passed to Claude on every call

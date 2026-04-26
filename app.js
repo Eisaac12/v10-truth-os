@@ -9,11 +9,38 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCoreContent();
     loadEnergyLevels();
     loadSavedLog();
+    loadServerUrlInput();
     setupEventListeners();
     checkDailyCheckIn();
 
     console.log('✅ TRUTHOS Active');
 });
+
+// ─── Server URL config ────────────────────────────────────────────────────────
+
+function loadServerUrlInput() {
+    const saved = localStorage.getItem('truthos_server_url');
+    const input = document.getElementById('server-url-input');
+    if (input && saved) input.value = saved;
+}
+
+function setServerUrl() {
+    const input = document.getElementById('server-url-input');
+    if (!input) return;
+    let url = input.value.trim().replace(/\/$/, '');
+    if (!url) {
+        localStorage.removeItem('truthos_server_url');
+        addLogEntry('Server URL cleared — using localhost:3001');
+    } else {
+        if (!url.startsWith('http')) url = 'https://' + url;
+        localStorage.setItem('truthos_server_url', url);
+        addLogEntry(`Server URL set: ${url}`);
+    }
+    if (aiEngine) {
+        aiEngine.serverUrl = url || 'http://localhost:3001';
+        aiEngine.checkLiveAI();
+    }
+}
 
 // ─── TRUTHOS Core panel ───────────────────────────────────────────────────────
 
@@ -350,3 +377,4 @@ window.updateEnergy             = updateEnergy;
 window.submitCheckIn            = submitCheckIn;
 window.dismissCheckIn           = dismissCheckIn;
 window.exportActivationRecord   = exportActivationRecord;
+window.setServerUrl             = setServerUrl;

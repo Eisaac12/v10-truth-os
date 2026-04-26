@@ -58,9 +58,20 @@
                 <span class="eq-arrow">→</span>
                 <span class="eq-node eq-highlight">REALITY</span>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot pulse"></div>
-                <span id="system-status">Frequency Active</span>
+            <div class="header-right">
+                <div class="server-config">
+                    <input
+                        id="server-url-input"
+                        type="text"
+                        placeholder="Server URL (localhost:3001 or deployed URL)"
+                        title="Enter your deployed TRUTHOS server URL"
+                    />
+                    <button class="btn-sm btn-ghost" onclick="setServerUrl()">Connect</button>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot pulse"></div>
+                    <span id="system-status">Frequency Active</span>
+                </div>
             </div>
         </header>
 

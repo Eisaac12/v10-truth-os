@@ -179,6 +179,42 @@ body {
     font-weight: 400;
 }
 
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-sm);
+}
+
+.server-config {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.server-config input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    width: 260px;
+    transition: border-color var(--transition-fast);
+}
+
+.server-config input:focus {
+    outline: none;
+    border-color: var(--primary);
+    color: var(--text-primary);
+}
+
+.server-config input::placeholder {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
 .status-indicator {
     display: flex;
     align-items: center;
@@ -787,6 +823,10 @@ body {
     }
 
     .equation-flow {
+        display: none;
+    }
+
+    .server-config {
         display: none;
     }
 
