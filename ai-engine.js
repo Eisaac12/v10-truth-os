@@ -9,6 +9,31 @@ class V10AIEngine {
         this.currentTask = null;
         this.alignmentScore = 98;
         this.startTime = Date.now();
+        this.mood = 'advanced';
+        this.moodProfiles = {
+            advanced: {
+                label: 'Advanced',
+                thinkIntervalMs: 3500,
+                minAlignment: 70,
+                depth: 'high',
+                description: 'Advanced mode balances autonomous execution, deep planning, and high alignment guardrails.'
+            },
+            builder: {
+                label: 'Builder',
+                thinkIntervalMs: 2500,
+                minAlignment: 60,
+                depth: 'high',
+                description: 'Builder mode prioritizes creating systems fast with strong shipping momentum.'
+            },
+            focus: {
+                label: 'Focus',
+                thinkIntervalMs: 4500,
+                minAlignment: 75,
+                depth: 'medium',
+                description: 'Focus mode slows output to protect clarity, quality, and purposeful execution.'
+            }
+        };
+        this.thinkingTimer = null;
 
         // Load Master Vision as core memory
         this.coreMemory = MASTER_VISION;
@@ -28,11 +53,17 @@ class V10AIEngine {
 
     // Autonomous thinking loop - runs continuously
     startThinkingLoop() {
-        setInterval(() => {
+        if (this.thinkingTimer) {
+            clearInterval(this.thinkingTimer);
+        }
+
+        const interval = this.getMoodProfile().thinkIntervalMs;
+
+        this.thinkingTimer = setInterval(() => {
             if (this.isActive) {
                 this.think();
             }
-        }, 5000); // Think every 5 seconds
+        }, interval);
     }
 
     // Core thinking function
@@ -60,13 +91,15 @@ class V10AIEngine {
                 success: true,
                 message: `Command accepted. Alignment score: ${evaluation.score}%`,
                 task: task,
-                reasoning: evaluation.reasoning
+                reasoning: evaluation.reasoning,
+                mood: this.mood
             };
         } else {
             return {
                 success: false,
                 message: "Command not aligned with Master Vision",
-                reasoning: evaluation.reasoning
+                reasoning: evaluation.reasoning,
+                mood: this.mood
             };
         }
     }
@@ -91,17 +124,43 @@ class V10AIEngine {
         const positiveCount = Object.values(alignmentIndicators).filter(v => v).length;
         const negativeCount = Object.values(destructionIndicators).filter(v => v).length;
 
-        const score = negativeCount > 0 ? 0 : Math.min(100, 70 + (positiveCount * 10));
-        const aligned = score >= 60;
+        const baseScore = 65 + (positiveCount * 10);
+        const score = negativeCount > 0 ? 0 : Math.min(100, baseScore);
+        const aligned = score >= this.getMoodProfile().minAlignment;
 
         let reasoning = '';
         if (aligned) {
-            reasoning = `This command shows: ${Object.keys(alignmentIndicators).filter(k => alignmentIndicators[k]).join(', ')}. Aligned with Master Vision principles.`;
+            reasoning = `This command shows: ${Object.keys(alignmentIndicators).filter(k => alignmentIndicators[k]).join(', ')}. Aligned with Master Vision principles in ${this.getMoodProfile().label} mood.`;
         } else {
             reasoning = 'This command does not align with the Master Vision principles of creation, truth, and peace.';
         }
 
         return { aligned, score, reasoning };
+    }
+
+    getMoodProfile() {
+        return this.moodProfiles[this.mood] || this.moodProfiles.advanced;
+    }
+
+    setMood(mood) {
+        if (!this.moodProfiles[mood]) {
+            return {
+                mood: this.mood,
+                label: this.getMoodProfile().label,
+                description: this.getMoodProfile().description
+            };
+        }
+
+        this.mood = mood;
+        this.startThinkingLoop();
+
+        this.logActivity(`Mood set to ${this.getMoodProfile().label}`);
+
+        return {
+            mood: this.mood,
+            label: this.getMoodProfile().label,
+            description: this.getMoodProfile().description
+        };
     }
 
     // Create a task from a command
@@ -118,14 +177,30 @@ class V10AIEngine {
 
     // Break down command into executable steps
     breakDownIntoSteps(command) {
-        // AI planning logic
+        const profile = this.getMoodProfile();
+        const isOnlineComputerTask = /online|agent|automation|system|computer|active/i.test(command);
+
         const steps = [
             { action: 'analyze', description: `Analyze the command: "${command}"` },
-            { action: 'plan', description: 'Create execution plan aligned with Master Vision' },
+            { action: 'plan', description: `Create ${profile.depth}-depth execution plan aligned with Master Vision` },
             { action: 'execute', description: 'Execute the plan step by step' },
-            { action: 'verify', description: 'Verify results against goals' },
+            { action: 'verify', description: 'Verify results against goals and alignment metrics' },
             { action: 'learn', description: 'Learn and store insights for future tasks' }
         ];
+
+        if (isOnlineComputerTask) {
+            steps.splice(2, 0,
+                { action: 'orchestrate', description: 'Orchestrate online-computer modules (memory, execution, monitoring)' },
+                { action: 'activate', description: 'Activate autonomous agent routines for continuous operation' }
+            );
+        }
+
+        if (profile.depth === 'high') {
+            steps.splice(steps.length - 1, 0, {
+                action: 'optimize',
+                description: 'Optimize workflow for speed, quality, and reliable handoff'
+            });
+        }
 
         return steps;
     }

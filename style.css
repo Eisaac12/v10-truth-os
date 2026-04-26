@@ -330,6 +330,50 @@ body {
     color: var(--success);
 }
 
+
+
+/* Mood Panel */
+.mood-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.mood-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(100px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.mood-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.mood-btn:hover {
+    border-color: var(--primary-light);
+    color: var(--text-primary);
+}
+
+.mood-btn.active {
+    color: white;
+    border-color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: var(--glow-primary);
+}
+
+.mood-note {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
 /* Task List */
 .task-list {
     min-height: 150px;
@@ -664,5 +708,9 @@ body {
     
     .logo-text h1 {
         font-size: 1.5rem;
+    }
+
+    .mood-grid {
+        grid-template-columns: 1fr;
     }
 }
