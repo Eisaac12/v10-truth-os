@@ -53,12 +53,18 @@ app.post('/api/activate', async (req, res) => {
         });
     }
 
+    // Accept conversation history for memory continuity
+    const history = Array.isArray(req.body.history) ? req.body.history : [];
+    const safeHistory = history
+        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+        .slice(-20);
+
     try {
         const message = await client.messages.create({
             model: 'claude-opus-4-7',
             max_tokens: 1024,
             system: TRUTHOS_SYSTEM_PROMPT,
-            messages: [{ role: 'user', content: input.trim() }]
+            messages: [...safeHistory, { role: 'user', content: input.trim() }]
         });
 
         const text = message.content[0].text;

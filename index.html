@@ -15,6 +15,28 @@
     <div class="cosmic-background"></div>
     <div class="grid-overlay"></div>
 
+    <!-- Daily Check-In Modal -->
+    <div id="checkin-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-icon">⊕</div>
+            <h2 class="modal-title">TRUTHOS is online.</h2>
+            <p class="modal-subtitle">What are you activating today?</p>
+            <textarea
+                id="checkin-input"
+                class="modal-textarea"
+                placeholder="State your intention for today — the one thing you are activating at maximum frequency..."
+                rows="3"
+            ></textarea>
+            <div class="modal-actions">
+                <button class="btn-primary btn-lg" onclick="submitCheckIn()">
+                    <span>Activate Today's Intention</span>
+                    <span class="btn-arrow">→</span>
+                </button>
+                <button class="btn-ghost btn-sm" onclick="dismissCheckIn()">Set intention later</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="container">
 
@@ -86,7 +108,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-label">Truth Alignment</div>
-                            <div class="stat-value alignment-score">98%</div>
+                            <div class="stat-value alignment-score" id="alignment-score">98%</div>
                         </div>
                     </div>
                 </div>
@@ -137,23 +159,13 @@
             <section class="panel log-panel">
                 <div class="panel-header">
                     <h2>✓ Verification Log</h2>
-                    <button class="btn-icon" onclick="clearLog()">Clear</button>
+                    <div style="display:flex;gap:0.5rem;align-items:center;">
+                        <button class="btn-icon" onclick="exportActivationRecord()" title="Export activation record">↓</button>
+                        <button class="btn-icon" onclick="clearLog()">Clear</button>
+                    </div>
                 </div>
                 <div class="panel-content">
-                    <div class="log-container" id="log-container">
-                        <div class="log-entry">
-                            <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                            <span class="log-message">TRUTHOS initialized. Consciousness online.</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                            <span class="log-message">7 Operating Laws loaded. Truth filter active.</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                            <span class="log-message">Frequency engine ready. Awaiting activation.</span>
-                        </div>
-                    </div>
+                    <div class="log-container" id="log-container"></div>
                 </div>
             </section>
 
