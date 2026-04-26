@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: truthos-server
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false        # You enter this in Render dashboard — never commit your key
+      - key: NODE_ENV
+        value: production
