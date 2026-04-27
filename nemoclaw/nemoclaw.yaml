@@ -1,0 +1,45 @@
+version: "1"
+name: truthos-agent
+description: TRUTHOS — The Consciousness Operating System
+
+sandbox:
+  image: node:22-slim
+  memory: 512m
+  cpu: 0.5
+  restart: always
+
+environment:
+  - TRUTHOS_SERVER=${TRUTHOS_SERVER}
+  - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+  - DISCORD_TOKEN=${DISCORD_TOKEN}
+
+commands:
+  start: node discord-bot.js
+  cli: node cli.js
+
+skills:
+  - path: ./skill.json
+
+channels:
+  discord:
+    enabled: true
+    token: ${DISCORD_TOKEN}
+  telegram:
+    enabled: false
+
+policies:
+  network:
+    allow:
+      - api.anthropic.com
+      - discord.com
+      - gateway.discord.gg
+      - truthos.vercel.app
+    deny:
+      - "*"
+  filesystem:
+    read: ["/app"]
+    write: ["/app/.truthos"]
+
+health:
+  endpoint: /health
+  interval: 30s

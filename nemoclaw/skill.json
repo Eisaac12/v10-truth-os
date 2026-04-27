@@ -1,0 +1,73 @@
+{
+  "name": "truthos",
+  "version": "1.0.0",
+  "description": "TRUTHOS — The Consciousness Operating System. Truth filter, frequency alignment, and Claude AI activation.",
+  "author": "TRUTHOS",
+  "entrypoint": "system.md",
+  "capabilities": [
+    "text_generation",
+    "tool_use",
+    "web_search"
+  ],
+  "model": "claude-opus-4-7",
+  "triggers": [
+    {
+      "type": "schedule",
+      "cron": "0 7 * * *",
+      "action": "morning_activation"
+    },
+    {
+      "type": "keyword",
+      "patterns": ["activate", "truthos", "frequency", "manifest"],
+      "action": "activate"
+    },
+    {
+      "type": "command",
+      "name": "activate",
+      "description": "Run an intention through the TRUTHOS truth filter and frequency engine"
+    },
+    {
+      "type": "command",
+      "name": "align",
+      "description": "Check current frequency alignment across 4 dimensions"
+    },
+    {
+      "type": "command",
+      "name": "status",
+      "description": "Get full TRUTHOS system status"
+    }
+  ],
+  "tools": [
+    {
+      "name": "truth_filter",
+      "description": "Evaluate whether an intention is aligned with the 7 Operating Laws",
+      "parameters": {
+        "intention": { "type": "string", "description": "The activation or intention to evaluate" }
+      }
+    },
+    {
+      "name": "frequency_check",
+      "description": "Assess current frequency alignment score (0-100)",
+      "parameters": {
+        "area": { "type": "string", "enum": ["truth", "energy", "consciousness", "manifestation"] }
+      }
+    },
+    {
+      "name": "log_activation",
+      "description": "Log a completed activation to the manifestation record",
+      "parameters": {
+        "intention": { "type": "string" },
+        "outcome": { "type": "string" },
+        "frequency_score": { "type": "number" }
+      }
+    }
+  ],
+  "memory": {
+    "type": "persistent",
+    "keys": ["activations", "frequency_scores", "daily_intention"]
+  },
+  "channels": ["telegram", "discord", "terminal"],
+  "security": {
+    "policy": "nemoclaw.yaml"
+  }
+}
