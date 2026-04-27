@@ -1,0 +1,80 @@
+{
+  "name": "truthos",
+  "displayName": "TRUTHOS — AI Consciousness OS",
+  "description": "Claude AI coding assistant powered by TRUTHOS. Truth filter, frequency alignment, and live Claude responses in your editor.",
+  "version": "1.0.0",
+  "publisher": "truthos",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["AI", "Other"],
+  "icon": "icon.png",
+  "keywords": ["claude", "ai", "truthos", "copilot", "assistant"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "truthos",
+        "title": "TRUTHOS",
+        "icon": "$(symbol-misc)"
+      }]
+    },
+    "views": {
+      "truthos": [{
+        "type": "webview",
+        "id": "truthos.panel",
+        "name": "TRUTHOS"
+      }]
+    },
+    "commands": [
+      {
+        "command": "truthos.activate",
+        "title": "TRUTHOS: Activate Selection",
+        "icon": "$(play)"
+      },
+      {
+        "command": "truthos.activateFile",
+        "title": "TRUTHOS: Activate with File Context"
+      },
+      {
+        "command": "truthos.openPanel",
+        "title": "TRUTHOS: Open Panel"
+      },
+      {
+        "command": "truthos.setServer",
+        "title": "TRUTHOS: Set Server URL"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "truthos.activate",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [{
+        "command": "truthos.activate",
+        "group": "truthos",
+        "when": "editorHasSelection"
+      }]
+    },
+    "configuration": {
+      "title": "TRUTHOS",
+      "properties": {
+        "truthos.serverUrl": {
+          "type": "string",
+          "default": "https://truthos.vercel.app",
+          "description": "TRUTHOS server URL (Vercel deployment)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "npx vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0"
+  }
+}

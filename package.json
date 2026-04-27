@@ -10,7 +10,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "discord": "node discord-bot.js",
-    "cli": "node cli.js"
+    "cli": "node cli.js",
+    "vscode:package": "cd vscode-extension && npx vsce package"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
