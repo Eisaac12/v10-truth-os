@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesaling 2026 Playbook — TRUTHOS</title>
+    <meta name="description" content="The zero-capital wholesaler's 2026 playbook: best states, motivated seller geographies, cash-buyer map, free tool stack, and legal compliance guide.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .guide-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .guide-section {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .guide-section h2 {
+            color: var(--primary-light);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .guide-section h3 {
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            margin: 1.25rem 0 0.75rem;
+        }
+
+        .guide-section p,
+        .guide-section li {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .guide-section ul {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Stat banner */
+        .stat-banner {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-pill {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1.25rem;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .stat-pill .pill-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .stat-pill .pill-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-sm);
+        }
+
+        .guide-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .guide-table th {
+            background: var(--bg-tertiary);
+            color: var(--primary-light);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .guide-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .guide-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .guide-table tr:hover td {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .guide-table .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #000; }
+        .rank-other { background: var(--bg-tertiary); color: var(--text-muted); }
+
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .tag-warn { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .tag-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .tag-success { background: rgba(16,185,129,0.15); color: var(--success); }
+        .tag-info { background: rgba(6,182,212,0.15); color: var(--accent); }
+
+        /* Zone cards */
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .zone-card {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }
+
+        .zone-red { border-left: 4px solid var(--danger); }
+        .zone-yellow { border-left: 4px solid var(--warning); }
+        .zone-green { border-left: 4px solid var(--success); }
+
+        .zone-card h3 {
+            margin: 0 0 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .zone-red h3 { color: var(--danger); }
+        .zone-yellow h3 { color: var(--warning); }
+        .zone-green h3 { color: var(--success); }
+
+        .zone-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0 0 0.75rem;
+            line-height: 1.6;
+        }
+
+        .state-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .state-chip {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        /* Geo cards */
+        .geo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .geo-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }
+
+        .geo-card h3 {
+            color: var(--primary-light);
+            font-size: 0.95rem;
+            margin: 0 0 0.5rem;
+        }
+
+        .geo-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0 0 0.75rem;
+        }
+
+        .geo-card .highlight {
+            color: var(--truth);
+            font-weight: 600;
+        }
+
+        /* Tool trial table */
+        .trial-badge {
+            display: inline-block;
+            background: rgba(99,102,241,0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 4px;
+            padding: 0.15rem 0.45rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            white-space: nowrap;
+        }
+
+        /* Action card */
+        .action-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+        }
+
+        .action-card h3 {
+            color: var(--primary-light);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .action-step {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            border-top: 3px solid var(--primary);
+        }
+
+        .action-step .step-num {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .action-step p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Compliance principle callout */
+        .principle-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--truth);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .principle-box p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .principle-box strong {
+            color: var(--truth);
+        }
+
+        /* Metro shift callouts */
+        .shift-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .shift-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.85rem 1rem;
+        }
+
+        .shift-card .shift-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.25rem;
+        }
+
+        .shift-card .shift-value {
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            color: var(--primary-light);
+        }
+
+        .shift-up { border-top: 2px solid var(--success); }
+        .shift-down { border-top: 2px solid var(--danger); }
+
+        /* Stack list */
+        .stack-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .stack-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .stack-list li:last-child { border-bottom: none; }
+
+        .stack-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(99,102,241,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cosmic-background"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container guide-container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">⊕</div>
+                <div class="logo-text">
+                    <h1>Wholesaling 2026</h1>
+                    <p class="subtitle">The Zero-Capital Wholesaler's Playbook</p>
+                </div>
+            </div>
+            <a href="index.html" class="btn-ghost">← Back to Dashboard</a>
+        </header>
+
+        <!-- ── 1. HERO STATS ── -->
+        <div class="guide-section">
+            <h2>📊 2026 Market Snapshot</h2>
+            <p style="color:var(--text-muted);margin-bottom:1.25rem;font-size:0.9rem;">
+                Seven states now effectively block unlicensed wholesaling. Ten remain genuinely open and lead-rich.
+                Regulatory tightening is permanent — but the underlying distress opportunity is the largest since 2013.
+            </p>
+            <div class="stat-banner">
+                <div class="stat-pill">
+                    <span class="pill-value">+26%</span>
+                    <span class="pill-label">Foreclosure filings YoY (Q1 2026)</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="pill-value">118,727</span>
+                    <span class="pill-label">Q1 2026 total filings — 9th consecutive month up</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="pill-value">36 / 50</span>
+                    <span class="pill-label">Largest metros now buyer's markets (most since 2013)</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="pill-value">7</span>
+                    <span class="pill-label">States effectively requiring a license to wholesale</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="pill-value">29%</span>
+                    <span class="pill-label">National all-cash purchase share (Dec 2025)</span>
+                </div>
+            </div>
+            <div class="principle-box">
+                <p><strong>Core compliance rule:</strong> Sign a purchase agreement with "and/or assigns" → you hold <em>equitable interest</em> → sell the <em>contract</em>, not the property. Marketing the property itself without owning it is unlicensed brokerage in every state.</p>
+            </div>
+        </div>
+
+        <!-- ── 2. TOP 10 STATES ── -->
+        <div class="guide-section">
+            <h2>🗺️ Top 10 States for Zero-Capital Wholesaling</h2>
+            <div class="table-wrap">
+                <table class="guide-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>State</th>
+                            <th>Best Metros</th>
+                            <th>Why It Works</th>
+                            <th>Watch Out</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="rank-badge rank-1">1</span></td>
+                            <td><strong style="color:var(--text-primary);">Texas</strong></td>
+                            <td>Houston, San Antonio, DFW</td>
+                            <td>Highest foreclosure starts (10,617 in Q1 2026), no state income tax, simple SB 2212 disclosure. Austin: 22.2% of listings with 3+ price cuts.</td>
+                            <td><span class="tag tag-warn">Austin/Dallas competitive</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-2">2</span></td>
+                            <td><strong style="color:var(--text-primary);">Florida</strong></td>
+                            <td>Tampa, Jacksonville, Lakeland, Cape Coral</td>
+                            <td>3rd-highest foreclosure rate (1 in 750, +43.7% YoY), 77-day median DOM, deepest cash-buyer pool — WPB 47.2% all-cash. Insurance crisis driving distressed sales.</td>
+                            <td><span class="tag tag-warn">FREC enforcement rising</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">3</span></td>
+                            <td><strong style="color:var(--text-primary);">Georgia</strong></td>
+                            <td>Atlanta, Macon, Columbus</td>
+                            <td>77.8% YoY foreclosure surge. Atlanta is the top institutional buyer target nationally.</td>
+                            <td><span class="tag tag-warn">Atlanta has fined non-compliant ads</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">4</span></td>
+                            <td><strong style="color:var(--text-primary);">Ohio</strong></td>
+                            <td>Cleveland, Columbus, Toledo, Cincinnati</td>
+                            <td>Lowest median price ($242,897). Cleveland ~42% all-cash purchases.</td>
+                            <td><span class="tag tag-warn">SB 155 bold disclosure required</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">5</span></td>
+                            <td><strong style="color:var(--text-primary);">Indiana</strong></td>
+                            <td>Indianapolis, Fort Wayne</td>
+                            <td>Highest foreclosure rate in US (1 in 739). Investor-vacancy 7.2% — highest nationally.</td>
+                            <td><span class="tag tag-warn">HB 1068 disclosure required</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">6</span></td>
+                            <td><strong style="color:var(--text-primary);">Tennessee</strong></td>
+                            <td>Memphis, Nashville, Knoxville</td>
+                            <td>No state income tax. Memphis is the #1 cash-flow market nationally for buy-and-hold buyers.</td>
+                            <td><span class="tag tag-warn">SB 909 disclosure (Mar 2025)</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">7</span></td>
+                            <td><strong style="color:var(--text-primary);">Alabama</strong></td>
+                            <td>Birmingham, Huntsville</td>
+                            <td>Cheapest entry prices in the country. Strong Section-8 buyer demand from landlord investors.</td>
+                            <td><span class="tag tag-warn">SB 228 disclosure at offer</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">8</span></td>
+                            <td><strong style="color:var(--text-primary);">Missouri</strong></td>
+                            <td>Kansas City, St. Louis</td>
+                            <td>Low prices, strong Rust Belt cash-flow buyer pool. Market the contract only.</td>
+                            <td><span class="tag tag-info">No special law — use best practices</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">9</span></td>
+                            <td><strong style="color:var(--text-primary);">Arizona</strong></td>
+                            <td>Phoenix, Tucson</td>
+                            <td>28.2% of Phoenix listings have price cuts — highest in US. Deep investor population.</td>
+                            <td><span class="tag tag-warn">Strengthened ad rules</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-badge rank-other">10</span></td>
+                            <td><strong style="color:var(--text-primary);">Colorado</strong></td>
+                            <td>Denver, Colorado Springs</td>
+                            <td>REOs +224% YoY — largest national jump. Deep cash-buyer base. 29.4% of listings price-cut.</td>
+                            <td><span class="tag tag-warn">Higher entry capital needed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:1.25rem;padding:1rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius-sm);">
+                <p style="margin:0;font-size:0.85rem;"><strong style="color:var(--danger);">States to avoid as an unlicensed beginner:</strong>
+                <span style="color:var(--text-muted);"> South Carolina (HB 4754 — effective ban), North Carolina (HB 797, Oct 2025 — covers double closings), Illinois (Class A misdemeanor at 2 deals/year), Oklahoma (SB 1075, Nov 2025), Pennsylvania (Act 52, Jan 2025 + separate Philadelphia license), Kentucky (HB 62), Nebraska (LB 860).</span></p>
+            </div>
+        </div>
+
+        <!-- ── 3. MOTIVATED SELLER GEOGRAPHIES ── -->
+        <div class="guide-section">
+            <h2>📍 Where the Motivated Sellers Actually Are</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">Five distinct distress geographies — each demands a different approach.</p>
+            <div class="geo-grid">
+                <div class="geo-card">
+                    <h3>Florida — Triple Distress</h3>
+                    <p>Insurance non-renewal + hurricane damage (Helene/Milton/Ian) + pandemic price reversal. <span class="highlight">31.2% of FL homes had price drops in March 2026.</span> Pinellas County zombie foreclosure rate: 8.5–9.3%. ZIP 33708: 35–39%. These are cash-only properties — conventional financing fails on insurance.</p>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Top spots: Lakeland (1 in 409), Punta Gorda (1 in 416), Jacksonville, Orlando, Tampa-St. Pete, Cape Coral</div>
+                </div>
+                <div class="geo-card">
+                    <h3>Texas — Correction Zones</h3>
+                    <p><span class="highlight">82-day state median DOM (+12 YoY)</span> — longest in the country. Austin: 114% more sellers than buyers. San Antonio: 106%. Austin and San Antonio lead the nation for 3+ price-cut listings at 22.2% and 22.0%.</p>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Target: Austin, San Antonio, Houston, DFW</div>
+                </div>
+                <div class="geo-card">
+                    <h3>Sun Belt Secondary</h3>
+                    <p>Phoenix (<span class="highlight">28.2% of listings cut</span>), Denver (REOs +224% YoY, 29.4% price-cut), Atlanta (foreclosures +77.8% YoY), Riverside CA. Inventory ample, sellers tired, institutional buyers still selective.</p>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Target: Phoenix, Denver, Atlanta, Riverside</div>
+                </div>
+                <div class="geo-card">
+                    <h3>Rust Belt Distressed Inventory</h3>
+                    <p>Lowest entry prices, highest zombie-foreclosure concentrations. Cuyahoga County (Cleveland) 11.2%, Marion County (Indianapolis) 10.5–11.2%, Lucas County (Toledo) 9.9%, St. Louis County 9.6%.</p>
+                    <p style="margin-bottom:0;"><span class="highlight">ZIP-level concentrations:</span> Baltimore 21217 (44%), Cleveland 44108 (32–42%), Indianapolis 46201 (35.5%), Peoria 61603/61605 (34–52%).</p>
+                </div>
+                <div class="geo-card">
+                    <h3>Disaster-Impact Zones</h3>
+                    <p>Asheville &amp; Western NC post-Helene: <span class="highlight">DOM +40% YoY, inventory +47%</span>. Louisiana: 1.87% serious delinquency rate (highest US), 11.2% seriously underwater — but 3,140-day avg foreclosure timeline means slow deals. Altadena 91001 (post-fire): zombie rate up to 80.8%.</p>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Best for patient wholesalers; verify local legal environment first</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── 4. CASH-BUYER MAP ── -->
+        <div class="guide-section">
+            <h2>💵 Cash-Buyer Map — 2026</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+                Institutional buyers (Invitation Homes, AMH, Progress Residential) are <strong style="color:var(--danger);">net sellers for 6 consecutive quarters</strong>.
+                Small mom-and-pop investors (1–9 properties) now drive ~60% of investor purchases — reachable via free channels.
+            </p>
+            <div class="table-wrap">
+                <table class="guide-table">
+                    <thead>
+                        <tr>
+                            <th>Metro</th>
+                            <th>All-Cash Share (Dec 2025)</th>
+                            <th>Investor Share (Q3 2025)</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">West Palm Beach, FL</strong></td>
+                            <td><span class="tag tag-success">47.2%</span></td>
+                            <td>18%</td>
+                            <td>Highest all-cash share nationally</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Jacksonville, FL</strong></td>
+                            <td>39.3%</td>
+                            <td>Decreasing (−7% YoY)</td>
+                            <td>Investor retreat due to insurance/HOA costs</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Miami, FL</strong></td>
+                            <td>39.3%</td>
+                            <td><span class="tag tag-success">31%</span> — highest US</td>
+                            <td>Despite institutional retreat, cash still dominant</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Cleveland, OH</strong></td>
+                            <td>~40%+</td>
+                            <td>22%</td>
+                            <td>Top Rust Belt cash buyer concentration</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">New York Metro (LI)</strong></td>
+                            <td>~40%</td>
+                            <td>21% (+23% YoY)</td>
+                            <td>Surging investor interest</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Las Vegas, NV</strong></td>
+                            <td>Mid-30s</td>
+                            <td>21%</td>
+                            <td>Stable cash buyer base</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Tampa, FL</strong></td>
+                            <td>Mid-30s</td>
+                            <td>18%</td>
+                            <td>Strong despite market headwinds</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Atlanta, GA</strong></td>
+                            <td>Rising</td>
+                            <td>18%</td>
+                            <td>Top institutional buyer target; foreclosures +77.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Phoenix, AZ</strong></td>
+                            <td>Mid-20s</td>
+                            <td>18%</td>
+                            <td>28.2% listings with price cuts = motivated sellers</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin-top:1.5rem;">Investor Flow Shifts (2025)</h3>
+            <div class="shift-grid">
+                <div class="shift-card shift-up">
+                    <div class="shift-label">Surging markets</div>
+                    <div class="shift-value">Seattle +37%</div>
+                </div>
+                <div class="shift-card shift-up">
+                    <div class="shift-label">Surging markets</div>
+                    <div class="shift-value">San Francisco +29%</div>
+                </div>
+                <div class="shift-card shift-up">
+                    <div class="shift-label">Surging markets</div>
+                    <div class="shift-value">NYC +23%</div>
+                </div>
+                <div class="shift-card shift-down">
+                    <div class="shift-label">Retreating markets</div>
+                    <div class="shift-value">Las Vegas −20%</div>
+                </div>
+                <div class="shift-card shift-down">
+                    <div class="shift-label">Retreating markets</div>
+                    <div class="shift-value">Orlando −18%</div>
+                </div>
+                <div class="shift-card shift-down">
+                    <div class="shift-label">Retreating markets</div>
+                    <div class="shift-value">Miami/Ft. Laud. −14%</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top:1.5rem;">Best Fix-and-Flip Disposition Markets</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;">National flip ROI fell to 23.1% in Q3 2025 — lowest since 2008. Flippers demand bigger spreads. 62–63% of flips bought all-cash.</p>
+            <div class="table-wrap" style="margin-top:0.75rem;">
+                <table class="guide-table">
+                    <thead>
+                        <tr><th>Market</th><th>Gross Flip ROI</th><th>Cash Flip %</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Buffalo, NY</td><td><span class="tag tag-success">102–109%</span></td><td>High</td></tr>
+                        <tr><td>Pittsburgh, PA</td><td><span class="tag tag-success">100–107%</span></td><td>High</td></tr>
+                        <tr><td>Cleveland, OH</td><td>>70%</td><td>High</td></tr>
+                        <tr><td>Memphis, TN</td><td>>70%</td><td>High</td></tr>
+                        <tr><td>Baltimore, MD</td><td>>70%</td><td>High</td></tr>
+                        <tr><td>Detroit, MI</td><td>>70%</td><td>High</td></tr>
+                        <tr><td>Austin, TX</td><td><span class="tag tag-danger">1%</span></td><td>—</td></tr>
+                        <tr><td>Dallas, TX</td><td><span class="tag tag-danger">3.7%</span></td><td>—</td></tr>
+                        <tr><td>Houston, TX</td><td><span class="tag tag-danger">5%</span></td><td>—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="margin-top:0.75rem;font-size:0.85rem;color:var(--text-muted);">
+                <strong style="color:var(--text-secondary);">Best cash-flow / BRRRR disposition markets</strong> (sub-$200K deals): Memphis, Cleveland, Detroit, Indianapolis, Birmingham, Pittsburgh, Kansas City, St. Louis, Buffalo, Rochester, Toledo, Oklahoma City, Indian River County FL (13–15% gross yields).
+            </p>
+        </div>
+
+        <!-- ── 5. FREE TOOL STACK ── -->
+        <div class="guide-section">
+            <h2>🛠️ The Free Tool Stack</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.25rem;">
+                Stack three 7-day trials consecutively: <strong style="color:var(--text-primary);">PropStream → DealMachine → BatchLeads</strong> = three weeks of premium data for $0.
+                After that, county records and free skip-trace sites carry the operation indefinitely.
+            </p>
+
+            <h3>Trial Sequence</h3>
+            <div class="table-wrap">
+                <table class="guide-table">
+                    <thead>
+                        <tr><th>Platform</th><th>Trial</th><th>What to Do in the Trial</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">PropStream</strong></td>
+                            <td><span class="trial-badge">7 days + 50 free leads</span></td>
+                            <td>Export 5,000+ pre-foreclosure / tax-lien / absentee / vacant / high-equity leads. Best national data depth.</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">DealMachine</strong></td>
+                            <td><span class="trial-badge">7 days + $10 mail credit</span></td>
+                            <td>Virtual "driving for dollars" via Street View; unlimited skip-trace on your exported list.</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">BatchLeads</strong></td>
+                            <td><span class="trial-badge">7 days</span></td>
+                            <td>List-stacking + 67% right-party-contact skip-tracing. Best for layering multiple distress filters.</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Connected Investors</strong></td>
+                            <td><span class="trial-badge">7 days + 50 free skip-traces</span></td>
+                            <td>Build national cash-buyer list via "One-Click Cash Buyers" feature.</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--text-primary);">Foreclosure.com</strong></td>
+                            <td><span class="trial-badge">$1 for 7 days</span></td>
+                            <td>Pre-foreclosure / REO / auction / tax-lien inventory browsing.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin-top:1.5rem;">$0 Permanent Stack</h3>
+            <ul class="stack-list">
+                <li>
+                    <div class="stack-icon">📞</div>
+                    <div><strong style="color:var(--text-primary);">Google Voice</strong> — free call/text number for all seller outreach</div>
+                </li>
+                <li>
+                    <div class="stack-icon">📋</div>
+                    <div><strong style="color:var(--text-primary);">Gmail + Trello</strong> — free CRM; one board per market, one card per lead</div>
+                </li>
+                <li>
+                    <div class="stack-icon">🏠</div>
+                    <div><strong style="color:var(--text-primary);">Zillow / Craigslist / Facebook Marketplace</strong> — FSBO supply. Houzeo sellers paid $249–$349 to self-list and are motivated. Facebook "[City] FSBO" groups = freshest unsophisticated leads.</div>
+                </li>
+                <li>
+                    <div class="stack-icon">🗂️</div>
+                    <div><strong style="color:var(--text-primary);">NETR Online (publicrecords.netronline.com)</strong> — free national directory linking every county's recorder, assessor, and treasurer. Run <code style="font-size:0.8rem;color:var(--accent);">Google: "[county] delinquent tax list" filetype:pdf</code> and convert with free Tabula.</div>
+                </li>
+                <li>
+                    <div class="stack-icon">🔍</div>
+                    <div><strong style="color:var(--text-primary);">TruePeopleSearch / FastPeopleSearch / ThatsThem</strong> — free skip-trace. ~30–50% accuracy (vs. 60–80% paid), so work volume. Paid upgrade: BatchSkipTracing $0.10–0.20/hit.</div>
+                </li>
+                <li>
+                    <div class="stack-icon">📈</div>
+                    <div><strong style="color:var(--text-primary);">Zillow + Redfin + Realtor.com</strong> — comps, side-by-side. Never rely on a single source for ARV.</div>
+                </li>
+                <li>
+                    <div class="stack-icon">🏛️</div>
+                    <div><strong style="color:var(--text-primary);">City open-data portals</strong> — code-violation and condemned-property lists (Detroit, Baltimore, Memphis, Cleveland, Indianapolis publish free). Owners of condemned properties are among the most motivated sellers in any market.</div>
+                </li>
+            </ul>
+
+            <h3 style="margin-top:1.5rem;">First Paid Upgrade (After Deal One)</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;">Choose one — never both at once:</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:0.75rem;">
+                <div style="background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:1rem;border-top:3px solid var(--primary);">
+                    <strong style="color:var(--primary-light);">PropStream Essentials — $99/mo</strong>
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin:0.5rem 0 0;">Best for: data depth, list-pulling, filtering by equity/vacant/absentee/pre-foreclosure nationally.</p>
+                </div>
+                <div style="background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:1rem;border-top:3px solid var(--accent);">
+                    <strong style="color:var(--accent);">DealMachine Starter — $99/mo</strong>
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin:0.5rem 0 0;">Best for: in-app skip-trace, direct mail campaigns, and virtual driving-for-dollars via Street View.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── 6. LEGAL MAP ── -->
+        <div class="guide-section">
+            <h2>⚖️ Legal Map — Every Wholesaler Must Know This</h2>
+
+            <div class="principle-box">
+                <p><strong>Equitable interest doctrine:</strong> A signed purchase agreement gives you the right to buy — and the right to sell that <em>contract</em>. Selling the property itself without owning it = unlicensed brokerage in every state. Always use <strong>"and/or assigns"</strong> next to your name and disclose in writing that you hold equitable interest only and intend to assign.</p>
+            </div>
+
+            <div class="zone-grid">
+                <div class="zone-card zone-red">
+                    <h3>🔴 Red Zone — License Effectively Required</h3>
+                    <p>These states have redefined wholesaling as licensed brokerage activity, regardless of whether you market the contract or the property. Avoid completely as an unlicensed beginner.</p>
+                    <div class="state-list">
+                        <span class="state-chip">South Carolina</span>
+                        <span class="state-chip">North Carolina</span>
+                        <span class="state-chip">Illinois</span>
+                        <span class="state-chip">Oklahoma</span>
+                        <span class="state-chip">Pennsylvania</span>
+                        <span class="state-chip">Kentucky</span>
+                        <span class="state-chip">Nebraska</span>
+                    </div>
+                    <p style="margin-top:0.75rem;font-size:0.78rem;">Notable: IL = Class A misdemeanor at 2 deals/year. SC HB 4754 is the hardest — double-closing also restricted. OK SB 1075 (Nov 2025) covers double closings + 2-day seller cancellation right.</p>
+                </div>
+
+                <div class="zone-card zone-yellow">
+                    <h3>🟡 Yellow Zone — Disclosure or Registration Required</h3>
+                    <p>No license needed if compliant. Use bold-font written disclosure at or before signing. Each state has its own specific requirements.</p>
+                    <div class="state-list">
+                        <span class="state-chip">Maryland</span>
+                        <span class="state-chip">Ohio</span>
+                        <span class="state-chip">Tennessee</span>
+                        <span class="state-chip">Alabama</span>
+                        <span class="state-chip">Indiana</span>
+                        <span class="state-chip">Wisconsin</span>
+                        <span class="state-chip">Virginia</span>
+                        <span class="state-chip">Oregon</span>
+                        <span class="state-chip">North Dakota</span>
+                        <span class="state-chip">Connecticut</span>
+                        <span class="state-chip">Minnesota</span>
+                        <span class="state-chip">Iowa</span>
+                        <span class="state-chip">Texas</span>
+                        <span class="state-chip">Arizona</span>
+                        <span class="state-chip">Michigan</span>
+                    </div>
+                    <p style="margin-top:0.75rem;font-size:0.78rem;">Notable: WI = 5-deal annual cap, $5K fine. CT Public Act 25-168 (Jul 1 2026) = $285 fee, 90-day max closing. MI = private marketing only (no public ads).</p>
+                </div>
+
+                <div class="zone-card zone-green">
+                    <h3>🟢 Green Zone — Generally Permitted</h3>
+                    <p>Wholesaling allowed with proper equitable-interest disclosure. Still use "and/or assigns" and private buyer-list marketing in all green states — enforcement of the public-property-marketing rule is active even where licensing isn't required.</p>
+                    <div class="state-list">
+                        <span class="state-chip">Florida</span>
+                        <span class="state-chip">Georgia</span>
+                        <span class="state-chip">Missouri</span>
+                        <span class="state-chip">Kansas</span>
+                        <span class="state-chip">Colorado</span>
+                        <span class="state-chip">Washington</span>
+                        <span class="state-chip">Nevada</span>
+                        <span class="state-chip">California</span>
+                        <span class="state-chip">New York</span>
+                        <span class="state-chip">New Jersey</span>
+                    </div>
+                    <p style="margin-top:0.75rem;font-size:0.78rem;">FL FREC, GA (Atlanta), CA DRE, and NY Dept. of State have all fined wholesalers for marketing properties they don't own — the public-property-marketing rule is enforced even without a licensing requirement.</p>
+                </div>
+            </div>
+
+            <div style="margin-top:1.25rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm);border-left:4px solid var(--accent);">
+                <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);">
+                    <strong style="color:var(--accent);">Bird-dogging note:</strong> Delivering leads for a finder's fee ($500–$2,000 flat per closed deal) is a slightly safer legal posture because you don't sign the contract. But in red-zone states, paying anyone for "procuring" a transaction is still unlicensed brokerage. Use a written marketing/referral agreement with a licensed investor and pay a flat fee — not a percentage of sale price.
+                </p>
+            </div>
+
+            <div style="margin-top:1rem;padding:1rem;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);">
+                <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);">
+                    <strong style="color:var(--truth);">The trend:</strong> Ten states now have wholesaling-specific laws. <strong>Every state will likely have disclosure or licensing rules within two years.</strong> Operating cleanly today — written disclosure, "and/or assigns," private buyer-list marketing, investor-friendly title company — costs nothing and future-proofs the business.
+                </p>
+            </div>
+        </div>
+
+        <!-- ── 7. ACTION PLAN ── -->
+        <div class="guide-section">
+            <h2>🚀 Where to Actually Start Tomorrow</h2>
+            <div class="action-card">
+                <h3>The 2026 Narrow-and-Deep Approach</h3>
+                <div class="action-steps">
+                    <div class="action-step">
+                        <div class="step-num">STEP 01 — STATE</div>
+                        <p>Pick one green-zone state from the top six: Texas, Florida, Georgia, Ohio, Indiana, or Tennessee.</p>
+                    </div>
+                    <div class="action-step">
+                        <div class="step-num">STEP 02 — METRO</div>
+                        <p>Pick one distressed metro: Houston or San Antonio (TX) · Lakeland or Jacksonville (FL) · Cleveland or Columbus (OH) · Indianapolis (IN).</p>
+                    </div>
+                    <div class="action-step">
+                        <div class="step-num">STEP 03 — BUYER LIST FIRST</div>
+                        <p>Build a verified cash-buyer list before locking anything under contract. Disposition is the hard half of the trade in 2026 with flip ROI at a 17-year low.</p>
+                    </div>
+                    <div class="action-step">
+                        <div class="step-num">STEP 04 — FREE STACK</div>
+                        <p>Start: Google Voice + Gmail/Trello + Zillow/Craigslist/Facebook + NETR Online + TruePeopleSearch. No paid tools until after deal one.</p>
+                    </div>
+                    <div class="action-step">
+                        <div class="step-num">STEP 05 — TRIAL STACK</div>
+                        <p>Run PropStream → DealMachine → BatchLeads trials back-to-back for 21 days of premium leads at $0. Export and skip-trace in each trial window.</p>
+                    </div>
+                    <div class="action-step">
+                        <div class="step-num">STEP 06 — COMPLIANCE</div>
+                        <p>"And/or assigns" on every contract. Written equitable-interest disclosure at signing. Market contract privately to your buyer list only — never the property publicly.</p>
+                    </div>
+                </div>
+                <div style="margin-top:1.5rem;padding:1rem;background:rgba(99,102,241,0.08);border-radius:var(--radius-sm);border:1px solid rgba(99,102,241,0.2);">
+                    <p style="margin:0;font-size:0.9rem;color:var(--text-secondary);line-height:1.7;">
+                        <strong style="color:var(--primary-light);">The single highest-leverage skill in 2026</strong> is not finding sellers — foreclosure rates and DOM are doing that work. It's building a verified cash-buyer list before you lock anything under contract.
+                        The zero-capital wholesaler who treats compliance as a moat rather than a tax will outlast the legions of YouTube-trained competitors getting cease-and-desist letters in South Carolina, North Carolina, and Pennsylvania.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>TRUTHOS © 2026 &nbsp;•&nbsp; Wholesaling 2026 Playbook &nbsp;•&nbsp; <a href="index.html" style="color:var(--primary-light);">← Back to Dashboard</a></p>
+        </footer>
+
+    </div>
+</body>
+</html>
