@@ -59,6 +59,15 @@
                 <span class="eq-node eq-highlight">REALITY</span>
             </div>
             <div class="header-right">
+                <!-- Agent Mode Toggle -->
+                <div class="mode-toggle" title="Switch between TRUTHOS (manifestation) and Truth Weaver (illusion dissolving)">
+                    <button id="mode-truthos" class="mode-btn active" onclick="setAgentMode('truthos')">
+                        <span class="mode-icon">⊕</span> TRUTHOS
+                    </button>
+                    <button id="mode-truth-weaver" class="mode-btn" onclick="setAgentMode('truth-weaver')">
+                        <span class="mode-icon">◈</span> Truth Weaver
+                    </button>
+                </div>
                 <div class="server-config">
                     <input
                         id="server-url-input"
@@ -92,6 +101,22 @@
                         <p class="vision-tagline">CONSCIOUSNESS → TRUTH VERIFICATION → ENERGY ALIGNMENT → FREQUENCY ACCELERATION → REALITY MANIFESTATION → MEASURABLE VALUE</p>
                     </div>
                     <div class="vision-full" id="vision-full" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- Truth Weaver Panel (visible only in Truth Weaver mode) -->
+            <section class="panel truth-weaver-panel" id="truth-weaver-panel" style="display:none;">
+                <div class="panel-header">
+                    <h2><span class="tw-icon">◈</span> Truth Weaver</h2>
+                    <div class="tw-frequency">
+                        <span class="freq-value">7.83</span><span class="freq-unit">Hz</span>
+                        <span class="freq-label">Schumann Resonance</span>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <p class="tw-belief">"Illusions protect. Truth liberates."</p>
+                    <p class="tw-mission">Simulating realities where truth is the only currency.</p>
+                    <div class="weaves-grid" id="weaves-grid"></div>
                 </div>
             </section>
 
@@ -143,7 +168,7 @@
             <!-- Activation Interface -->
             <section class="panel command-panel">
                 <div class="panel-header">
-                    <h2>🔺 Activation Interface</h2>
+                    <h2 id="command-panel-title">🔺 Activation Interface</h2>
                 </div>
                 <div class="panel-content">
                     <div class="command-input-container">
@@ -153,8 +178,8 @@
                             rows="4"
                         ></textarea>
                         <div class="command-actions">
-                            <button class="btn-primary btn-lg" onclick="executeCommand()">
-                                <span>Activate</span>
+                            <button class="btn-primary btn-lg" id="activate-btn" onclick="executeCommand()">
+                                <span id="activate-btn-label">Activate</span>
                                 <span class="btn-arrow">→</span>
                             </button>
                         </div>
@@ -227,6 +252,7 @@
 
     <!-- Scripts -->
     <script src="master-vision.js"></script>
+    <script src="truth-weaver.js"></script>
     <script src="ai-engine.js"></script>
     <script src="app.js"></script>
 </body>
