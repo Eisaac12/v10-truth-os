@@ -39,8 +39,147 @@ function setServerUrl() {
     }
     if (aiEngine) {
         aiEngine.serverUrl = url || aiEngine.resolveServerUrl();
-        aiEngine.checkLiveAI();
+        aiEngine.checkLiveAI().then(() => {
+            if (aiEngine.liveAI) dismissSetupPanel();
+            initAdminPanel();
+        });
     }
+}
+
+// ─── Setup panel ──────────────────────────────────────────────────────────────
+
+function checkSetupPanel() {
+    if (!aiEngine || aiEngine.liveAI) return;
+    if (localStorage.getItem('truthos_setup_dismissed')) return;
+    const panel = document.getElementById('setup-panel');
+    if (panel) panel.style.display = 'block';
+}
+
+function dismissSetupPanel() {
+    localStorage.setItem('truthos_setup_dismissed', '1');
+    const panel = document.getElementById('setup-panel');
+    if (!panel) return;
+    panel.style.opacity = '0';
+    panel.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => { panel.style.display = 'none'; panel.style.opacity = ''; }, 300);
+}
+
+async function testConnection() {
+    const resultEl = document.getElementById('test-result');
+    if (!resultEl) return;
+    resultEl.textContent = 'Testing...';
+    resultEl.className = 'test-result';
+
+    const serverUrl = (aiEngine && aiEngine.serverUrl) || 'http://localhost:3001';
+    try {
+        const res = await fetch(`${serverUrl}/api/health`, { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.ai === 'connected') {
+                resultEl.textContent = '✓ Connected — Claude API active';
+                resultEl.className = 'test-result success';
+                if (aiEngine) aiEngine.liveAI = true;
+                aiEngine.updateAIStatusBadge();
+                setTimeout(() => dismissSetupPanel(), 2000);
+            } else {
+                resultEl.textContent = '⚠ Server reachable — no API key set';
+                resultEl.className = 'test-result warn';
+            }
+        } else {
+            resultEl.textContent = '✗ Server returned an error';
+            resultEl.className = 'test-result error';
+        }
+    } catch {
+        resultEl.textContent = '✗ No server found at this URL';
+        resultEl.className = 'test-result error';
+    }
+}
+
+// ─── Admin panel ──────────────────────────────────────────────────────────────
+
+let _adminOrgData = null;
+
+async function initAdminPanel() {
+    if (!aiEngine) return;
+    try {
+        const res = await fetch(`${aiEngine.serverUrl}/api/admin/org`,
+            { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+            _adminOrgData = await res.json();
+            const btn = document.getElementById('admin-toggle');
+            if (btn) btn.style.display = 'flex';
+        }
+    } catch { /* admin key not set — silently skip */ }
+}
+
+function openAdminPanel() {
+    const panel = document.getElementById('admin-panel');
+    if (!panel) return;
+    panel.style.display = 'flex';
+
+    const orgEl = document.getElementById('admin-org');
+    if (orgEl && _adminOrgData) {
+        orgEl.innerHTML = `<div class="admin-section-title">Organization</div>
+            <div class="admin-org-name">${_adminOrgData.name || 'Unknown'}</div>`;
+    }
+
+    const serverUrl = aiEngine.serverUrl;
+    Promise.all([
+        fetch(`${serverUrl}/api/admin/usage`).then(r => r.json()).catch(() => null),
+        fetch(`${serverUrl}/api/admin/keys`).then(r => r.json()).catch(() => null)
+    ]).then(([usage, keys]) => {
+        if (usage) renderAdminUsage(usage);
+        if (keys)  renderAdminKeys(keys);
+    });
+}
+
+function renderAdminUsage(data) {
+    const el = document.getElementById('admin-usage');
+    if (!el) return;
+    const buckets = data.data || data.buckets || [];
+    if (buckets.length === 0) {
+        el.innerHTML = '<div class="admin-section-title">Usage</div><div class="admin-empty">No usage data available yet</div>';
+        return;
+    }
+    const rows = buckets.slice(0, 10).map(b => {
+        const date   = b.start_time ? new Date(b.start_time).toLocaleDateString() : 'N/A';
+        const input  = (b.input_tokens  || 0).toLocaleString();
+        const output = (b.output_tokens || 0).toLocaleString();
+        const total  = ((b.input_tokens || 0) + (b.output_tokens || 0)).toLocaleString();
+        return `<tr><td>${date}</td><td>${input}</td><td>${output}</td><td>${total}</td></tr>`;
+    }).join('');
+    el.innerHTML = `
+        <div class="admin-section-title">Token Usage (last ${buckets.length} days)</div>
+        <table class="admin-table">
+            <thead><tr><th>Date</th><th>Input</th><th>Output</th><th>Total</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function renderAdminKeys(data) {
+    const el = document.getElementById('admin-keys');
+    if (!el) return;
+    const keys = data.keys || [];
+    if (keys.length === 0) {
+        el.innerHTML = '<div class="admin-section-title">API Keys</div><div class="admin-empty">No keys found</div>';
+        return;
+    }
+    const rows = keys.map(k => {
+        const created  = k.created_at   ? new Date(k.created_at).toLocaleDateString()   : 'N/A';
+        const lastUsed = k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never';
+        return `<tr><td>${k.name || 'Unnamed'}</td><td>${created}</td><td>${lastUsed}</td><td><span class="key-status ${k.status || ''}">${k.status || 'unknown'}</span></td></tr>`;
+    }).join('');
+    el.innerHTML = `
+        <div class="admin-section-title">API Keys</div>
+        <table class="admin-table">
+            <thead><tr><th>Name</th><th>Created</th><th>Last Used</th><th>Status</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function closeAdminPanel() {
+    const panel = document.getElementById('admin-panel');
+    if (panel) panel.style.display = 'none';
 }
 
 // ─── Agent mode ───────────────────────────────────────────────────────────────
@@ -154,14 +293,77 @@ async function executeCommand() {
         return;
     }
 
-    const btn = document.querySelector('.btn-primary.btn-lg');
-    if (btn) { btn.textContent = 'Activating...'; btn.disabled = true; }
+    const isTW = aiEngine && aiEngine.agentMode === 'truth-weaver';
+    const btn = document.getElementById('activate-btn');
+    if (btn) {
+        btn.innerHTML = `<span>${isTW ? 'Weaving...' : 'Activating...'}</span>`;
+        btn.disabled = true;
+    }
     commandInput.value = '';
 
-    const result = await aiEngine.executeCommand(input);
-    displayResponse(result);
+    let streamingActive = false;
+    let onStreamDelta = null;
 
-    if (btn) { btn.innerHTML = '<span>Activate</span><span class="btn-arrow">→</span>'; btn.disabled = false; }
+    if (aiEngine && aiEngine.liveAI) {
+        onStreamDelta = (delta, opts) => {
+            if (opts?.streaming === true && !streamingActive) {
+                startStreamingResponse(isTW);
+                streamingActive = true;
+            }
+            if (delta) appendStreamDelta(delta);
+        };
+    }
+
+    const result = await aiEngine.executeCommand(input, onStreamDelta);
+
+    if (streamingActive) {
+        finalizeStreamingResponse(result);
+    } else {
+        displayResponse(result);
+    }
+
+    if (btn) {
+        btn.innerHTML = `<span id="activate-btn-label">${isTW ? 'Weave' : 'Activate'}</span><span class="btn-arrow">→</span>`;
+        btn.disabled = false;
+    }
+}
+
+function startStreamingResponse(isTW) {
+    const responseEl      = document.getElementById('ai-response');
+    const responseContent = document.getElementById('response-content');
+    if (!responseEl || !responseContent) return;
+
+    const headerColor = isTW ? 'var(--weaver)' : 'var(--primary-light)';
+    const badgeText   = isTW ? '◈ streaming at 7.83Hz' : '⚡ streaming';
+
+    responseContent.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+            <span class="stream-badge" style="color:${headerColor};font-weight:600;font-size:0.85rem;">● ${badgeText}</span>
+        </div>
+        <div style="line-height:1.8;color:var(--text-secondary);border-left:2px solid ${headerColor};padding-left:1rem;">
+            <span id="stream-text"></span><span class="stream-cursor">▋</span>
+        </div>
+    `;
+    responseEl.style.display = 'block';
+    responseEl.className = `ai-response${isTW ? ' tw-response' : ''}`;
+}
+
+function appendStreamDelta(delta) {
+    const streamText = document.getElementById('stream-text');
+    if (!streamText) return;
+    const span = document.createElement('span');
+    span.textContent = delta;
+    streamText.appendChild(span);
+}
+
+function finalizeStreamingResponse(result) {
+    document.querySelector('.stream-cursor')?.remove();
+    const isTW  = result.agent === 'truth-weaver';
+    const badge = document.querySelector('.stream-badge');
+    if (badge) {
+        badge.textContent = isTW ? '◈ Weave complete — truth revealed' : '✅ Activation accepted';
+        badge.style.color = isTW ? 'var(--weaver)' : 'var(--success)';
+    }
 }
 
 function displayResponse(result) {
@@ -404,6 +606,13 @@ function setupEventListeners() {
     document.getElementById('checkin-input')?.addEventListener('keydown', e => {
         if (e.ctrlKey && e.key === 'Enter') submitCheckIn();
     });
+    document.getElementById('admin-panel')?.addEventListener('click', e => {
+        if (e.target === document.getElementById('admin-panel')) closeAdminPanel();
+    });
+    document.addEventListener('truthos:aiready', () => {
+        checkSetupPanel();
+        initAdminPanel();
+    });
 }
 
 document.addEventListener('keydown', e => {
@@ -461,3 +670,7 @@ window.dismissCheckIn           = dismissCheckIn;
 window.exportActivationRecord   = exportActivationRecord;
 window.setServerUrl             = setServerUrl;
 window.setAgentMode             = setAgentMode;
+window.dismissSetupPanel        = dismissSetupPanel;
+window.testConnection           = testConnection;
+window.openAdminPanel           = openAdminPanel;
+window.closeAdminPanel          = closeAdminPanel;

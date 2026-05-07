@@ -151,6 +151,64 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// ─── Anthropic Admin API proxy ────────────────────────────────────────────────
+// Requires ANTHROPIC_ADMIN_API_KEY (sk-ant-admin-...) in .env
+// Separate from the messages API key — get it at console.anthropic.com
+
+async function adminFetch(path) {
+    const r = await fetch(`https://api.anthropic.com/v1${path}`, {
+        headers: {
+            'X-Api-Key': process.env.ANTHROPIC_ADMIN_API_KEY,
+            'anthropic-version': '2023-06-01'
+        }
+    });
+    if (!r.ok) throw new Error(`Admin API ${r.status}: ${await r.text()}`);
+    return r.json();
+}
+
+app.get('/api/admin/org', async (req, res) => {
+    if (!process.env.ANTHROPIC_ADMIN_API_KEY)
+        return res.status(503).json({ error: 'ANTHROPIC_ADMIN_API_KEY not set' });
+    try {
+        const data = await adminFetch('/organizations/me');
+        res.json({ id: data.id, name: data.name, created_at: data.created_at });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/admin/usage', async (req, res) => {
+    if (!process.env.ANTHROPIC_ADMIN_API_KEY)
+        return res.status(503).json({ error: 'ANTHROPIC_ADMIN_API_KEY not set' });
+    const validPeriods = ['1d', '1h', '1m'];
+    const bucket = validPeriods.includes(req.query.period) ? req.query.period : '1d';
+    const lim = Math.min(parseInt(req.query.limit, 10) || 7, 31);
+    try {
+        const data = await adminFetch(`/organizations/usage_report/messages?bucket_width=${bucket}&limit=${lim}`);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/admin/keys', async (req, res) => {
+    if (!process.env.ANTHROPIC_ADMIN_API_KEY)
+        return res.status(503).json({ error: 'ANTHROPIC_ADMIN_API_KEY not set' });
+    try {
+        const data = await adminFetch('/organizations/api_keys');
+        const keys = (data.data || []).map(k => ({
+            id: k.id,
+            name: k.name,
+            created_at: k.created_at,
+            last_used_at: k.last_used_at,
+            status: k.status
+        }));
+        res.json({ keys });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`⊕ TRUTHOS server running on http://localhost:${PORT}`);

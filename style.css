@@ -1092,3 +1092,244 @@ body.truth-weaver-mode .status-dot {
         font-size: 1.5rem;
     }
 }
+
+/* ─── Streaming ─────────────────────────────────────────────────────────────── */
+
+.stream-cursor {
+    display: inline-block;
+    color: var(--primary-light);
+    animation: streamCursorBlink 0.7s step-end infinite;
+}
+
+@keyframes streamCursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+body.truth-weaver-mode .stream-cursor { color: var(--weaver-light); }
+
+#stream-text span {
+    animation: streamFadeIn 0.1s ease;
+}
+
+@keyframes streamFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── Setup Panel ───────────────────────────────────────────────────────────── */
+
+.setup-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md), 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.setup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+    color: var(--primary-light);
+    font-size: 0.95rem;
+}
+
+.setup-dismiss {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.25rem;
+    line-height: 1;
+}
+
+.setup-dismiss:hover { color: var(--text-primary); }
+
+.setup-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.setup-step {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+}
+
+.step-num {
+    min-width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.step-body {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.step-body code {
+    background: var(--bg-tertiary);
+    color: var(--primary-light);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+}
+
+.setup-test {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.test-result          { font-size: 0.9rem; color: var(--text-muted); }
+.test-result.success  { color: var(--success); }
+.test-result.warn     { color: var(--warning); }
+.test-result.error    { color: var(--danger); }
+
+/* ─── Admin Toggle Button ───────────────────────────────────────────────────── */
+
+.admin-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-body);
+}
+
+.admin-toggle:hover {
+    color: var(--text-primary);
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+/* ─── Admin Panel ───────────────────────────────────────────────────────────── */
+
+.admin-panel {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: var(--spacing-lg);
+    backdrop-filter: blur(2px);
+}
+
+.admin-panel-inner {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideInRight 0.2s ease;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+.admin-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-md);
+}
+
+.admin-panel-header button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0;
+}
+
+.admin-panel-header button:hover { color: var(--text-primary); }
+
+.admin-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.admin-org-name {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+    padding: 0.5rem 0.75rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.07);
+}
+
+.admin-table tr:nth-child(even) td { background: rgba(26, 26, 46, 0.5); }
+
+.key-status         { font-size: 0.8rem; font-weight: 500; }
+.key-status.active  { color: var(--success); }
+.key-status.inactive { color: var(--text-muted); }
+
+.admin-empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: var(--spacing-xs) 0;
+}

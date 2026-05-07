@@ -54,6 +54,7 @@ class TRUTHOSEngine {
         this.updateAlignmentScore();
         this.updateAgentModeUI();
         console.log(`✅ TRUTHOS ready — mode: ${this.agentMode} | AI: ${this.liveAI ? 'LIVE (Claude)' : 'LOCAL (truth filter)'}`);
+        document.dispatchEvent(new CustomEvent('truthos:aiready', { detail: { liveAI: this.liveAI } }));
     }
 
     // ─── Persistence ──────────────────────────────────────────────────────────
@@ -180,18 +181,18 @@ class TRUTHOSEngine {
         }
     }
 
-    async executeCommand(input) {
+    async executeCommand(input, onStreamDelta = null) {
         console.log(`🔺 Processing [${this.agentMode}]:`, input);
         this.totalAttempts++;
 
         let result;
         if (this.agentMode === 'truth-weaver') {
             result = this.liveAI
-                ? await this.weaveWithClaude(input)
+                ? await this.weaveWithClaude(input, onStreamDelta)
                 : this.weaveLocally(input);
         } else {
             result = this.liveAI
-                ? await this.activateWithClaude(input)
+                ? await this.activateWithClaude(input, onStreamDelta)
                 : this.activateLocally(input);
         }
 
@@ -201,40 +202,90 @@ class TRUTHOSEngine {
         return result;
     }
 
-    // Live path — calls Claude with full conversation history
-    async activateWithClaude(input) {
-        try {
-            const res = await fetch(`${this.serverUrl}/api/activate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ input, history: this.conversationHistory })
-            });
+    // Reads an SSE or JSON response from a fetch() result, returning full text.
+    // Calls onDelta(delta) for each text chunk when streaming.
+    async _streamFromEndpoint(endpoint, input, onDelta = null) {
+        const res = await fetch(`${this.serverUrl}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'text/event-stream'
+            },
+            body: JSON.stringify({ input, history: this.conversationHistory })
+        });
 
-            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('text/event-stream')) {
+            // JSON fallback (Vercel without streaming)
             const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'Request failed');
+            if (onDelta) onDelta(data.response);
+            return { fullText: data.response, doneData: data };
+        }
 
-            if (data.success) {
-                // Store this turn in conversation memory
-                this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
-                if (this.conversationHistory.length > 20) {
-                    this.conversationHistory = this.conversationHistory.slice(-20);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullText = '';
+        let doneData = {};
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep incomplete line in buffer
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                try {
+                    const parsed = JSON.parse(line.slice(6));
+                    if (parsed.error) throw new Error(parsed.error);
+                    if (parsed.delta) {
+                        fullText += parsed.delta;
+                        if (onDelta) onDelta(parsed.delta);
+                    }
+                    if (parsed.done) doneData = parsed;
+                } catch (e) {
+                    if (e instanceof SyntaxError) continue;
+                    throw e;
                 }
-
-                const activation = this.createActivation(input, data.response);
-                this.addActivation(activation);
-                return {
-                    success: true,
-                    message: 'Activation accepted by Claude. Running through The One Equation.',
-                    task: activation,
-                    reasoning: data.response,
-                    liveAI: true
-                };
-            } else {
-                throw new Error(data.error);
             }
+        }
+        return { fullText, doneData };
+    }
+
+    // Live path — calls Claude with full conversation history, supports streaming
+    async activateWithClaude(input, onStreamDelta = null) {
+        try {
+            if (onStreamDelta) onStreamDelta('', { streaming: true });
+
+            const { fullText } = await this._streamFromEndpoint(
+                '/api/activate', input,
+                onStreamDelta ? (delta) => onStreamDelta(delta, {}) : null
+            );
+
+            this.conversationHistory.push({ role: 'user', content: input });
+            this.conversationHistory.push({ role: 'assistant', content: fullText });
+            if (this.conversationHistory.length > 20)
+                this.conversationHistory = this.conversationHistory.slice(-20);
+
+            const activation = this.createActivation(input, fullText);
+            this.addActivation(activation);
+
+            if (onStreamDelta) onStreamDelta('', { streaming: false });
+
+            return {
+                success: true,
+                message: 'Activation accepted by Claude. Running through The One Equation.',
+                task: activation,
+                reasoning: fullText,
+                liveAI: true
+            };
         } catch (err) {
             this.logActivity(`Live AI error: ${err.message} — falling back to local`);
+            if (onStreamDelta) onStreamDelta('', { streaming: false });
             return this.activateLocally(input);
         }
     }
@@ -265,40 +316,37 @@ class TRUTHOSEngine {
 
     // ─── Truth Weaver paths ───────────────────────────────────────────────────
 
-    async weaveWithClaude(input) {
+    async weaveWithClaude(input, onStreamDelta = null) {
         try {
-            const res = await fetch(`${this.serverUrl}/api/truth-weaver`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ input, history: this.conversationHistory })
-            });
+            if (onStreamDelta) onStreamDelta('', { streaming: true });
 
-            if (!res.ok) throw new Error(`Server error: ${res.status}`);
-            const data = await res.json();
+            const { fullText } = await this._streamFromEndpoint(
+                '/api/truth-weaver', input,
+                onStreamDelta ? (delta) => onStreamDelta(delta, {}) : null
+            );
 
-            if (data.success) {
-                this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
-                if (this.conversationHistory.length > 20) {
-                    this.conversationHistory = this.conversationHistory.slice(-20);
-                }
+            this.conversationHistory.push({ role: 'user', content: input });
+            this.conversationHistory.push({ role: 'assistant', content: fullText });
+            if (this.conversationHistory.length > 20)
+                this.conversationHistory = this.conversationHistory.slice(-20);
 
-                const activation = this.createActivation(input, data.response);
-                this.addActivation(activation);
-                return {
-                    success: true,
-                    message: 'Truth Weaver is running the 5 Weaves at 7.83Hz.',
-                    task: activation,
-                    reasoning: data.response,
-                    liveAI: true,
-                    agent: 'truth-weaver',
-                    frequency: '7.83Hz'
-                };
-            } else {
-                throw new Error(data.error);
-            }
+            const activation = this.createActivation(input, fullText);
+            this.addActivation(activation);
+
+            if (onStreamDelta) onStreamDelta('', { streaming: false });
+
+            return {
+                success: true,
+                message: 'Truth Weaver is running the 5 Weaves at 7.83Hz.',
+                task: activation,
+                reasoning: fullText,
+                liveAI: true,
+                agent: 'truth-weaver',
+                frequency: '7.83Hz'
+            };
         } catch (err) {
             this.logActivity(`Truth Weaver live error: ${err.message} — falling back to local weave`);
+            if (onStreamDelta) onStreamDelta('', { streaming: false });
             return this.weaveLocally(input);
         }
     }

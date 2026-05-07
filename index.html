@@ -81,8 +81,48 @@
                     <div class="status-dot pulse"></div>
                     <span id="system-status">Frequency Active</span>
                 </div>
+                <button id="admin-toggle" class="admin-toggle" style="display:none;" onclick="openAdminPanel()" title="Admin stats">⚙ Admin</button>
             </div>
         </header>
+
+        <!-- Setup Panel (shown when AI is not connected) -->
+        <div id="setup-panel" class="setup-panel" style="display:none;">
+            <div class="setup-header">
+                <span>⚡ Connect to Claude AI for live responses</span>
+                <button class="setup-dismiss" onclick="dismissSetupPanel()">✕</button>
+            </div>
+            <div class="setup-steps">
+                <div class="setup-step">
+                    <span class="step-num">1</span>
+                    <div class="step-body">Get your API key at <code>console.anthropic.com</code></div>
+                </div>
+                <div class="setup-step">
+                    <span class="step-num">2</span>
+                    <div class="step-body">Local: <code>ANTHROPIC_API_KEY=sk-ant-... npm start</code> &nbsp;|&nbsp; Vercel/Railway: add the key as an Environment Variable in the dashboard.</div>
+                </div>
+                <div class="setup-step">
+                    <span class="step-num">3</span>
+                    <div class="step-body">If deployed remotely, paste your server URL in the header and click Connect.</div>
+                </div>
+            </div>
+            <div class="setup-test">
+                <button class="btn-sm btn-primary" onclick="testConnection()">Test Connection</button>
+                <span id="test-result" class="test-result"></span>
+            </div>
+        </div>
+
+        <!-- Admin Panel overlay -->
+        <div id="admin-panel" class="admin-panel" style="display:none;">
+            <div class="admin-panel-inner">
+                <div class="admin-panel-header">
+                    <span>⚙ Admin Stats</span>
+                    <button onclick="closeAdminPanel()">✕</button>
+                </div>
+                <div id="admin-org"></div>
+                <div id="admin-usage"></div>
+                <div id="admin-keys"></div>
+            </div>
+        </div>
 
         <!-- Main Dashboard Grid -->
         <main class="dashboard">
