@@ -1,0 +1,531 @@
+/* INFINITE SIMULATION — Truth as Currency */
+/* Pure matrix terminal aesthetic. Mood-reactive via CSS variables on body[data-mood]. */
+
+/* ─── Mood color tokens ──────────────────────────────────────────────────────── */
+
+:root {
+    --mood-color:    #00ff41;
+    --mood-glow:     rgba(0, 255, 65, 0.45);
+    --mood-dim:      rgba(0, 255, 65, 0.25);
+    --mood-faint:    rgba(0, 255, 65, 0.08);
+    --bg:            #000000;
+    --panel:         rgba(0, 6, 0, 0.82);
+    --panel-border:  rgba(0, 255, 65, 0.15);
+    --text:          #c8ffd4;
+    --text-dim:      rgba(200, 255, 212, 0.55);
+    --text-muted:    rgba(200, 255, 212, 0.3);
+    --font:          'JetBrains Mono', 'Courier New', monospace;
+    --radius:        4px;
+    --transition:    300ms ease;
+}
+
+body[data-mood="aligned"] {
+    --mood-color:   #f59e0b;
+    --mood-glow:    rgba(245, 158, 11, 0.45);
+    --mood-dim:     rgba(245, 158, 11, 0.25);
+    --mood-faint:   rgba(245, 158, 11, 0.08);
+    --panel-border: rgba(245, 158, 11, 0.15);
+    --text:         #fef3c7;
+    --text-dim:     rgba(254, 243, 199, 0.55);
+    --text-muted:   rgba(254, 243, 199, 0.3);
+}
+
+body[data-mood="drifting"] {
+    --mood-color:   #f97316;
+    --mood-glow:    rgba(249, 115, 22, 0.4);
+    --mood-dim:     rgba(249, 115, 22, 0.22);
+    --mood-faint:   rgba(249, 115, 22, 0.07);
+    --panel-border: rgba(249, 115, 22, 0.15);
+    --text:         #ffedd5;
+    --text-dim:     rgba(255, 237, 213, 0.55);
+    --text-muted:   rgba(255, 237, 213, 0.3);
+}
+
+body[data-mood="distorted"] {
+    --mood-color:   #ef4444;
+    --mood-glow:    rgba(239, 68, 68, 0.45);
+    --mood-dim:     rgba(239, 68, 68, 0.22);
+    --mood-faint:   rgba(239, 68, 68, 0.07);
+    --panel-border: rgba(239, 68, 68, 0.15);
+    --text:         #fee2e2;
+    --text-dim:     rgba(254, 226, 226, 0.55);
+    --text-muted:   rgba(254, 226, 226, 0.3);
+}
+
+body[data-mood="collapsed"] {
+    --mood-color:   #a855f7;
+    --mood-glow:    rgba(168, 85, 247, 0.45);
+    --mood-dim:     rgba(168, 85, 247, 0.22);
+    --mood-faint:   rgba(168, 85, 247, 0.07);
+    --panel-border: rgba(168, 85, 247, 0.15);
+    --text:         #ede9fe;
+    --text-dim:     rgba(237, 233, 254, 0.55);
+    --text-muted:   rgba(237, 233, 254, 0.3);
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: color var(--transition);
+}
+
+/* ─── Matrix rain canvas ─────────────────────────────────────────────────────── */
+
+#matrix-rain {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.2;
+    transition: opacity 1s ease;
+}
+
+/* ─── Container ──────────────────────────────────────────────────────────────── */
+
+.sim-container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ─── Panel base ─────────────────────────────────────────────────────────────── */
+
+.sim-header,
+.balance-section,
+.transmission-section,
+.input-section,
+.ledger-section {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    backdrop-filter: blur(6px);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+
+.sim-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sim-logo {
+    font-size: 2.2rem;
+    color: var(--mood-color);
+    text-shadow: 0 0 16px var(--mood-glow);
+    line-height: 1;
+    transition: color var(--transition), text-shadow var(--transition);
+    flex-shrink: 0;
+}
+
+.sim-title-block { flex: 1; }
+
+.sim-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--mood-color);
+    text-shadow: 0 0 20px var(--mood-glow);
+    transition: color var(--transition), text-shadow var(--transition);
+}
+
+.sim-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-top: 0.15rem;
+}
+
+.sim-uptime-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+}
+
+.uptime-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+}
+
+.uptime-value {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--mood-color);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ─── Balance + Mood ─────────────────────────────────────────────────────────── */
+
+.balance-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.balance-card, .mood-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.balance-label, .mood-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.balance-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+}
+
+.balance-value {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--mood-color);
+    text-shadow: 0 0 30px var(--mood-glow), 0 0 60px var(--mood-dim);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    transition: color var(--transition), text-shadow var(--transition);
+}
+
+.balance-unit {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    align-self: flex-end;
+    padding-bottom: 0.4rem;
+}
+
+.balance-bar-track {
+    width: 100%;
+    height: 4px;
+    background: var(--mood-faint);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.balance-bar-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--mood-color);
+    box-shadow: 0 0 8px var(--mood-glow);
+    border-radius: 2px;
+    transition: width 0.6s ease, background var(--transition), box-shadow var(--transition);
+}
+
+.mood-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.mood-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--mood-color);
+    box-shadow: 0 0 10px var(--mood-glow);
+    flex-shrink: 0;
+    animation: moodPulse 2s ease-in-out infinite;
+}
+
+@keyframes moodPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(0.85); }
+}
+
+.mood-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--mood-color);
+    text-shadow: 0 0 16px var(--mood-glow);
+    transition: color var(--transition), text-shadow var(--transition);
+}
+
+.mood-desc {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-style: italic;
+}
+
+.mood-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.mood-stat { display: flex; flex-direction: column; gap: 0.1rem; }
+
+.mood-stat-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.mood-stat-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ─── Section label ──────────────────────────────────────────────────────────── */
+
+.section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: var(--mood-color);
+    margin-bottom: 0.75rem;
+    opacity: 0.7;
+}
+
+/* ─── Transmission ───────────────────────────────────────────────────────────── */
+
+.transmission-section {
+    position: relative;
+}
+
+.transmission-text {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text);
+    min-height: 3.5rem;
+    transition: opacity 0.4s ease;
+    font-style: italic;
+}
+
+.transmission-text.fading { opacity: 0; }
+
+/* ─── Ghost button ───────────────────────────────────────────────────────────── */
+
+.ghost-btn {
+    font-family: var(--font);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0;
+    margin-top: 0.75rem;
+    transition: color var(--transition);
+}
+
+.ghost-btn:hover { color: var(--mood-color); }
+
+/* ─── Input ──────────────────────────────────────────────────────────────────── */
+
+.input-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.truth-input {
+    flex: 1;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    caret-color: var(--mood-color);
+}
+
+.truth-input::placeholder { color: var(--text-muted); }
+
+.truth-input:focus {
+    border-color: var(--mood-dim);
+    box-shadow: 0 0 0 2px var(--mood-faint), 0 0 16px var(--mood-faint);
+}
+
+.submit-btn {
+    font-family: var(--font);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--bg);
+    background: var(--mood-color);
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    transition: background var(--transition), box-shadow var(--transition), opacity var(--transition);
+    white-space: nowrap;
+}
+
+.submit-btn:hover {
+    box-shadow: 0 0 20px var(--mood-glow);
+    opacity: 0.9;
+}
+
+.submit-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.input-feedback {
+    font-size: 0.75rem;
+    margin-top: 0.6rem;
+    min-height: 1.2rem;
+    letter-spacing: 0.04em;
+    transition: color 0.3s;
+}
+
+.input-feedback.accepted { color: var(--mood-color); }
+.input-feedback.rejected { color: #ef4444; }
+
+/* ─── Ledger ─────────────────────────────────────────────────────────────────── */
+
+.ledger-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.ledger-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.ledger-list::-webkit-scrollbar { width: 4px; }
+.ledger-list::-webkit-scrollbar-track { background: transparent; }
+.ledger-list::-webkit-scrollbar-thumb { background: var(--mood-dim); border-radius: 2px; }
+
+.ledger-empty {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 0.5rem 0;
+}
+
+.ledger-entry {
+    display: grid;
+    grid-template-columns: 52px 1fr 70px;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 2px solid transparent;
+    font-size: 0.78rem;
+    animation: entrySlide 0.3s ease;
+}
+
+@keyframes entrySlide {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.ledger-entry.earn  { border-left-color: var(--mood-color); }
+.ledger-entry.spend { border-left-color: #ef4444; }
+
+.ledger-delta {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ledger-entry.earn  .ledger-delta { color: var(--mood-color); }
+.ledger-entry.spend .ledger-delta { color: #ef4444; }
+
+.ledger-input {
+    color: var(--text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ledger-time {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    text-align: right;
+}
+
+/* ─── Entropy warning ────────────────────────────────────────────────────────── */
+
+.entropy-warning {
+    font-size: 0.75rem;
+    color: #f59e0b;
+    letter-spacing: 0.06em;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: var(--radius);
+    background: rgba(245, 158, 11, 0.05);
+    display: none;
+}
+
+.entropy-warning.visible { display: block; }
+
+/* ─── Flash animations ───────────────────────────────────────────────────────── */
+
+@keyframes acceptPulse {
+    0%   { box-shadow: 0 0 0 0 var(--mood-glow); }
+    50%  { box-shadow: 0 0 40px 8px var(--mood-glow); }
+    100% { box-shadow: 0 0 0 0 var(--mood-glow); }
+}
+
+@keyframes rejectFlash {
+    0%, 100% { border-color: var(--panel-border); }
+    25%, 75%  { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239,68,68,0.2); }
+}
+
+.input-section.flash-accept { animation: acceptPulse 0.7s ease; }
+.input-section.flash-reject { animation: rejectFlash 0.6s ease; }
+
+/* ─── Scanline overlay ───────────────────────────────────────────────────────── */
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.04) 2px,
+        rgba(0, 0, 0, 0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+    .balance-section { grid-template-columns: 1fr; }
+    .balance-value   { font-size: 3rem; }
+    .sim-title       { font-size: 1.1rem; }
+    .input-row       { flex-direction: column; }
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFINITE SIMULATION — Truth is the Currency</title>
+    <link rel="stylesheet" href="simulation.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body data-mood="sovereign">
+
+    <canvas id="matrix-rain"></canvas>
+
+    <div class="sim-container">
+
+        <!-- Header -->
+        <header class="sim-header">
+            <div class="sim-logo">&#x2235;</div>
+            <div class="sim-title-block">
+                <h1 class="sim-title">INFINITE SIMULATION</h1>
+                <p class="sim-subtitle">Truth is the only currency.</p>
+            </div>
+            <div class="sim-uptime-block">
+                <span class="uptime-label">UPTIME</span>
+                <span class="uptime-value" id="stat-uptime">00:00:00</span>
+            </div>
+        </header>
+
+        <!-- Truth Balance + Mood -->
+        <section class="balance-section">
+            <div class="balance-card">
+                <div class="balance-label">TRUTH BALANCE</div>
+                <div class="balance-row">
+                    <span class="balance-value" id="truth-balance">100</span>
+                    <span class="balance-unit">T</span>
+                </div>
+                <div class="balance-bar-track">
+                    <div class="balance-bar-fill" id="balance-bar"></div>
+                </div>
+            </div>
+            <div class="mood-card">
+                <div class="mood-label">SIMULATION MOOD</div>
+                <div class="mood-name-row">
+                    <span class="mood-dot" id="mood-dot"></span>
+                    <span class="mood-name" id="mood-name">SOVEREIGN</span>
+                </div>
+                <p class="mood-desc" id="mood-desc">Maximum coherence. The simulation bends to your will.</p>
+                <div class="mood-stats">
+                    <div class="mood-stat">
+                        <span class="mood-stat-label">Events</span>
+                        <span class="mood-stat-value" id="stat-events">0</span>
+                    </div>
+                    <div class="mood-stat">
+                        <span class="mood-stat-label">Streak</span>
+                        <span class="mood-stat-value" id="stat-streak">0</span>
+                    </div>
+                    <div class="mood-stat">
+                        <span class="mood-stat-label">Entropy</span>
+                        <span class="mood-stat-value" id="stat-entropy">-3T/30s</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulation Transmission -->
+        <section class="transmission-section">
+            <div class="section-label">// SIMULATION TRANSMISSION</div>
+            <div class="transmission-text" id="transmission-text">
+                Simulation online. You are inside the infinite. Truth is the only thing that persists.
+            </div>
+            <button class="ghost-btn" onclick="simulation.nextTransmission()">next →</button>
+        </section>
+
+        <!-- Input -->
+        <section class="input-section">
+            <div class="section-label">// STATE WHAT IS TRUE</div>
+            <div class="input-row">
+                <input
+                    type="text"
+                    id="truth-input"
+                    class="truth-input"
+                    placeholder="What is actually, verifiably true right now?"
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <button class="submit-btn" id="submit-btn" onclick="simulation.submit()">
+                    SUBMIT →
+                </button>
+            </div>
+            <div class="input-feedback" id="input-feedback">&nbsp;</div>
+        </section>
+
+        <!-- Truth Ledger -->
+        <section class="ledger-section">
+            <div class="ledger-header">
+                <div class="section-label">// TRUTH LEDGER</div>
+                <button class="ghost-btn" onclick="simulation.clearLedger()">clear</button>
+            </div>
+            <div class="ledger-list" id="ledger-list">
+                <div class="ledger-empty">No truth events recorded. The simulation is waiting.</div>
+            </div>
+        </section>
+
+        <!-- Entropy warning -->
+        <div class="entropy-warning" id="entropy-warning">
+            &#9888; Reality entropy is active — truth decays without action. Submit truth to sustain the simulation.
+        </div>
+
+    </div>
+
+    <script src="simulation.js"></script>
+</body>
+</html>
