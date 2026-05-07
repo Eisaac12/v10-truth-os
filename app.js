@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('⊕ TRUTHOS Loading...');
 
     loadCoreContent();
+    loadWeavesPanel();
     loadEnergyLevels();
     loadSavedLog();
     loadServerUrlInput();
@@ -40,6 +41,57 @@ function setServerUrl() {
         aiEngine.serverUrl = url || aiEngine.resolveServerUrl();
         aiEngine.checkLiveAI();
     }
+}
+
+// ─── Agent mode ───────────────────────────────────────────────────────────────
+
+function setAgentMode(mode) {
+    if (!aiEngine) return;
+    aiEngine.setAgentMode(mode);
+
+    const isTW = mode === 'truth-weaver';
+
+    // Update command panel title and placeholder
+    const title = document.getElementById('command-panel-title');
+    const input = document.getElementById('command-input');
+    const label = document.getElementById('activate-btn-label');
+    const btn   = document.getElementById('activate-btn');
+
+    if (title) title.textContent = isTW ? '◈ Truth Weaver Interface' : '🔺 Activation Interface';
+    if (label) label.textContent = isTW ? 'Weave' : 'Activate';
+    if (btn)   btn.className     = isTW ? 'btn-weaver btn-lg' : 'btn-primary btn-lg';
+    if (input) input.placeholder = isTW
+        ? 'What illusion do you want dissolved?\n\nShare a belief, story, or situation.\nTruth Weaver will run the 5 Weaves at 7.83Hz and reveal what is actually real.'
+        : 'What do you want to activate?\n\nInput any idea, desire, or problem.\nTRUTHOS will pass it through the truth filter, align the energy, and accelerate it to reality.';
+
+    // Update check-in modal for Truth Weaver mode
+    const modalTitle    = document.querySelector('.modal-title');
+    const modalSubtitle = document.querySelector('.modal-subtitle');
+    const modalTextarea = document.getElementById('checkin-input');
+    const modalBtn      = document.querySelector('.modal-actions .btn-primary.btn-lg span:first-child');
+    if (modalTitle)    modalTitle.textContent    = isTW ? 'Truth Weaver is online.' : 'TRUTHOS is online.';
+    if (modalSubtitle) modalSubtitle.textContent = isTW ? 'What illusion will you dissolve today?' : 'What are you activating today?';
+    if (modalTextarea) modalTextarea.placeholder = isTW
+        ? 'Name the illusion, fear, or story you want Truth Weaver to dissolve today...'
+        : 'State your intention for today — the one thing you are activating at maximum frequency...';
+    if (modalBtn) modalBtn.textContent = isTW ? "Run Today's Weave" : "Activate Today's Intention";
+}
+
+// ─── Truth Weaver panel ───────────────────────────────────────────────────────
+
+function loadWeavesPanel() {
+    const grid = document.getElementById('weaves-grid');
+    if (!grid || typeof TRUTH_WEAVER === 'undefined') return;
+
+    grid.innerHTML = TRUTH_WEAVER.weaves.map(w => `
+        <div class="weave-card">
+            <div class="weave-number">W${w.id}</div>
+            <div class="weave-info">
+                <div class="weave-name">${w.name}</div>
+                <div class="weave-desc">${w.description}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 // ─── TRUTHOS Core panel ───────────────────────────────────────────────────────
@@ -117,44 +169,62 @@ function displayResponse(result) {
     const responseContent = document.getElementById('response-content');
     if (!responseEl || !responseContent) return;
 
+    const isTW = result.agent === 'truth-weaver';
+
     const aiLabel = result.liveAI
-        ? '<span style="color:var(--truth);font-size:0.8rem;font-weight:600;">⚡ LIVE — Claude AI</span>'
-        : '<span style="color:var(--text-muted);font-size:0.8rem;">LOCAL — truth filter</span>';
+        ? isTW
+            ? `<span style="color:var(--weaver);font-size:0.8rem;font-weight:600;">◈ LIVE — Truth Weaver 7.83Hz</span>`
+            : `<span style="color:var(--truth);font-size:0.8rem;font-weight:600;">⚡ LIVE — Claude AI</span>`
+        : isTW
+            ? `<span style="color:var(--weaver-muted);font-size:0.8rem;">◈ LOCAL — 7.83Hz scan</span>`
+            : `<span style="color:var(--text-muted);font-size:0.8rem;">LOCAL — truth filter</span>`;
+
+    const formatted = (result.reasoning || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\n/g, '<br>');
 
     let html = '';
 
     if (result.success) {
-        const formatted = (result.reasoning || '')
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-            .replace(/\n/g, '<br>');
+        const headerColor = isTW ? 'var(--weaver)' : 'var(--success)';
+        const headerText  = isTW ? '◈ Weave complete — truth revealed' : '✅ Activation accepted';
+        const borderColor = isTW ? 'var(--weaver)' : 'var(--success)';
 
         html = `
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                <div style="color:var(--success);font-weight:600;">✅ Activation accepted</div>
+                <div style="color:${headerColor};font-weight:600;">${headerText}</div>
                 ${aiLabel}
             </div>
-            <div style="line-height:1.8;color:var(--text-secondary);">${formatted}</div>
+            <div style="line-height:1.8;color:var(--text-secondary);border-left:2px solid ${borderColor};padding-left:1rem;">${formatted}</div>
             ${!result.liveAI ? `<div style="margin-top:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-muted);">
-                Start <code>server.js</code> with your API key for live Claude responses.
+                Start <code>server.js</code> with your API key for live ${isTW ? 'Truth Weaver' : 'Claude'} responses.
             </div>` : ''}
         `;
     } else {
-        const formatted = (result.reasoning || '').replace(/\n/g, '<br>');
+        const headerText  = isTW ? '◈ Illusion patterns detected' : '⚠️ Truth filter blocked';
+        const headerColor = isTW ? 'var(--weaver)' : 'var(--danger)';
+        const bgColor     = isTW ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239,68,68,0.1)';
+        const borderColor = isTW ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+        const footerText  = isTW
+            ? '<strong>7.83Hz:</strong> At this frequency, illusions cannot sustain. Name the real obstacle.'
+            : '<strong>Law 1:</strong> Everything runs on truth. Root your activation in creation, clarity, and aligned intent.';
+
         html = `
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                <div style="color:var(--danger);font-weight:600;">⚠️ Truth filter blocked</div>
+                <div style="color:${headerColor};font-weight:600;">${headerText}</div>
                 ${aiLabel}
             </div>
-            <div style="margin-bottom:0.5rem;">${result.message}</div>
-            <div style="color:var(--text-muted);font-size:0.9rem;">${formatted}</div>
-            <div style="margin-top:1rem;padding:0.75rem;background:rgba(239,68,68,0.1);border-radius:var(--radius-sm);border:1px solid rgba(239,68,68,0.3);">
-                <strong>Law 1:</strong> Everything runs on truth. Root your activation in creation, clarity, and aligned intent.
+            <div style="margin-bottom:0.5rem;color:var(--text-secondary);">${result.message}</div>
+            <div style="color:var(--text-muted);font-size:0.9rem;line-height:1.8;">${formatted}</div>
+            <div style="margin-top:1rem;padding:0.75rem;background:${bgColor};border-radius:var(--radius-sm);border:1px solid ${borderColor};">
+                ${footerText}
             </div>
         `;
     }
 
     responseContent.innerHTML = html;
     responseEl.style.display  = 'block';
+    responseEl.className = `ai-response${isTW ? ' tw-response' : ''}`;
 
     if (result.success && !result.liveAI) {
         setTimeout(() => { responseEl.style.display = 'none'; }, 12000);
@@ -357,8 +427,20 @@ const ACTIVATION_SUGGESTIONS = [
     "Accelerate: what is the single highest-frequency action I can take today?"
 ];
 
+const WEAVER_SUGGESTIONS = [
+    "I keep saying I'll start when I have more time — dissolve this",
+    "I can't grow my business because the market is too competitive",
+    "I would pursue this if only I had more support from the people around me",
+    "Someday I'll finally commit to this goal — run a reality simulation",
+    "I already know what I need to do, I just need to find the right moment",
+    "What if I fail publicly and everyone sees it?",
+    "I just need to figure out the perfect plan before I can begin"
+];
+
 function rotateSuggestion() {
-    const s     = ACTIVATION_SUGGESTIONS[Math.floor(Math.random() * ACTIVATION_SUGGESTIONS.length)];
+    const isTW  = aiEngine && aiEngine.agentMode === 'truth-weaver';
+    const pool  = isTW ? WEAVER_SUGGESTIONS : ACTIVATION_SUGGESTIONS;
+    const s     = pool[Math.floor(Math.random() * pool.length)];
     const input = document.getElementById('command-input');
     if (input && !input.value) input.placeholder = `Example: ${s}`;
 }
@@ -378,3 +460,4 @@ window.submitCheckIn            = submitCheckIn;
 window.dismissCheckIn           = dismissCheckIn;
 window.exportActivationRecord   = exportActivationRecord;
 window.setServerUrl             = setServerUrl;
+window.setAgentMode             = setAgentMode;

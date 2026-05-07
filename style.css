@@ -16,6 +16,15 @@
     --truth-glow: rgba(245, 158, 11, 0.35);
     --frequency: #f97316;
     --frequency-glow: rgba(249, 115, 22, 0.3);
+
+    /* Truth Weaver — 7.83Hz earthy palette */
+    --weaver: #10b981;
+    --weaver-light: #34d399;
+    --weaver-dark: #059669;
+    --weaver-muted: rgba(16, 185, 129, 0.6);
+    --weaver-glow: rgba(16, 185, 129, 0.3);
+    --weaver-bg: rgba(16, 185, 129, 0.06);
+    --weaver-border: rgba(16, 185, 129, 0.25);
     
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
@@ -805,6 +814,251 @@ body {
 ::-webkit-scrollbar-thumb {
     background: var(--primary);
     border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TRUTH WEAVER — 7.83Hz | "Illusions protect. Truth liberates."
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Mode Toggle */
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.mode-btn {
+    padding: 6px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.mode-btn.active {
+    background: var(--bg-panel);
+    color: var(--text-primary);
+}
+
+#mode-truthos.active {
+    color: var(--primary-light);
+}
+
+#mode-truth-weaver.active {
+    color: var(--weaver);
+}
+
+.mode-btn:hover:not(.active) {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.mode-icon {
+    font-size: 0.95rem;
+}
+
+/* Truth Weaver Panel */
+.truth-weaver-panel {
+    border-color: var(--weaver-border) !important;
+    background: rgba(16, 185, 129, 0.04) !important;
+}
+
+.truth-weaver-panel .panel-header h2 {
+    color: var(--weaver-light);
+}
+
+.tw-icon {
+    color: var(--weaver);
+    margin-right: 4px;
+}
+
+.tw-frequency {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.freq-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--weaver);
+    text-shadow: 0 0 16px var(--weaver-glow);
+    animation: frequencyPulse 7.83s ease-in-out infinite;
+}
+
+@keyframes frequencyPulse {
+    0%, 100% { text-shadow: 0 0 16px var(--weaver-glow); }
+    50%       { text-shadow: 0 0 28px var(--weaver-glow), 0 0 8px var(--weaver); }
+}
+
+.freq-unit {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--weaver-muted);
+}
+
+.freq-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+}
+
+.tw-belief {
+    font-style: italic;
+    color: var(--weaver-light);
+    font-size: 1.05rem;
+    margin-bottom: 0.35rem;
+}
+
+.tw-mission {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Weave Cards */
+.weaves-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.weave-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: 0.65rem var(--spacing-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--weaver-border);
+    transition: border-color var(--transition-fast);
+}
+
+.weave-card:hover {
+    border-left-color: var(--weaver);
+}
+
+.weave-number {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--weaver);
+    background: var(--weaver-bg);
+    border: 1px solid var(--weaver-border);
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.weave-info {
+    flex: 1;
+}
+
+.weave-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--weaver-light);
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.weave-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* Truth Weaver Activate Button */
+.btn-weaver {
+    background: linear-gradient(135deg, var(--weaver-dark), var(--weaver));
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-weaver:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-weaver .btn-arrow {
+    font-size: 1.3rem;
+    transition: transform var(--transition-fast);
+}
+
+.btn-weaver:hover .btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Truth Weaver Response */
+.ai-response.tw-response {
+    border-color: var(--weaver-border);
+    background: var(--weaver-bg);
+}
+
+.ai-response.tw-response .response-header {
+    color: var(--weaver-light);
+}
+
+/* Truth Weaver global mode — shifts cosmic background tint */
+body.truth-weaver-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(5, 150, 105, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(52, 211, 153, 0.07) 0%, transparent 50%);
+}
+
+/* Command input focus: weaver color in truth-weaver-mode */
+body.truth-weaver-mode #command-input:focus {
+    border-color: var(--weaver);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+/* Panel border highlight in Truth Weaver mode */
+body.truth-weaver-mode .command-panel {
+    border-color: var(--weaver-border);
+}
+
+/* Status dot color in Truth Weaver mode */
+body.truth-weaver-mode .status-dot {
+    background: var(--weaver);
+    box-shadow: 0 0 6px var(--weaver-glow);
+}
+
+/* Responsive: stack mode toggle on small screens */
+@media (max-width: 600px) {
+    .mode-toggle {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+    }
+    .mode-btn {
+        flex: 1;
+        justify-content: center;
+    }
 }
 
 ::-webkit-scrollbar-thumb:hover {

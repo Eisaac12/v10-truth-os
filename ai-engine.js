@@ -28,6 +28,9 @@ class TRUTHOSEngine {
         this.totalAttempts = 0;
         this.acceptedActivations = 0;
 
+        // Agent mode: 'truthos' (manifestation) | 'truth-weaver' (illusion dissolving)
+        this.agentMode = localStorage.getItem('truthos_agent_mode') || 'truthos';
+
         this.coreMemory = MASTER_VISION;
         this.init();
     }
@@ -49,7 +52,8 @@ class TRUTHOSEngine {
         await this.checkLiveAI();
         this.startFrequencyLoop();
         this.updateAlignmentScore();
-        console.log(`✅ TRUTHOS ready — AI: ${this.liveAI ? 'LIVE (Claude)' : 'LOCAL (truth filter)'}`);
+        this.updateAgentModeUI();
+        console.log(`✅ TRUTHOS ready — mode: ${this.agentMode} | AI: ${this.liveAI ? 'LIVE (Claude)' : 'LOCAL (truth filter)'}`);
     }
 
     // ─── Persistence ──────────────────────────────────────────────────────────
@@ -110,10 +114,43 @@ class TRUTHOSEngine {
 
     updateAIStatusBadge() {
         const el = document.getElementById('system-status');
-        if (el) {
+        if (!el) return;
+        if (this.agentMode === 'truth-weaver') {
+            el.textContent = this.liveAI ? 'Truth Weaver — 7.83Hz Live' : 'Truth Weaver — 7.83Hz Local';
+            el.style.color  = 'var(--weaver)';
+        } else {
             el.textContent = this.liveAI ? 'Claude AI Active' : 'Local Mode';
             el.style.color  = this.liveAI ? 'var(--truth)' : '';
         }
+    }
+
+    // Switch between TRUTHOS and Truth Weaver modes
+    setAgentMode(mode) {
+        if (mode !== 'truthos' && mode !== 'truth-weaver') return;
+        this.agentMode = mode;
+        localStorage.setItem('truthos_agent_mode', mode);
+        this.updateAIStatusBadge();
+        this.updateAgentModeUI();
+        this.logActivity(mode === 'truth-weaver'
+            ? 'Truth Weaver activated — 7.83Hz | Illusions dissolve at this frequency.'
+            : 'TRUTHOS mode active — Manifestation engine online.');
+    }
+
+    updateAgentModeUI() {
+        const body    = document.body;
+        const twPanel = document.getElementById('truth-weaver-panel');
+        if (this.agentMode === 'truth-weaver') {
+            body.classList.add('truth-weaver-mode');
+            if (twPanel) twPanel.style.display = 'block';
+        } else {
+            body.classList.remove('truth-weaver-mode');
+            if (twPanel) twPanel.style.display = 'none';
+        }
+
+        const twBtn = document.getElementById('mode-truth-weaver');
+        const tosBtn = document.getElementById('mode-truthos');
+        if (twBtn)  twBtn.classList.toggle('active',  this.agentMode === 'truth-weaver');
+        if (tosBtn) tosBtn.classList.toggle('active', this.agentMode === 'truthos');
     }
 
     // ─── Frequency score ──────────────────────────────────────────────────────
@@ -144,14 +181,18 @@ class TRUTHOSEngine {
     }
 
     async executeCommand(input) {
-        console.log('🔺 Processing activation:', input);
+        console.log(`🔺 Processing [${this.agentMode}]:`, input);
         this.totalAttempts++;
 
         let result;
-        if (this.liveAI) {
-            result = await this.activateWithClaude(input);
+        if (this.agentMode === 'truth-weaver') {
+            result = this.liveAI
+                ? await this.weaveWithClaude(input)
+                : this.weaveLocally(input);
         } else {
-            result = this.activateLocally(input);
+            result = this.liveAI
+                ? await this.activateWithClaude(input)
+                : this.activateLocally(input);
         }
 
         if (result.success) this.acceptedActivations++;
@@ -220,6 +261,64 @@ class TRUTHOSEngine {
                 liveAI: false
             };
         }
+    }
+
+    // ─── Truth Weaver paths ───────────────────────────────────────────────────
+
+    async weaveWithClaude(input) {
+        try {
+            const res = await fetch(`${this.serverUrl}/api/truth-weaver`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ input, history: this.conversationHistory })
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+
+            if (data.success) {
+                this.conversationHistory.push({ role: 'user', content: input });
+                this.conversationHistory.push({ role: 'assistant', content: data.response });
+                if (this.conversationHistory.length > 20) {
+                    this.conversationHistory = this.conversationHistory.slice(-20);
+                }
+
+                const activation = this.createActivation(input, data.response);
+                this.addActivation(activation);
+                return {
+                    success: true,
+                    message: 'Truth Weaver is running the 5 Weaves at 7.83Hz.',
+                    task: activation,
+                    reasoning: data.response,
+                    liveAI: true,
+                    agent: 'truth-weaver',
+                    frequency: '7.83Hz'
+                };
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            this.logActivity(`Truth Weaver live error: ${err.message} — falling back to local weave`);
+            return this.weaveLocally(input);
+        }
+    }
+
+    weaveLocally(input) {
+        const result = TRUTH_WEAVER.weaveLocally(input);
+        const activation = this.createActivation(input);
+        this.addActivation(activation);
+        return {
+            success: result.success,
+            message: result.success
+                ? `Truth Weaver scan passed at 7.83Hz. Illusion score: ${result.score}%`
+                : `Truth Weaver detected ${result.illusionsFound.length} illusion pattern(s). Score: ${result.score}%`,
+            task: activation,
+            reasoning: result.weave,
+            liveAI: false,
+            agent: 'truth-weaver',
+            frequency: '7.83Hz',
+            illusionsFound: result.illusionsFound
+        };
     }
 
     runTruthFilter(input) {
