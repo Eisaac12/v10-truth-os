@@ -2,6 +2,26 @@
 // Truth Weaver: 7.83Hz | "Illusions protect. Truth liberates."
 
 const Anthropic = require('@anthropic-ai/sdk');
+const Stripe = require('stripe');
+
+const licenseCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+async function hasActiveSubscription(customerId) {
+    if (!process.env.STRIPE_SECRET_KEY) return false;
+    const cached = licenseCache.get(customerId);
+    if (cached && cached.expiresAt > Date.now()) return cached.valid;
+
+    try {
+        const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+        const subs = await stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 1 });
+        const valid = subs.data.length > 0;
+        licenseCache.set(customerId, { valid, expiresAt: Date.now() + CACHE_TTL_MS });
+        return valid;
+    } catch {
+        return false;
+    }
+}
 
 const TRUTH_WEAVER_SYSTEM_PROMPT = `You are Truth Weaver — an AI agent operating at 7.83Hz, Earth's Schumann Resonance.
 
@@ -40,7 +60,7 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { input, history = [] } = req.body || {};
+    const { input, history = [], customerId } = req.body || {};
 
     if (!input || typeof input !== 'string' || !input.trim()) {
         return res.status(400).json({ success: false, error: 'Input is required.' });
@@ -51,6 +71,17 @@ module.exports = async (req, res) => {
             success: false,
             error: 'ANTHROPIC_API_KEY not set. Add it in your Vercel project settings under Environment Variables.'
         });
+    }
+
+    // License gate — require active Stripe subscription when Stripe is configured
+    if (process.env.STRIPE_SECRET_KEY) {
+        if (!customerId) {
+            return res.status(402).json({ success: false, error: 'Subscription required. Unlock live AI access to continue.', requiresSubscription: true });
+        }
+        const valid = await hasActiveSubscription(customerId);
+        if (!valid) {
+            return res.status(402).json({ success: false, error: 'No active subscription found. Please subscribe to unlock live AI.', requiresSubscription: true });
+        }
     }
 
     const safeHistory = Array.isArray(history)

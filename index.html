@@ -250,6 +250,60 @@
 
     </div>
 
+    <!-- Pricing Modal -->
+    <div id="pricing-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box pricing-modal-box">
+            <div class="modal-icon">◈</div>
+            <h2 class="modal-title">Unlock Live AI Access</h2>
+            <p class="modal-subtitle">At 7.83Hz, illusions cannot sustain. Subscribe to run Truth Weaver on the live Claude model.</p>
+
+            <div class="pricing-tiers">
+                <!-- Creator -->
+                <div class="pricing-card" onclick="startCheckout('creator')">
+                    <div class="pricing-tier-name">Creator</div>
+                    <div class="pricing-price">$29<span class="pricing-period">/mo</span></div>
+                    <ul class="pricing-features">
+                        <li>Live Claude AI (Truth Weaver + TRUTHOS)</li>
+                        <li>Full 5-Weave illusion dissolution</li>
+                        <li>Conversation memory (20 turns)</li>
+                        <li>Local fallback always included</li>
+                    </ul>
+                    <button class="btn-primary btn-sm pricing-cta">Unlock Creator</button>
+                </div>
+
+                <!-- Visionary -->
+                <div class="pricing-card pricing-card-featured" onclick="startCheckout('visionary')">
+                    <div class="pricing-badge">MOST POPULAR</div>
+                    <div class="pricing-tier-name">Visionary</div>
+                    <div class="pricing-price">$99<span class="pricing-period">/mo</span></div>
+                    <ul class="pricing-features">
+                        <li>Everything in Creator</li>
+                        <li>Extended response depth</li>
+                        <li>Priority processing</li>
+                        <li>Reality simulation reports</li>
+                    </ul>
+                    <button class="btn-weaver btn-sm pricing-cta">Unlock Visionary</button>
+                </div>
+
+                <!-- Empire -->
+                <div class="pricing-card" onclick="startCheckout('empire')">
+                    <div class="pricing-tier-name">Empire</div>
+                    <div class="pricing-price">$299<span class="pricing-period">/mo</span></div>
+                    <ul class="pricing-features">
+                        <li>Everything in Visionary</li>
+                        <li>Maximum token throughput</li>
+                        <li>Early access to new agents</li>
+                        <li>Dedicated support</li>
+                    </ul>
+                    <button class="btn-primary btn-sm pricing-cta">Unlock Empire</button>
+                </div>
+            </div>
+
+            <p class="pricing-note">Secure checkout powered by Stripe. Cancel anytime. Free local mode always available.</p>
+            <button class="btn-ghost btn-sm" onclick="hidePricingModal()" style="margin-top:1rem;">Continue in local mode</button>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="master-vision.js"></script>
     <script src="truth-weaver.js"></script>

@@ -29,7 +29,10 @@ class TRUTHOSEngine {
         this.acceptedActivations = 0;
 
         // Agent mode: 'truthos' (manifestation) | 'truth-weaver' (illusion dissolving)
-        this.agentMode = localStorage.getItem('truthos_agent_mode') || 'truthos';
+        this.agentMode = localStorage.getItem('truthos_agent_mode') || 'truth-weaver';
+
+        // Stripe license — customerId stored after successful checkout
+        this.customerId = localStorage.getItem('truthos_customer_id') || null;
 
         this.coreMemory = MASTER_VISION;
         this.init();
@@ -201,17 +204,32 @@ class TRUTHOSEngine {
         return result;
     }
 
+    setCustomerId(customerId) {
+        this.customerId = customerId;
+        if (customerId) {
+            localStorage.setItem('truthos_customer_id', customerId);
+        } else {
+            localStorage.removeItem('truthos_customer_id');
+        }
+    }
+
     // Live path — calls Claude with full conversation history
     async activateWithClaude(input) {
         try {
             const res = await fetch(`${this.serverUrl}/api/activate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ input, history: this.conversationHistory })
+                body: JSON.stringify({ input, history: this.conversationHistory, customerId: this.customerId })
             });
 
-            if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const data = await res.json();
+
+            if (res.status === 402 && data.requiresSubscription) {
+                if (typeof showPricingModal === 'function') showPricingModal();
+                return { success: false, message: data.error, requiresSubscription: true, liveAI: true };
+            }
+
+            if (!res.ok) throw new Error(data.error || `Server error: ${res.status}`);
 
             if (data.success) {
                 // Store this turn in conversation memory
@@ -270,11 +288,17 @@ class TRUTHOSEngine {
             const res = await fetch(`${this.serverUrl}/api/truth-weaver`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ input, history: this.conversationHistory })
+                body: JSON.stringify({ input, history: this.conversationHistory, customerId: this.customerId })
             });
 
-            if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const data = await res.json();
+
+            if (res.status === 402 && data.requiresSubscription) {
+                if (typeof showPricingModal === 'function') showPricingModal();
+                return { success: false, message: data.error, requiresSubscription: true, liveAI: true };
+            }
+
+            if (!res.ok) throw new Error(data.error || `Server error: ${res.status}`);
 
             if (data.success) {
                 this.conversationHistory.push({ role: 'user', content: input });

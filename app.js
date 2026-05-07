@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadServerUrlInput();
     setupEventListeners();
     checkDailyCheckIn();
+    handleCheckoutReturn();
 
     console.log('✅ TRUTHOS Active');
 });
@@ -461,3 +462,77 @@ window.dismissCheckIn           = dismissCheckIn;
 window.exportActivationRecord   = exportActivationRecord;
 window.setServerUrl             = setServerUrl;
 window.setAgentMode             = setAgentMode;
+window.showPricingModal         = showPricingModal;
+window.hidePricingModal         = hidePricingModal;
+window.startCheckout            = startCheckout;
+
+// ─── Pricing / Stripe ─────────────────────────────────────────────────────────
+
+function showPricingModal() {
+    const modal = document.getElementById('pricing-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function hidePricingModal() {
+    const modal = document.getElementById('pricing-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function startCheckout(tier = 'creator') {
+    try {
+        addLogEntry(`Redirecting to Stripe Checkout (${tier})...`);
+        const serverUrl = aiEngine ? aiEngine.serverUrl : '';
+        const res = await fetch(`${serverUrl}/api/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tier })
+        });
+        const data = await res.json();
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            addLogEntry(`Checkout error: ${data.error || 'Unknown error'}`);
+        }
+    } catch (err) {
+        addLogEntry(`Checkout failed: ${err.message}`);
+    }
+}
+
+// Called on page load — handles Stripe's success redirect (?session_id=cs_xxx)
+async function handleCheckoutReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    const cancelled = params.get('checkout');
+
+    if (cancelled === 'cancelled') {
+        addLogEntry('Checkout cancelled. You can subscribe anytime from the Unlock button.');
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
+    }
+
+    if (!sessionId || !sessionId.startsWith('cs_')) return;
+
+    // Clean URL immediately to prevent re-processing on refresh
+    window.history.replaceState({}, '', window.location.pathname);
+
+    addLogEntry('Verifying subscription...');
+    try {
+        const serverUrl = aiEngine ? aiEngine.serverUrl : '';
+        const res = await fetch(`${serverUrl}/api/verify-license?session_id=${encodeURIComponent(sessionId)}`);
+        const data = await res.json();
+
+        if (data.valid && data.customerId) {
+            if (aiEngine) aiEngine.setCustomerId(data.customerId);
+            addLogEntry(`Subscription active (${data.plan}). Live AI unlocked.`);
+            hidePricingModal();
+            if (aiEngine) {
+                await aiEngine.checkLiveAI();
+                aiEngine.updateAIStatusBadge();
+            }
+        } else {
+            addLogEntry(`Verification failed: ${data.error || 'unknown'}`);
+        }
+    } catch (err) {
+        addLogEntry(`License verification error: ${err.message}`);
+    }
+}
