@@ -1,6 +1,3 @@
-import { redirect } from 'next/navigation'
-
-// Root redirects to dashboard
-export default function Home() {
-  redirect('/dashboard')
-}
+// Root / is handled by (marketing)/page.tsx
+// This file intentionally empty — Next.js route groups handle the routing
+export { default } from './(marketing)/page'
