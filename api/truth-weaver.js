@@ -1,5 +1,6 @@
 // api/truth-weaver.js — Vercel Serverless Function
 // Truth Weaver: 7.83Hz | "Illusions protect. Truth liberates."
+// SSE streaming when client sends Accept: text/event-stream; JSON fallback otherwise
 
 const Anthropic = require('@anthropic-ai/sdk');
 
@@ -35,7 +36,7 @@ Be direct. Be precise. No filler. Illuminate. Liberate.`;
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -45,7 +46,6 @@ module.exports = async (req, res) => {
     if (!input || typeof input !== 'string' || !input.trim()) {
         return res.status(400).json({ success: false, error: 'Input is required.' });
     }
-
     if (!process.env.ANTHROPIC_API_KEY) {
         return res.status(500).json({
             success: false,
@@ -59,26 +59,66 @@ module.exports = async (req, res) => {
             .slice(-20)
         : [];
 
-    try {
-        const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const messages = [...safeHistory, { role: 'user', content: input.trim() }];
+    const wantsStream = req.headers['accept'] === 'text/event-stream';
 
-        const message = await client.messages.create({
+    if (!wantsStream) {
+        // Non-streaming fallback
+        try {
+            const message = await client.messages.create({
+                model: 'claude-opus-4-7',
+                max_tokens: 1024,
+                system: TRUTH_WEAVER_SYSTEM_PROMPT,
+                messages
+            });
+            return res.json({
+                success: true,
+                response: message.content[0].text,
+                agent: 'truth-weaver',
+                frequency: '7.83Hz',
+                inputTokens: message.usage.input_tokens,
+                outputTokens: message.usage.output_tokens
+            });
+        } catch (err) {
+            console.error('[Truth Weaver] API error:', err.message);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+    }
+
+    // Streaming path
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+
+    try {
+        const stream = client.messages.stream({
             model: 'claude-opus-4-7',
             max_tokens: 1024,
             system: TRUTH_WEAVER_SYSTEM_PROMPT,
-            messages: [...safeHistory, { role: 'user', content: input.trim() }]
+            messages
         });
 
-        res.json({
-            success: true,
-            response: message.content[0].text,
-            agent: 'truth-weaver',
-            frequency: '7.83Hz',
-            inputTokens: message.usage.input_tokens,
-            outputTokens: message.usage.output_tokens
+        stream.on('text', (delta) => {
+            res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+        });
+        stream.on('finalMessage', (message) => {
+            res.write(`data: ${JSON.stringify({
+                done: true,
+                agent: 'truth-weaver',
+                frequency: '7.83Hz',
+                inputTokens: message.usage.input_tokens,
+                outputTokens: message.usage.output_tokens
+            })}\n\n`);
+            res.end();
+        });
+        stream.on('error', (err) => {
+            console.error('[Truth Weaver] stream error:', err.message);
+            res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+            res.end();
         });
     } catch (err) {
-        console.error('[Truth Weaver] API error:', err.message);
-        res.status(500).json({ success: false, error: err.message });
+        console.error('[Truth Weaver] stream init error:', err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        res.end();
     }
 };

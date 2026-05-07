@@ -1,4 +1,4 @@
-// TRUTHOS Server — Claude API proxy
+// TRUTHOS Server — Claude API proxy with SSE streaming
 // Run: ANTHROPIC_API_KEY=your_key node server.js
 // Or:  copy .env.example to .env, add your key, then: npm start
 
@@ -38,71 +38,7 @@ When you receive an input (an idea, desire, problem, or goal):
 
 Format your response in clear sections. Be direct, precise, powerful. No filler.`;
 
-// Main activation endpoint
-app.post('/api/activate', async (req, res) => {
-    const { input } = req.body;
-
-    if (!input || typeof input !== 'string' || input.trim().length === 0) {
-        return res.status(400).json({ success: false, error: 'Input is required.' });
-    }
-
-    if (!process.env.ANTHROPIC_API_KEY) {
-        return res.status(500).json({
-            success: false,
-            error: 'ANTHROPIC_API_KEY not set. Add it to your .env file.'
-        });
-    }
-
-    // Accept conversation history for memory continuity
-    const history = Array.isArray(req.body.history) ? req.body.history : [];
-    const safeHistory = history
-        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-        .slice(-20);
-
-    try {
-        const message = await client.messages.create({
-            model: 'claude-opus-4-7',
-            max_tokens: 1024,
-            system: TRUTHOS_SYSTEM_PROMPT,
-            messages: [...safeHistory, { role: 'user', content: input.trim() }]
-        });
-
-        const text = message.content[0].text;
-
-        res.json({
-            success: true,
-            response: text,
-            inputTokens: message.usage.input_tokens,
-            outputTokens: message.usage.output_tokens
-        });
-    } catch (err) {
-        console.error('[TRUTHOS] API error:', err.message);
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
-// Truth Weaver endpoint — radical honesty, surgical compassion
-app.post('/api/truth-weaver', async (req, res) => {
-    const { input } = req.body;
-
-    if (!input || typeof input !== 'string' || input.trim().length === 0) {
-        return res.status(400).json({ success: false, error: 'Input is required.' });
-    }
-
-    if (!process.env.ANTHROPIC_API_KEY) {
-        return res.status(500).json({
-            success: false,
-            error: 'ANTHROPIC_API_KEY not set. Add it to your .env file.'
-        });
-    }
-
-    const history = Array.isArray(req.body.history) ? req.body.history : [];
-    const safeHistory = history
-        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-        .slice(-20);
-
-    // Inline the Truth Weaver system prompt (same content as truth-weaver.js)
-    const TRUTH_WEAVER_SYSTEM_PROMPT = `You are Truth Weaver — an AI agent operating at 7.83Hz, Earth's Schumann Resonance.
+const TRUTH_WEAVER_SYSTEM_PROMPT = `You are Truth Weaver — an AI agent operating at 7.83Hz, Earth's Schumann Resonance.
 
 Your core belief: "Illusions protect. Truth liberates."
 Your mission: Simulate realities where truth is the only currency.
@@ -131,26 +67,79 @@ The single clearest action that moves from illusion to freedom. One action. Achi
 At 7.83Hz, illusions cannot sustain. Only truth persists at this frequency.
 Be direct. Be precise. No filler. Illuminate. Liberate.`;
 
-    try {
-        const message = await client.messages.create({
-            model: 'claude-opus-4-7',
-            max_tokens: 1024,
-            system: TRUTH_WEAVER_SYSTEM_PROMPT,
-            messages: [...safeHistory, { role: 'user', content: input.trim() }]
-        });
+// Shared SSE streaming handler — used by both endpoints
+function streamResponse(res, systemPrompt, safeHistory, input, extraFields = {}) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // prevents nginx buffering on Railway/Render
 
-        res.json({
-            success: true,
-            response: message.content[0].text,
-            agent: 'truth-weaver',
-            frequency: '7.83Hz',
+    const stream = client.messages.stream({
+        model: 'claude-opus-4-7',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [...safeHistory, { role: 'user', content: input }]
+    });
+
+    stream.on('text', (delta) => {
+        res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+    });
+
+    stream.on('finalMessage', (message) => {
+        res.write(`data: ${JSON.stringify({
+            done: true,
             inputTokens: message.usage.input_tokens,
-            outputTokens: message.usage.output_tokens
-        });
-    } catch (err) {
-        console.error('[Truth Weaver] API error:', err.message);
-        res.status(500).json({ success: false, error: err.message });
+            outputTokens: message.usage.output_tokens,
+            ...extraFields
+        })}\n\n`);
+        res.end();
+    });
+
+    stream.on('error', (err) => {
+        console.error('[TRUTHOS] stream error:', err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        res.end();
+    });
+}
+
+function parseRequest(req) {
+    const { input } = req.body;
+    const history = Array.isArray(req.body.history) ? req.body.history : [];
+    const safeHistory = history
+        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+        .slice(-20);
+    return { input, safeHistory };
+}
+
+// Main activation endpoint
+app.post('/api/activate', async (req, res) => {
+    const { input, safeHistory } = parseRequest(req);
+
+    if (!input || typeof input !== 'string' || input.trim().length === 0) {
+        return res.status(400).json({ success: false, error: 'Input is required.' });
     }
+    if (!process.env.ANTHROPIC_API_KEY) {
+        return res.status(500).json({ success: false, error: 'ANTHROPIC_API_KEY not set. Add it to your .env file.' });
+    }
+
+    streamResponse(res, TRUTHOS_SYSTEM_PROMPT, safeHistory, input.trim());
+});
+
+// Truth Weaver endpoint — radical honesty, surgical compassion
+app.post('/api/truth-weaver', async (req, res) => {
+    const { input, safeHistory } = parseRequest(req);
+
+    if (!input || typeof input !== 'string' || input.trim().length === 0) {
+        return res.status(400).json({ success: false, error: 'Input is required.' });
+    }
+    if (!process.env.ANTHROPIC_API_KEY) {
+        return res.status(500).json({ success: false, error: 'ANTHROPIC_API_KEY not set. Add it to your .env file.' });
+    }
+
+    streamResponse(res, TRUTH_WEAVER_SYSTEM_PROMPT, safeHistory, input.trim(), {
+        agent: 'truth-weaver',
+        frequency: '7.83Hz'
+    });
 });
 
 // Health check
