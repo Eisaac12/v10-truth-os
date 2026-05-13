@@ -1,0 +1,232 @@
+{
+  "name": "Soul AI — XAUUSD 4H Trading Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "2 0,4,8,12,16,20 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "4H Candle Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "notes": "Fires at 00:02, 04:02, 08:02, 12:02, 16:02, 20:02 UTC (2min after 4H candle close)"
+    },
+    {
+      "parameters": {
+        "command": "cd /home/user/v10-truth-os/soul-ai-trade-agent && python3 agent.py --once 2>&1"
+      },
+      "id": "node-run-agent",
+      "name": "Run Soul AI Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "notes": "Runs one cycle of the TRUTHOS scan and returns JSON output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.stdout }}",
+              "operation": "contains",
+              "value2": "TRADE EXECUTED"
+            }
+          ]
+        }
+      },
+      "id": "node-check-trade",
+      "name": "Was a Trade Placed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "notes": "Branches YES if a trade was executed this cycle"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.stdout }}",
+              "operation": "contains",
+              "value2": "DAILY HALT"
+            }
+          ]
+        }
+      },
+      "id": "node-check-halt",
+      "name": "Daily Halt Triggered?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 500],
+      "notes": "Branches YES if daily loss limit was hit"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "values": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.TELEGRAM_CHANNEL_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "=⬡ Soul AI n8n: Agent cycle complete at {{ $now.toISO() }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "HTML"
+            }
+          ]
+        }
+      },
+      "id": "node-telegram-confirm",
+      "name": "Telegram: Cycle Confirm",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 200],
+      "notes": "Sends a cycle confirmation to Telegram (Telegram signal already sent by agent.py)"
+    },
+    {
+      "parameters": {
+        "filePath": "/home/user/v10-truth-os/soul-ai-trade-agent/n8n_cycles.log",
+        "writeOperation": "append",
+        "data": "={{ $now.toISO() }} | STAND_DOWN | {{ $json.stdout.slice(-200) }}\n"
+      },
+      "id": "node-log-standdown",
+      "name": "Log: Stand Down",
+      "type": "n8n-nodes-base.writeFile",
+      "typeVersion": 1,
+      "position": [900, 400],
+      "notes": "Logs stand-down cycles to a file"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendHeaders": true,
+        "headers": {
+          "values": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "values": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.TELEGRAM_CHANNEL_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "🚨 <b>SOUL AI — DAILY HALT</b>\n\nDaily loss limit triggered. Agent halted for today.\n\n🕐 {{ $now.toISO() }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "HTML"
+            }
+          ]
+        }
+      },
+      "id": "node-halt-alert",
+      "name": "Telegram: Halt Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 600],
+      "notes": "Sends emergency halt alert to Telegram"
+    }
+  ],
+  "connections": {
+    "4H Candle Schedule": {
+      "main": [
+        [
+          {
+            "node": "Run Soul AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Soul AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Was a Trade Placed?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Daily Halt Triggered?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Was a Trade Placed?": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Cycle Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log: Stand Down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Halt Triggered?": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Halt Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "UTC"
+  },
+  "staticData": null,
+  "tags": ["soul-ai", "xauusd", "trading"],
+  "_meta": {
+    "instanceId": "soul-ai-trade-agent",
+    "description": "Soul AI XAUUSD 4H Autonomous Trading Agent Workflow. Import this into n8n at localhost:5678. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHANNEL_ID as n8n environment variables."
+  }
+}

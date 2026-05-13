@@ -1,3 +1,10 @@
 node_modules/
 .env
 .DS_Store
+
+# Soul AI Trade Agent
+soul-ai-trade-agent/__pycache__/
+soul-ai-trade-agent/*.pyc
+soul-ai-trade-agent/trade_log.jsonl
+soul-ai-trade-agent/agent.log
+soul-ai-trade-agent/.env

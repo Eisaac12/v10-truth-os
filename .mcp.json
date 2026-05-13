@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "metatrader": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "/home/user/metatrader-mcp-server/server.py",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "MT5_LOGIN": "${MT5_LOGIN}",
+        "MT5_PASSWORD": "${MT5_PASSWORD}",
+        "MT5_SERVER": "${MT5_SERVER}"
+      },
+      "_disabled": true,
+      "_setup_instructions": [
+        "1. On Windows: git clone https://github.com/ariadng/metatrader-mcp-server /home/user/metatrader-mcp-server",
+        "2. pip install -r /home/user/metatrader-mcp-server/requirements.txt",
+        "3. Install MetaTrader 5 and connect to your broker demo account",
+        "4. Fill MT5_LOGIN, MT5_PASSWORD, MT5_SERVER in soul-ai-trade-agent/.env",
+        "5. Remove the _disabled field from this file to enable the MCP server",
+        "6. Restart Claude Code — it will connect to MT5 automatically",
+        "7. Test: ask Claude 'Show me the current XAUUSD bid and ask price'"
+      ]
+    }
+  }
+}
