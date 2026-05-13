@@ -4,6 +4,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const VOICE_BRIDGE = require('../voice-bridge');
+const { fetchNotionContext, injectNotionContext } = require('./_notion-context');
 
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,7 +25,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ success: false, error: `Unknown expression: ${expression}` });
     }
 
-    const systemPrompt = VOICE_BRIDGE.systemPrompts[expression];
+    const systemPrompt = VOICE_BRIDGE.getSystemPrompt(expression);
     if (!systemPrompt) {
         return res.status(400).json({ success: false, error: `No system prompt for expression: ${expression}` });
     }
@@ -45,10 +46,13 @@ module.exports = async (req, res) => {
     try {
         const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+        const notionContext = await fetchNotionContext();
+        const systemWithContext = injectNotionContext(systemPrompt, notionContext);
+
         const message = await client.messages.create({
             model: 'claude-opus-4-7',
             max_tokens: 1024,
-            system: systemPrompt,
+            system: systemWithContext,
             messages: [...safeHistory, { role: 'user', content: input.trim() }]
         });
 

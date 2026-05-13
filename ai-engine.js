@@ -105,6 +105,14 @@ class TRUTHOSEngine {
             if (res.ok) {
                 const data = await res.json();
                 this.liveAI = data.ai === 'connected';
+                if (data.notion === 'configured') {
+                    const badge = document.getElementById('notion-status');
+                    if (badge) {
+                        badge.textContent = '◦ Notion live';
+                        badge.style.display = 'inline';
+                        badge.style.color = 'var(--success)';
+                    }
+                }
             }
         } catch {
             this.liveAI = false;
@@ -133,7 +141,7 @@ class TRUTHOSEngine {
     }
 
     setAgentMode(mode) {
-        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed']);
+        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence']);
         if (!validModes.has(mode)) return;
         this.agentMode = mode;
         localStorage.setItem('truthos_agent_mode', mode);
@@ -152,7 +160,7 @@ class TRUTHOSEngine {
         const body         = document.body;
         const twPanel      = document.getElementById('truth-weaver-panel');
         const exprPanel    = document.getElementById('expression-panel');
-        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode'];
+        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode'];
 
         // Clear all expression classes
         allModeClasses.forEach(c => body.classList.remove(c));

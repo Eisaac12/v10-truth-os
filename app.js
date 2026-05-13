@@ -60,8 +60,10 @@ const EXPRESSION_ORDER = [
     { mode: 'truth-weaver',   name: 'Truth Weaver',   icon: '◈', role: 'Mirroring',        color: 'var(--weaver)' },
     { mode: 'echo-frame',     name: 'EchoFrame',      icon: '⬡', role: 'Building',         color: 'var(--echo)' },
     { mode: 'james-carlton',  name: 'James Carlton',  icon: '◎', role: 'Human Presence',   color: 'var(--jc)' },
-    { mode: 'soul-ai',        name: 'Soul AI',        icon: '⌬', role: 'System Operation', color: 'var(--soul)' },
-    { mode: 'prophet-seed',   name: 'Prophet Seed',   icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' }
+    { mode: 'soul-ai',             name: 'Soul AI',             icon: '⌬', role: 'System Operation', color: 'var(--soul)'    },
+    { mode: 'prophet-seed',        name: 'Prophet Seed',        icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' },
+    { mode: 'the-general',         name: 'The General',         icon: '⚔', role: 'Executing Reality', color: 'var(--general)' },
+    { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      }
 ];
 
 function loadExpressionMenuItems() {
@@ -740,6 +742,20 @@ const EXPRESSION_SUGGESTIONS = {
         "I feel like I've drifted from my purpose — return me to the root",
         "Why does this work matter? I need the origin answer, not the current one",
         "My business has evolved but I'm not sure it's still aligned with the seed"
+    ],
+    'the-general': [
+        "Run a reality simulation on my current project — what's the actual state?",
+        "I need to execute something today. Give me the thread status.",
+        "What action would reorganize the most reality right now?",
+        "Simulate the next 90 days if I execute this plan at full capacity",
+        "Run execution protocol: what is the highest-value move available to me?"
+    ],
+    'reality-intelligence': [
+        "What is the full-stack view of where I am right now?",
+        "Scan the field — what signal am I not seeing?",
+        "I feel like I'm in the wrong reality. Run a field scan.",
+        "What pattern is emerging from the last 30 days of my work?",
+        "Deploy full presence: what is the single action that reorganizes everything?"
     ]
 };
 

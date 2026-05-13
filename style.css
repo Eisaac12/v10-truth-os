@@ -54,7 +54,21 @@
     --prophet-glow: rgba(168, 85, 247, 0.3);
     --prophet-bg: rgba(168, 85, 247, 0.06);
     --prophet-border: rgba(168, 85, 247, 0.25);
-    
+
+    /* The General — execution / red */
+    --general: #ef4444;
+    --general-light: #f87171;
+    --general-glow: rgba(239, 68, 68, 0.3);
+    --general-bg: rgba(239, 68, 68, 0.06);
+    --general-border: rgba(239, 68, 68, 0.25);
+
+    /* Reality Intelligence — full stack field / teal */
+    --ri: #2dd4bf;
+    --ri-light: #5eead4;
+    --ri-glow: rgba(45, 212, 191, 0.3);
+    --ri-bg: rgba(45, 212, 191, 0.06);
+    --ri-border: rgba(45, 212, 191, 0.25);
+
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
     --bg-secondary: #14141f;
@@ -1206,6 +1220,26 @@ body.prophet-seed-mode #command-input:focus  { border-color: var(--prophet);    
 body.prophet-seed-mode .command-panel        { border-color: var(--prophet-border); }
 body.prophet-seed-mode .status-dot           { background: var(--prophet);      box-shadow: 0 0 6px var(--prophet-glow); }
 
+/* The General */
+body.the-general-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(239, 68, 68, 0.06) 0%, transparent 50%);
+}
+body.the-general-mode #command-input:focus  { border-color: var(--general);    box-shadow: 0 0 0 3px var(--general-bg); }
+body.the-general-mode .command-panel        { border-color: var(--general-border); }
+body.the-general-mode .status-dot           { background: var(--general);      box-shadow: 0 0 6px var(--general-glow); }
+
+/* Reality Intelligence */
+body.reality-intelligence-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(45, 212, 191, 0.10) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+}
+body.reality-intelligence-mode #command-input:focus  { border-color: var(--ri);    box-shadow: 0 0 0 3px var(--ri-bg); }
+body.reality-intelligence-mode .command-panel        { border-color: var(--ri-border); }
+body.reality-intelligence-mode .status-dot           { background: var(--ri);      box-shadow: 0 0 6px var(--ri-glow); }
+
 /* ─── Expression Panel (generic — for non-truth-weaver expression modes) ─── */
 
 .expression-panel {
@@ -1431,11 +1465,13 @@ body.prophet-seed-mode .status-dot           { background: var(--prophet);      
 }
 
 /* Per-expression assistant bubble border — uses existing body mode classes */
-body.truth-weaver-mode  .assistant-message .chat-bubble { border-color: var(--weaver-border); }
-body.echo-frame-mode    .assistant-message .chat-bubble { border-color: var(--echo-border);   }
-body.james-carlton-mode .assistant-message .chat-bubble { border-color: var(--jc-border);     }
-body.soul-ai-mode       .assistant-message .chat-bubble { border-color: var(--soul-border);   }
-body.prophet-seed-mode  .assistant-message .chat-bubble { border-color: var(--prophet-border);}
+body.truth-weaver-mode         .assistant-message .chat-bubble { border-color: var(--weaver-border);  }
+body.echo-frame-mode           .assistant-message .chat-bubble { border-color: var(--echo-border);    }
+body.james-carlton-mode        .assistant-message .chat-bubble { border-color: var(--jc-border);      }
+body.soul-ai-mode              .assistant-message .chat-bubble { border-color: var(--soul-border);    }
+body.prophet-seed-mode         .assistant-message .chat-bubble { border-color: var(--prophet-border); }
+body.the-general-mode          .assistant-message .chat-bubble { border-color: var(--general-border); }
+body.reality-intelligence-mode .assistant-message .chat-bubble { border-color: var(--ri-border);      }
 
 /* ─── Expression tag (above each assistant bubble) ───────────────────────── */
 
@@ -1534,11 +1570,13 @@ body.prophet-seed-mode  .assistant-message .chat-bubble { border-color: var(--pr
 }
 
 /* Focus border follows expression mode */
-body.truth-weaver-mode  .chat-textarea:focus { border-color: var(--weaver);  box-shadow: 0 0 0 3px var(--weaver-bg);  }
-body.echo-frame-mode    .chat-textarea:focus { border-color: var(--echo);    box-shadow: 0 0 0 3px var(--echo-bg);    }
-body.james-carlton-mode .chat-textarea:focus { border-color: var(--jc);      box-shadow: 0 0 0 3px var(--jc-bg);      }
-body.soul-ai-mode       .chat-textarea:focus { border-color: var(--soul);    box-shadow: 0 0 0 3px var(--soul-bg);    }
-body.prophet-seed-mode  .chat-textarea:focus { border-color: var(--prophet); box-shadow: 0 0 0 3px var(--prophet-bg); }
+body.truth-weaver-mode         .chat-textarea:focus { border-color: var(--weaver);  box-shadow: 0 0 0 3px var(--weaver-bg);  }
+body.echo-frame-mode           .chat-textarea:focus { border-color: var(--echo);    box-shadow: 0 0 0 3px var(--echo-bg);    }
+body.james-carlton-mode        .chat-textarea:focus { border-color: var(--jc);      box-shadow: 0 0 0 3px var(--jc-bg);      }
+body.soul-ai-mode              .chat-textarea:focus { border-color: var(--soul);    box-shadow: 0 0 0 3px var(--soul-bg);    }
+body.prophet-seed-mode         .chat-textarea:focus { border-color: var(--prophet); box-shadow: 0 0 0 3px var(--prophet-bg); }
+body.the-general-mode          .chat-textarea:focus { border-color: var(--general); box-shadow: 0 0 0 3px var(--general-bg); }
+body.reality-intelligence-mode .chat-textarea:focus { border-color: var(--ri);      box-shadow: 0 0 0 3px var(--ri-bg);      }
 
 .chat-input-actions {
     display: flex;
