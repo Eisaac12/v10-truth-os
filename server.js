@@ -6,6 +6,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const Anthropic = require('@anthropic-ai/sdk');
+const VOICE_BRIDGE = require('./voice-bridge');
 
 const app = express();
 app.use(cors());
@@ -149,6 +150,61 @@ Be direct. Be precise. No filler. Illuminate. Liberate.`;
         });
     } catch (err) {
         console.error('[Truth Weaver] API error:', err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Voice Bridge endpoint — routes to correct expression system prompt
+app.post('/api/voice-bridge', async (req, res) => {
+    const { input, expression } = req.body;
+
+    if (!input || typeof input !== 'string' || input.trim().length === 0) {
+        return res.status(400).json({ success: false, error: 'Input is required.' });
+    }
+
+    const expr = VOICE_BRIDGE.getExpression(expression);
+    if (!expr) {
+        return res.status(400).json({ success: false, error: `Unknown expression: ${expression}` });
+    }
+
+    const systemPrompt = VOICE_BRIDGE.systemPrompts[expression];
+    if (!systemPrompt) {
+        return res.status(400).json({ success: false, error: `No system prompt for expression: ${expression}` });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+        return res.status(500).json({
+            success: false,
+            error: 'ANTHROPIC_API_KEY not set. Add it to your .env file.'
+        });
+    }
+
+    const history = Array.isArray(req.body.history) ? req.body.history : [];
+    const safeHistory = history
+        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+        .slice(-20);
+
+    try {
+        const message = await client.messages.create({
+            model: 'claude-opus-4-7',
+            max_tokens: 1024,
+            system: systemPrompt,
+            messages: [...safeHistory, { role: 'user', content: input.trim() }]
+        });
+
+        const text = message.content[0].text;
+
+        res.json({
+            success: true,
+            response: text,
+            agent: expression,
+            expression,
+            expressionName: expr.name,
+            inputTokens: message.usage.input_tokens,
+            outputTokens: message.usage.output_tokens
+        });
+    } catch (err) {
+        console.error(`[Voice Bridge / ${expression}] API error:`, err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });

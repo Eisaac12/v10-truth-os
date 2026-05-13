@@ -59,14 +59,16 @@
                 <span class="eq-node eq-highlight">REALITY</span>
             </div>
             <div class="header-right">
-                <!-- Agent Mode Toggle -->
-                <div class="mode-toggle" title="Switch between TRUTHOS (manifestation) and Truth Weaver (illusion dissolving)">
-                    <button id="mode-truthos" class="mode-btn active" onclick="setAgentMode('truthos')">
-                        <span class="mode-icon">⊕</span> TRUTHOS
+                <!-- Voice Bridge Expression Selector -->
+                <div class="expression-selector" id="expression-selector">
+                    <button class="expression-btn" id="expression-trigger" onclick="toggleExpressionDropdown()">
+                        <span class="expression-btn-left">
+                            <span id="expr-icon">⊕</span>
+                            <span id="expr-name">TRUTHOS</span>
+                        </span>
+                        <span class="expr-chevron">▾</span>
                     </button>
-                    <button id="mode-truth-weaver" class="mode-btn" onclick="setAgentMode('truth-weaver')">
-                        <span class="mode-icon">◈</span> Truth Weaver
-                    </button>
+                    <div class="expression-menu" id="expression-menu" style="display:none;"></div>
                 </div>
                 <div class="server-config">
                     <input
@@ -117,6 +119,19 @@
                     <p class="tw-belief">"Illusions protect. Truth liberates."</p>
                     <p class="tw-mission">Simulating realities where truth is the only currency.</p>
                     <div class="weaves-grid" id="weaves-grid"></div>
+                </div>
+            </section>
+
+            <!-- Voice Bridge Expression Panel (visible for non-truth-weaver expression modes) -->
+            <section class="panel expression-panel" id="expression-panel" style="display:none;">
+                <div class="panel-header">
+                    <h2 id="expr-panel-title"><span id="expr-panel-icon"></span> <span id="expr-panel-name"></span></h2>
+                    <span class="expr-panel-role-badge" id="expr-panel-role"></span>
+                </div>
+                <div class="panel-content">
+                    <p class="expr-panel-desc" id="expr-panel-desc"></p>
+                    <p class="expr-panel-principle">TRUTH FIRST. PERFORMANCE NEVER. ONE VOICE.</p>
+                    <div class="output-arch-grid" id="output-arch-grid"></div>
                 </div>
             </section>
 
@@ -253,6 +268,7 @@
     <!-- Scripts -->
     <script src="master-vision.js"></script>
     <script src="truth-weaver.js"></script>
+    <script src="voice-bridge.js"></script>
     <script src="ai-engine.js"></script>
     <script src="app.js"></script>
 </body>
