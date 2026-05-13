@@ -16,6 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     checkDailyCheckIn();
 
+    // Render saved conversation history once engine has initialized (async init)
+    const waitForEngine = setInterval(() => {
+        if (aiEngine && aiEngine.conversationHistory !== undefined) {
+            clearInterval(waitForEngine);
+            renderChatHistory();
+        }
+    }, 100);
+
     console.log('✅ TRUTHOS Active');
 });
 
@@ -338,119 +346,174 @@ async function executeCommand() {
     const commandInput = document.getElementById('command-input');
     const input = commandInput.value.trim();
 
-    if (!input) {
-        alert('Enter an input to run through the Voice Bridge.');
-        return;
-    }
+    if (!input) return;
 
-    const btn = document.getElementById('activate-btn');
+    const btn   = document.getElementById('activate-btn');
     const label = document.getElementById('activate-btn-label');
-    if (btn)   { btn.disabled = true; }
-    if (label) { label.textContent = 'Running...'; }
+    if (btn)   btn.disabled = true;
+    if (label) label.textContent = 'Running…';
+
+    // Capture mode at submit time (expression could switch mid-stream otherwise)
+    const mode = aiEngine ? aiEngine.agentMode : 'truthos';
+
+    // 1. Show user message immediately
+    appendChatMessage({ role: 'user', content: input, timestamp: new Date().toLocaleTimeString() });
     commandInput.value = '';
 
-    const result = await aiEngine.executeCommand(input);
-    displayResponse(result);
+    // 2. Loading indicator
+    const loadingEl = appendChatMessage({ role: 'assistant', isLoading: true });
 
-    // Restore button label from current mode
-    if (aiEngine && btn) { btn.disabled = false; }
+    // 3. Execute
+    const result = await aiEngine.executeCommand(input);
+
+    // 4. Remove loading indicator
+    if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+    // 5. Append assistant response
+    appendChatMessage({
+        role:      'assistant',
+        content:   result.reasoning || result.message || '',
+        mode,
+        liveAI:    result.liveAI,
+        timestamp: new Date().toLocaleTimeString()
+    });
+
+    // 6. Restore button
+    if (btn)   btn.disabled = false;
     if (label) {
-        const mode  = aiEngine ? aiEngine.agentMode : 'truthos';
-        const entry = EXPRESSION_ORDER.find(e => e.mode === mode);
-        const expr  = (typeof VOICE_BRIDGE !== 'undefined' && mode !== 'truthos')
+        const expr = (typeof VOICE_BRIDGE !== 'undefined' && mode !== 'truthos')
             ? VOICE_BRIDGE.getExpression(mode) : null;
         label.textContent = expr ? expr.btnText : (mode === 'truthos' ? 'Activate' : 'Send');
     }
 }
 
-function displayResponse(result) {
-    const responseEl      = document.getElementById('ai-response');
-    const responseContent = document.getElementById('response-content');
-    if (!responseEl || !responseContent) return;
+// ─── Chat rendering ───────────────────────────────────────────────────────────
 
-    const agent  = result.agent || result.expression || (aiEngine ? aiEngine.agentMode : 'truthos');
-    const isTW   = agent === 'truth-weaver';
-    const isTOS  = !agent || agent === 'truthos';
-    const isVB   = !isTW && !isTOS; // Voice Bridge expression mode
+function appendChatMessage({ role, content, mode, liveAI, timestamp, isLoading }) {
+    const thread = document.getElementById('chat-thread');
+    if (!thread) return null;
 
-    // Resolve expression metadata
-    const entry  = EXPRESSION_ORDER.find(e => e.mode === agent) || EXPRESSION_ORDER[0];
-    const expr   = (isVB && typeof VOICE_BRIDGE !== 'undefined') ? VOICE_BRIDGE.getExpression(agent) : null;
+    // Hide empty state on first real message
+    const emptyState = document.getElementById('chat-empty-state');
+    if (emptyState) emptyState.style.display = 'none';
 
-    const accentColor  = isVB ? entry.color : isTW ? 'var(--weaver)' : 'var(--truth)';
-    const accentBorder = isVB ? (expr ? expr.borderVar : entry.color) : isTW ? 'var(--weaver-border)' : 'var(--success)';
+    const wrapper = document.createElement('div');
+    wrapper.className = `chat-message ${role === 'user' ? 'user-message' : 'assistant-message'}`;
 
-    // AI source label
-    let aiLabelText, aiLabelColor;
-    if (result.liveAI) {
-        aiLabelText  = expr ? expr.liveLabel : isTW ? '◈ LIVE — Truth Weaver 7.83Hz' : '⚡ LIVE — Claude AI';
-        aiLabelColor = accentColor;
-    } else {
-        aiLabelText  = expr ? expr.localLabel : isTW ? '◈ LOCAL — 7.83Hz scan' : 'LOCAL — truth filter';
-        aiLabelColor = 'var(--text-muted)';
+    // Loading indicator bubble
+    if (isLoading) {
+        wrapper.id = 'chat-loading-indicator';
+        wrapper.classList.add('chat-loading-bubble');
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        bubble.innerHTML = '<div class="chat-loading-dot"></div><div class="chat-loading-dot"></div><div class="chat-loading-dot"></div>';
+        wrapper.appendChild(bubble);
+        thread.appendChild(wrapper);
+        scrollChatToBottom();
+        return wrapper;
     }
-    const aiLabel = `<span style="color:${aiLabelColor};font-size:0.8rem;font-weight:${result.liveAI ? 600 : 400};">${aiLabelText}</span>`;
 
-    const formatted = (result.reasoning || '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    if (role === 'assistant') {
+        // Expression tag — only when mode is known
+        if (mode) {
+            const entry = EXPRESSION_ORDER.find(e => e.mode === mode) || EXPRESSION_ORDER[0];
+            const tagEl = document.createElement('div');
+            tagEl.className = 'chat-expression-tag';
+            tagEl.style.color = entry.color;
+            tagEl.innerHTML = `<span class="tag-icon">${entry.icon}</span>${entry.name}`;
+            wrapper.appendChild(tagEl);
+        }
+
+        // AI source badge
+        if (liveAI !== undefined) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'chat-ai-badge';
+            if (mode && typeof VOICE_BRIDGE !== 'undefined' && mode !== 'truthos') {
+                const expr = VOICE_BRIDGE.getExpression(mode);
+                badgeEl.textContent = expr
+                    ? (liveAI ? expr.liveLabel : expr.localLabel)
+                    : (liveAI ? '⚡ LIVE — Claude AI' : '◦ LOCAL');
+            } else {
+                badgeEl.textContent = liveAI ? '⚡ LIVE — Claude AI' : '◦ LOCAL — truth filter';
+            }
+            badgeEl.style.color = liveAI ? 'var(--success)' : 'var(--text-muted)';
+            wrapper.appendChild(badgeEl);
+        }
+    }
+
+    // Bubble content
+    const bubbleEl = document.createElement('div');
+    bubbleEl.className = 'chat-bubble';
+    const formatted = (content || '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/\n/g, '<br>');
+    bubbleEl.innerHTML = formatted;
+    wrapper.appendChild(bubbleEl);
 
-    let html = '';
-
-    if (result.success) {
-        const headerText = isVB
-            ? `${entry.icon} ${entry.name} — Voice Bridge complete`
-            : isTW
-                ? '◈ Weave complete — truth revealed'
-                : '✅ Activation accepted';
-
-        html = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                <div style="color:${accentColor};font-weight:600;">${headerText}</div>
-                ${aiLabel}
-            </div>
-            <div style="line-height:1.8;color:var(--text-secondary);border-left:2px solid ${accentBorder};padding-left:1rem;">${formatted}</div>
-            ${!result.liveAI ? `<div style="margin-top:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-muted);">
-                Start <code>server.js</code> with your API key for live ${isTW ? 'Truth Weaver' : isVB ? entry.name : 'Claude'} responses.
-            </div>` : ''}
-        `;
-    } else {
-        const headerText  = isTW
-            ? '◈ Illusion patterns detected'
-            : isVB
-                ? `${entry.icon} Voice Bridge — local filter`
-                : '⚠️ Truth filter blocked';
-        const footerText  = isTW
-            ? '<strong>7.83Hz:</strong> At this frequency, illusions cannot sustain. Name the real obstacle.'
-            : isTOS
-                ? '<strong>Law 1:</strong> Everything runs on truth. Root your activation in creation, clarity, and aligned intent.'
-                : `<strong>${entry.name}:</strong> ${VOICE_BRIDGE.principle}`;
-
-        html = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                <div style="color:${accentColor};font-weight:600;">${headerText}</div>
-                ${aiLabel}
-            </div>
-            <div style="margin-bottom:0.5rem;color:var(--text-secondary);">${result.message || ''}</div>
-            <div style="color:var(--text-muted);font-size:0.9rem;line-height:1.8;">${formatted}</div>
-            <div style="margin-top:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);border:1px solid ${accentBorder};">
-                ${footerText}
-            </div>
-        `;
+    // Timestamp
+    if (timestamp) {
+        const metaEl = document.createElement('div');
+        metaEl.className = 'chat-meta';
+        metaEl.textContent = timestamp;
+        wrapper.appendChild(metaEl);
     }
 
-    responseContent.innerHTML = html;
-    responseEl.style.display  = 'block';
-    responseEl.className = `ai-response${isTW ? ' tw-response' : isVB ? ' vb-response' : ''}`;
+    thread.appendChild(wrapper);
+    scrollChatToBottom();
+    return wrapper;
+}
 
-    if (result.success && !result.liveAI) {
-        setTimeout(() => { responseEl.style.display = 'none'; }, 12000);
+function scrollChatToBottom() {
+    const thread = document.getElementById('chat-thread');
+    if (thread) thread.scrollTop = thread.scrollHeight;
+}
+
+function renderChatHistory() {
+    if (!aiEngine) return;
+    const history = aiEngine.conversationHistory;
+    if (!history || history.length === 0) return;
+
+    history.forEach(turn => {
+        if (turn.role === 'user') {
+            appendChatMessage({ role: 'user', content: turn.content });
+        } else if (turn.role === 'assistant') {
+            appendChatMessage({
+                role:   'assistant',
+                content: turn.content,
+                mode:   turn.mode || null,
+                liveAI: true
+            });
+        }
+    });
+
+    scrollChatToBottom();
+}
+
+function clearChatHistory() {
+    if (!confirm('Clear conversation history? This cannot be undone.')) return;
+    if (aiEngine) {
+        aiEngine.conversationHistory = [];
+        aiEngine.saveState();
     }
+    const thread = document.getElementById('chat-thread');
+    if (thread) {
+        thread.innerHTML = '<div class="chat-empty-state" id="chat-empty-state"><p>Conversation cleared.<br>Enter your first message below.</p></div>';
+    }
+    addLogEntry('Conversation history cleared');
 }
 
 function addTask() {
     const input = prompt('Enter activation — idea, desire, or problem:');
-    if (input) aiEngine.executeCommand(input);
+    if (input) aiEngine.executeCommand(input).then(result => {
+        appendChatMessage({
+            role: 'user', content: input, timestamp: new Date().toLocaleTimeString()
+        });
+        appendChatMessage({
+            role: 'assistant', content: result.reasoning || result.message || '',
+            mode: aiEngine ? aiEngine.agentMode : 'truthos',
+            liveAI: result.liveAI, timestamp: new Date().toLocaleTimeString()
+        });
+    });
 }
 
 // ─── Daily check-in modal ─────────────────────────────────────────────────────
@@ -707,3 +770,6 @@ window.setAgentMode                = setAgentMode;
 window.toggleExpressionDropdown    = toggleExpressionDropdown;
 window.selectExpression            = selectExpression;
 window.updateExpressionSelectorUI  = updateExpressionSelectorUI;
+window.appendChatMessage           = appendChatMessage;
+window.renderChatHistory           = renderChatHistory;
+window.clearChatHistory            = clearChatHistory;

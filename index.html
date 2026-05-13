@@ -180,29 +180,38 @@
                 </div>
             </section>
 
-            <!-- Activation Interface -->
-            <section class="panel command-panel">
+            <!-- Chat Interface -->
+            <section class="panel command-panel chat-panel">
                 <div class="panel-header">
                     <h2 id="command-panel-title">🔺 Activation Interface</h2>
+                    <button class="btn-icon" onclick="clearChatHistory()" title="Clear conversation">↺</button>
                 </div>
-                <div class="panel-content">
-                    <div class="command-input-container">
+                <div class="panel-content chat-panel-content">
+
+                    <!-- Scrollable message thread -->
+                    <div class="chat-thread" id="chat-thread">
+                        <div class="chat-empty-state" id="chat-empty-state">
+                            <p>No activations yet.<br>Enter your first message below.</p>
+                        </div>
+                    </div>
+
+                    <!-- Sticky input area -->
+                    <div class="chat-input-area">
                         <textarea
                             id="command-input"
-                            placeholder="What do you want to activate?&#10;&#10;Input any idea, desire, or problem.&#10;TRUTHOS will pass it through the truth filter, align the energy, and accelerate it to reality."
-                            rows="4"
+                            class="chat-textarea"
+                            rows="3"
+                            placeholder="What do you want to activate?"
                         ></textarea>
-                        <div class="command-actions">
+                        <div class="chat-input-actions">
+                            <span class="chat-hint">Ctrl+Enter to send</span>
                             <button class="btn-primary btn-lg" id="activate-btn" onclick="executeCommand()">
                                 <span id="activate-btn-label">Activate</span>
                                 <span class="btn-arrow">→</span>
                             </button>
                         </div>
                     </div>
-                    <div class="ai-response" id="ai-response" style="display: none;">
-                        <div class="response-header">TRUTHOS Response:</div>
-                        <div class="response-content" id="response-content"></div>
-                    </div>
+
                 </div>
             </section>
 

@@ -247,7 +247,7 @@ class TRUTHOSEngine {
             if (data.success) {
                 // Store this turn in conversation memory
                 this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
+                this.conversationHistory.push({ role: 'assistant', content: data.response, mode: this.agentMode });
                 if (this.conversationHistory.length > 20) {
                     this.conversationHistory = this.conversationHistory.slice(-20);
                 }
@@ -309,7 +309,7 @@ class TRUTHOSEngine {
 
             if (data.success) {
                 this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
+                this.conversationHistory.push({ role: 'assistant', content: data.response, mode: this.agentMode });
                 if (this.conversationHistory.length > 20) {
                     this.conversationHistory = this.conversationHistory.slice(-20);
                 }
@@ -368,7 +368,7 @@ class TRUTHOSEngine {
 
             if (data.success) {
                 this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
+                this.conversationHistory.push({ role: 'assistant', content: data.response, mode: this.agentMode });
                 if (this.conversationHistory.length > 20) {
                     this.conversationHistory = this.conversationHistory.slice(-20);
                 }
