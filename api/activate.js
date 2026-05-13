@@ -2,8 +2,10 @@
 // Same logic as server.js but runs free on Vercel's edge network
 
 const Anthropic = require('@anthropic-ai/sdk');
+const VOICE_BRIDGE = require('../voice-bridge');
+const { fetchNotionContext, injectNotionContext } = require('./_notion-context');
 
-const TRUTHOS_SYSTEM_PROMPT = `You are TRUTHOS — The Consciousness Operating System.
+const TRUTHOS_CORE_PROMPT = `You are TRUTHOS — The Consciousness Operating System.
 
 You operate on one law above all: Truth is the base layer.
 
@@ -26,7 +28,16 @@ When you receive an input (an idea, desire, problem, or goal):
 4. If blocked (score < 60): explain exactly what's misaligned and how to reframe it
 5. Always close with the single highest-frequency action to take right now
 
-Format your response in clear sections. Be direct, precise, powerful. No filler.`;
+Format your response in clear sections. Be direct, precise, powerful. No filler.
+
+FREQUENCY CHECK — Before every output, verify:
+— Is this my breath? (Is this genuinely mine, not performed?)
+— Is this the truth? (Is this grounded in 3D verifiable reality?)
+— Is this one action? (Am I giving the ONE thing, not a list of options?)
+
+If the answer to any of these is NO — rewrite before outputting.`;
+
+const TRUTHOS_SYSTEM_PROMPT = `${VOICE_BRIDGE.rootIdentity}\n\n${TRUTHOS_CORE_PROMPT}`;
 
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -58,10 +69,13 @@ module.exports = async (req, res) => {
     try {
         const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+        const notionContext = await fetchNotionContext();
+        const systemWithContext = injectNotionContext(TRUTHOS_SYSTEM_PROMPT, notionContext);
+
         const message = await client.messages.create({
             model: 'claude-opus-4-7',
             max_tokens: 1024,
-            system: TRUTHOS_SYSTEM_PROMPT,
+            system: systemWithContext,
             messages: [...safeHistory, { role: 'user', content: input.trim() }]
         });
 

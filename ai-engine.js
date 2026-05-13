@@ -28,7 +28,7 @@ class TRUTHOSEngine {
         this.totalAttempts = 0;
         this.acceptedActivations = 0;
 
-        // Agent mode: 'truthos' (manifestation) | 'truth-weaver' (illusion dissolving)
+        // Agent mode: 'truthos' | 'truth-weaver' | 'echo-frame' | 'james-carlton' | 'soul-ai' | 'prophet-seed'
         this.agentMode = localStorage.getItem('truthos_agent_mode') || 'truthos';
 
         this.coreMemory = MASTER_VISION;
@@ -105,6 +105,14 @@ class TRUTHOSEngine {
             if (res.ok) {
                 const data = await res.json();
                 this.liveAI = data.ai === 'connected';
+                if (data.notion === 'configured') {
+                    const badge = document.getElementById('notion-status');
+                    if (badge) {
+                        badge.textContent = '◦ Notion live';
+                        badge.style.display = 'inline';
+                        badge.style.color = 'var(--success)';
+                    }
+                }
             }
         } catch {
             this.liveAI = false;
@@ -115,42 +123,68 @@ class TRUTHOSEngine {
     updateAIStatusBadge() {
         const el = document.getElementById('system-status');
         if (!el) return;
-        if (this.agentMode === 'truth-weaver') {
-            el.textContent = this.liveAI ? 'Truth Weaver — 7.83Hz Live' : 'Truth Weaver — 7.83Hz Local';
-            el.style.color  = 'var(--weaver)';
-        } else {
+
+        if (this.agentMode === 'truthos') {
             el.textContent = this.liveAI ? 'Claude AI Active' : 'Local Mode';
             el.style.color  = this.liveAI ? 'var(--truth)' : '';
+            return;
+        }
+
+        // Voice Bridge expression modes
+        const expr = typeof VOICE_BRIDGE !== 'undefined'
+            ? VOICE_BRIDGE.getExpression(this.agentMode)
+            : null;
+        if (expr) {
+            el.textContent = this.liveAI ? expr.liveLabel : expr.localLabel;
+            el.style.color  = expr.cssVar;
         }
     }
 
-    // Switch between TRUTHOS and Truth Weaver modes
     setAgentMode(mode) {
-        if (mode !== 'truthos' && mode !== 'truth-weaver') return;
+        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence']);
+        if (!validModes.has(mode)) return;
         this.agentMode = mode;
         localStorage.setItem('truthos_agent_mode', mode);
         this.updateAIStatusBadge();
         this.updateAgentModeUI();
-        this.logActivity(mode === 'truth-weaver'
-            ? 'Truth Weaver activated — 7.83Hz | Illusions dissolve at this frequency.'
-            : 'TRUTHOS mode active — Manifestation engine online.');
+
+        if (mode === 'truthos') {
+            this.logActivity('TRUTHOS mode active — Manifestation engine online.');
+        } else if (typeof VOICE_BRIDGE !== 'undefined') {
+            const expr = VOICE_BRIDGE.getExpression(mode);
+            if (expr) this.logActivity(`${expr.name} activated — ${expr.role} | ${VOICE_BRIDGE.principle}`);
+        }
     }
 
     updateAgentModeUI() {
-        const body    = document.body;
-        const twPanel = document.getElementById('truth-weaver-panel');
-        if (this.agentMode === 'truth-weaver') {
+        const body         = document.body;
+        const twPanel      = document.getElementById('truth-weaver-panel');
+        const exprPanel    = document.getElementById('expression-panel');
+        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode'];
+
+        // Clear all expression classes
+        allModeClasses.forEach(c => body.classList.remove(c));
+
+        if (this.agentMode === 'truthos') {
+            if (twPanel)   twPanel.style.display   = 'none';
+            if (exprPanel) exprPanel.style.display  = 'none';
+        } else if (this.agentMode === 'truth-weaver') {
             body.classList.add('truth-weaver-mode');
-            if (twPanel) twPanel.style.display = 'block';
+            if (twPanel)   twPanel.style.display   = 'block';
+            if (exprPanel) exprPanel.style.display  = 'none';
         } else {
-            body.classList.remove('truth-weaver-mode');
-            if (twPanel) twPanel.style.display = 'none';
+            const expr = typeof VOICE_BRIDGE !== 'undefined'
+                ? VOICE_BRIDGE.getExpression(this.agentMode)
+                : null;
+            if (expr) body.classList.add(expr.cssClass);
+            if (twPanel)   twPanel.style.display   = 'none';
+            if (exprPanel) exprPanel.style.display  = 'block';
         }
 
-        const twBtn = document.getElementById('mode-truth-weaver');
-        const tosBtn = document.getElementById('mode-truthos');
-        if (twBtn)  twBtn.classList.toggle('active',  this.agentMode === 'truth-weaver');
-        if (tosBtn) tosBtn.classList.toggle('active', this.agentMode === 'truthos');
+        // Update expression selector UI
+        if (typeof updateExpressionSelectorUI === 'function') {
+            updateExpressionSelectorUI(this.agentMode);
+        }
     }
 
     // ─── Frequency score ──────────────────────────────────────────────────────
@@ -185,14 +219,19 @@ class TRUTHOSEngine {
         this.totalAttempts++;
 
         let result;
-        if (this.agentMode === 'truth-weaver') {
+        if (this.agentMode === 'truthos') {
+            result = this.liveAI
+                ? await this.activateWithClaude(input)
+                : this.activateLocally(input);
+        } else if (this.agentMode === 'truth-weaver') {
             result = this.liveAI
                 ? await this.weaveWithClaude(input)
                 : this.weaveLocally(input);
         } else {
+            // Voice Bridge expression modes
             result = this.liveAI
-                ? await this.activateWithClaude(input)
-                : this.activateLocally(input);
+                ? await this.voiceBridgeWithClaude(input)
+                : this.voiceBridgeLocally(input);
         }
 
         if (result.success) this.acceptedActivations++;
@@ -216,7 +255,7 @@ class TRUTHOSEngine {
             if (data.success) {
                 // Store this turn in conversation memory
                 this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
+                this.conversationHistory.push({ role: 'assistant', content: data.response, mode: this.agentMode });
                 if (this.conversationHistory.length > 20) {
                     this.conversationHistory = this.conversationHistory.slice(-20);
                 }
@@ -278,7 +317,7 @@ class TRUTHOSEngine {
 
             if (data.success) {
                 this.conversationHistory.push({ role: 'user', content: input });
-                this.conversationHistory.push({ role: 'assistant', content: data.response });
+                this.conversationHistory.push({ role: 'assistant', content: data.response, mode: this.agentMode });
                 if (this.conversationHistory.length > 20) {
                     this.conversationHistory = this.conversationHistory.slice(-20);
                 }
@@ -318,6 +357,79 @@ class TRUTHOSEngine {
             agent: 'truth-weaver',
             frequency: '7.83Hz',
             illusionsFound: result.illusionsFound
+        };
+    }
+
+    // ─── Voice Bridge expression paths ───────────────────────────────────────
+
+    async voiceBridgeWithClaude(input) {
+        const expression = this.agentMode;
+        try {
+            const res = await fetch(`${this.serverUrl}/api/voice-bridge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ input, expression, history: this.conversationHistory })
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+
+            if (data.success) {
+                this.conversationHistory.push({ role: 'user', content: input });
+                this.conversationHistory.push({ role: 'assistant', content: data.response, mode: this.agentMode });
+                if (this.conversationHistory.length > 20) {
+                    this.conversationHistory = this.conversationHistory.slice(-20);
+                }
+
+                const activation = this.createActivation(input, data.response);
+                this.addActivation(activation);
+                return {
+                    success: true,
+                    message: `${data.expressionName} — Voice Bridge live.`,
+                    task: activation,
+                    reasoning: data.response,
+                    liveAI: true,
+                    agent: expression,
+                    expression
+                };
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            this.logActivity(`Voice Bridge [${expression}] live error: ${err.message} — falling back to local`);
+            return this.voiceBridgeLocally(input);
+        }
+    }
+
+    voiceBridgeLocally(input) {
+        const expression = this.agentMode;
+        const result = typeof VOICE_BRIDGE !== 'undefined'
+            ? VOICE_BRIDGE.runLocally(input, expression)
+            : null;
+
+        const activation = this.createActivation(input);
+        this.addActivation(activation);
+
+        if (!result) {
+            return {
+                success: false,
+                message: 'Voice Bridge expression not found.',
+                reasoning: 'Unknown expression — check configuration.',
+                liveAI: false,
+                agent: expression,
+                expression
+            };
+        }
+
+        const expr = VOICE_BRIDGE.getExpression(expression);
+        return {
+            success: true,
+            message: `${expr ? expr.name : expression} — local mode`,
+            task: activation,
+            reasoning: result.weave,
+            liveAI: false,
+            agent: expression,
+            expression
         };
     }
 

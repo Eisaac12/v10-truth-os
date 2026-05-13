@@ -25,7 +25,50 @@
     --weaver-glow: rgba(16, 185, 129, 0.3);
     --weaver-bg: rgba(16, 185, 129, 0.06);
     --weaver-border: rgba(16, 185, 129, 0.25);
-    
+
+    /* Voice Bridge expressions */
+    /* EchoFrame — builder / cyan */
+    --echo: #06b6d4;
+    --echo-light: #22d3ee;
+    --echo-glow: rgba(6, 182, 212, 0.3);
+    --echo-bg: rgba(6, 182, 212, 0.06);
+    --echo-border: rgba(6, 182, 212, 0.25);
+
+    /* James Carlton — human presence / warm orange */
+    --jc: #f97316;
+    --jc-light: #fb923c;
+    --jc-glow: rgba(249, 115, 22, 0.3);
+    --jc-bg: rgba(249, 115, 22, 0.06);
+    --jc-border: rgba(249, 115, 22, 0.25);
+
+    /* Soul AI — system operation / electric blue */
+    --soul: #3b82f6;
+    --soul-light: #60a5fa;
+    --soul-glow: rgba(59, 130, 246, 0.3);
+    --soul-bg: rgba(59, 130, 246, 0.06);
+    --soul-border: rgba(59, 130, 246, 0.25);
+
+    /* Prophet Seed — origin memory / deep violet */
+    --prophet: #a855f7;
+    --prophet-light: #c084fc;
+    --prophet-glow: rgba(168, 85, 247, 0.3);
+    --prophet-bg: rgba(168, 85, 247, 0.06);
+    --prophet-border: rgba(168, 85, 247, 0.25);
+
+    /* The General — execution / red */
+    --general: #ef4444;
+    --general-light: #f87171;
+    --general-glow: rgba(239, 68, 68, 0.3);
+    --general-bg: rgba(239, 68, 68, 0.06);
+    --general-border: rgba(239, 68, 68, 0.25);
+
+    /* Reality Intelligence — full stack field / teal */
+    --ri: #2dd4bf;
+    --ri-light: #5eead4;
+    --ri-glow: rgba(45, 212, 191, 0.3);
+    --ri-bg: rgba(45, 212, 191, 0.06);
+    --ri-border: rgba(45, 212, 191, 0.25);
+
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
     --bg-secondary: #14141f;
@@ -820,52 +863,135 @@ body {
    TRUTH WEAVER — 7.83Hz | "Illusions protect. Truth liberates."
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Mode Toggle */
-.mode-toggle {
+/* ─── Expression Selector — Voice Bridge ──────────────────────────────────── */
+
+.expression-selector {
+    position: relative;
+}
+
+.expression-btn {
     display: flex;
     align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    overflow: hidden;
-}
-
-.mode-btn {
-    padding: 6px 14px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-family: var(--font-body);
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     transition: all var(--transition-fast);
-    display: flex;
-    align-items: center;
-    gap: 4px;
     white-space: nowrap;
+    min-width: 160px;
+    justify-content: space-between;
 }
 
-.mode-btn.active {
-    background: var(--bg-panel);
+.expression-btn:hover {
+    border-color: var(--border-glow);
     color: var(--text-primary);
 }
 
-#mode-truthos.active {
-    color: var(--primary-light);
+.expression-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-#mode-truth-weaver.active {
-    color: var(--weaver);
+#expr-icon {
+    font-size: 1rem;
 }
 
-.mode-btn:hover:not(.active) {
-    color: var(--text-secondary);
-    background: rgba(255, 255, 255, 0.04);
+.expr-chevron {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    transition: transform var(--transition-fast);
 }
 
-.mode-icon {
-    font-size: 0.95rem;
+.expression-selector.open .expr-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+.expression-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 200;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 230px;
+    overflow: hidden;
+    animation: dropdownIn 150ms ease;
+}
+
+@keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.expr-menu-header {
+    padding: 8px 14px 6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.expr-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.expr-menu-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.expr-menu-item.active {
+    background: var(--bg-tertiary);
+}
+
+.expr-menu-icon {
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.expr-menu-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.expr-menu-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.expr-menu-role {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+}
+
+.expr-menu-check {
+    font-size: 0.75rem;
+    opacity: 0;
+    color: var(--success);
+}
+
+.expr-menu-item.active .expr-menu-check {
+    opacity: 1;
 }
 
 /* Truth Weaver Panel */
@@ -1048,21 +1174,433 @@ body.truth-weaver-mode .status-dot {
     box-shadow: 0 0 6px var(--weaver-glow);
 }
 
-/* Responsive: stack mode toggle on small screens */
+/* ─── Voice Bridge — per-expression body mode styles ─────────────────────── */
+
+/* EchoFrame */
+body.echo-frame-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(6, 182, 212, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(34, 211, 238, 0.06) 0%, transparent 50%);
+}
+body.echo-frame-mode #command-input:focus  { border-color: var(--echo);    box-shadow: 0 0 0 3px var(--echo-bg); }
+body.echo-frame-mode .command-panel        { border-color: var(--echo-border); }
+body.echo-frame-mode .status-dot           { background: var(--echo);      box-shadow: 0 0 6px var(--echo-glow); }
+
+/* James Carlton */
+body.james-carlton-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(249, 115, 22, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(251, 146, 60, 0.06) 0%, transparent 50%);
+}
+body.james-carlton-mode #command-input:focus  { border-color: var(--jc);    box-shadow: 0 0 0 3px var(--jc-bg); }
+body.james-carlton-mode .command-panel        { border-color: var(--jc-border); }
+body.james-carlton-mode .status-dot           { background: var(--jc);      box-shadow: 0 0 6px var(--jc-glow); }
+
+/* Soul AI */
+body.soul-ai-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(59, 130, 246, 0.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(59, 130, 246, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(96, 165, 250, 0.07) 0%, transparent 50%);
+}
+body.soul-ai-mode #command-input:focus  { border-color: var(--soul);    box-shadow: 0 0 0 3px var(--soul-bg); }
+body.soul-ai-mode .command-panel        { border-color: var(--soul-border); }
+body.soul-ai-mode .status-dot           { background: var(--soul);      box-shadow: 0 0 6px var(--soul-glow); }
+
+/* Prophet Seed */
+body.prophet-seed-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(168, 85, 247, 0.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(168, 85, 247, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(192, 132, 252, 0.07) 0%, transparent 50%);
+}
+body.prophet-seed-mode #command-input:focus  { border-color: var(--prophet);    box-shadow: 0 0 0 3px var(--prophet-bg); }
+body.prophet-seed-mode .command-panel        { border-color: var(--prophet-border); }
+body.prophet-seed-mode .status-dot           { background: var(--prophet);      box-shadow: 0 0 6px var(--prophet-glow); }
+
+/* The General */
+body.the-general-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(239, 68, 68, 0.06) 0%, transparent 50%);
+}
+body.the-general-mode #command-input:focus  { border-color: var(--general);    box-shadow: 0 0 0 3px var(--general-bg); }
+body.the-general-mode .command-panel        { border-color: var(--general-border); }
+body.the-general-mode .status-dot           { background: var(--general);      box-shadow: 0 0 6px var(--general-glow); }
+
+/* Reality Intelligence */
+body.reality-intelligence-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(45, 212, 191, 0.10) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+}
+body.reality-intelligence-mode #command-input:focus  { border-color: var(--ri);    box-shadow: 0 0 0 3px var(--ri-bg); }
+body.reality-intelligence-mode .command-panel        { border-color: var(--ri-border); }
+body.reality-intelligence-mode .status-dot           { background: var(--ri);      box-shadow: 0 0 6px var(--ri-glow); }
+
+/* ─── Expression Panel (generic — for non-truth-weaver expression modes) ─── */
+
+.expression-panel {
+    transition: border-color var(--transition-normal);
+}
+
+.expr-panel-header-icon {
+    font-size: 1.4rem;
+    margin-right: 6px;
+}
+
+.expr-panel-role-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    opacity: 0.8;
+}
+
+.expr-panel-desc {
+    font-size: 0.95rem;
+    font-style: italic;
+    margin-bottom: 0.4rem;
+}
+
+.expr-panel-principle {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Output Architecture Cards */
+.output-arch-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.arch-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: 0.65rem var(--spacing-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--border-color);
+    transition: border-color var(--transition-fast);
+}
+
+.arch-number {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.arch-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.arch-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* Voice Bridge response styling */
+.ai-response.vb-response {
+    transition: border-color var(--transition-normal), background var(--transition-normal);
+}
+
+/* Voice Bridge expression button — color driven by --expr-color CSS var */
+.btn-expression {
+    --expr-color: var(--primary);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--expr-color) 60%, #000), var(--expr-color));
+    color: white;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--expr-color) 40%, transparent);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-expression:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--expr-color) 50%, transparent);
+}
+
+.btn-expression .btn-arrow {
+    font-size: 1.3rem;
+    transition: transform var(--transition-fast);
+}
+
+.btn-expression:hover .btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Responsive: expression selector on small screens */
 @media (max-width: 600px) {
-    .mode-toggle {
-        order: -1;
-        width: 100%;
-        justify-content: center;
+    .expression-btn {
+        min-width: 130px;
     }
-    .mode-btn {
-        flex: 1;
-        justify-content: center;
+    .expression-menu {
+        right: auto;
+        left: 0;
     }
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-light);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHAT INTERFACE — Persistent conversation thread
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Panel layout override ──────────────────────────────────────────────── */
+
+.chat-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-panel .panel-content.chat-panel-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* ─── Scrollable thread ──────────────────────────────────────────────────── */
+
+.chat-thread {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    min-height: 240px;
+    max-height: 500px;
+    scroll-behavior: smooth;
+}
+
+.chat-empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    padding: var(--spacing-xl);
+}
+
+/* ─── Message rows ───────────────────────────────────────────────────────── */
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 84%;
+    animation: chatMsgIn 0.2s ease;
+}
+
+@keyframes chatMsgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.assistant-message {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+/* ─── Bubble ─────────────────────────────────────────────────────────────── */
+
+.chat-bubble {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    line-height: 1.8;
+    font-size: 0.93rem;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.user-message .chat-bubble {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: var(--text-primary);
+    border-bottom-right-radius: 4px;
+}
+
+.assistant-message .chat-bubble {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-bottom-left-radius: 4px;
+}
+
+/* Per-expression assistant bubble border — uses existing body mode classes */
+body.truth-weaver-mode         .assistant-message .chat-bubble { border-color: var(--weaver-border);  }
+body.echo-frame-mode           .assistant-message .chat-bubble { border-color: var(--echo-border);    }
+body.james-carlton-mode        .assistant-message .chat-bubble { border-color: var(--jc-border);      }
+body.soul-ai-mode              .assistant-message .chat-bubble { border-color: var(--soul-border);    }
+body.prophet-seed-mode         .assistant-message .chat-bubble { border-color: var(--prophet-border); }
+body.the-general-mode          .assistant-message .chat-bubble { border-color: var(--general-border); }
+body.reality-intelligence-mode .assistant-message .chat-bubble { border-color: var(--ri-border);      }
+
+/* ─── Expression tag (above each assistant bubble) ───────────────────────── */
+
+.chat-expression-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 9px 2px 5px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    margin-bottom: 5px;
+    opacity: 0.85;
+}
+
+.chat-expression-tag .tag-icon {
+    font-size: 0.9rem;
+}
+
+/* ─── AI source badge ────────────────────────────────────────────────────── */
+
+.chat-ai-badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+
+/* ─── Timestamp ──────────────────────────────────────────────────────────── */
+
+.chat-meta {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    padding: 0 4px;
+}
+
+/* ─── Loading indicator ──────────────────────────────────────────────────── */
+
+.chat-loading-bubble .chat-bubble {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    min-width: 56px;
+}
+
+.chat-loading-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: chatDotPulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.chat-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.chat-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes chatDotPulse {
+    0%, 80%, 100% { transform: scale(0.65); opacity: 0.35; }
+    40%           { transform: scale(1);    opacity: 1;    }
+}
+
+/* ─── Input area (pinned to bottom) ─────────────────────────────────────── */
+
+.chat-input-area {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-panel);
+    flex-shrink: 0;
+}
+
+.chat-textarea {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    resize: none;
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+    min-height: 72px;
+    max-height: 180px;
+    display: block;
+}
+
+.chat-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Focus border follows expression mode */
+body.truth-weaver-mode         .chat-textarea:focus { border-color: var(--weaver);  box-shadow: 0 0 0 3px var(--weaver-bg);  }
+body.echo-frame-mode           .chat-textarea:focus { border-color: var(--echo);    box-shadow: 0 0 0 3px var(--echo-bg);    }
+body.james-carlton-mode        .chat-textarea:focus { border-color: var(--jc);      box-shadow: 0 0 0 3px var(--jc-bg);      }
+body.soul-ai-mode              .chat-textarea:focus { border-color: var(--soul);    box-shadow: 0 0 0 3px var(--soul-bg);    }
+body.prophet-seed-mode         .chat-textarea:focus { border-color: var(--prophet); box-shadow: 0 0 0 3px var(--prophet-bg); }
+body.the-general-mode          .chat-textarea:focus { border-color: var(--general); box-shadow: 0 0 0 3px var(--general-bg); }
+body.reality-intelligence-mode .chat-textarea:focus { border-color: var(--ri);      box-shadow: 0 0 0 3px var(--ri-bg);      }
+
+.chat-input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-sm);
+}
+
+.chat-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+    .chat-thread {
+        max-height: 360px;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    .chat-message {
+        max-width: 95%;
+    }
 }
 
 /* Responsive Design */

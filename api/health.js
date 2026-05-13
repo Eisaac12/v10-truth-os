@@ -5,6 +5,7 @@ module.exports = (req, res) => {
     res.json({
         status: 'TRUTHOS online',
         ai: process.env.ANTHROPIC_API_KEY ? 'connected' : 'no key set',
+        notion: process.env.NOTION_API_KEY ? 'configured' : 'not configured',
         timestamp: new Date().toISOString()
     });
 };

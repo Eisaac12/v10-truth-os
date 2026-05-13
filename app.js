@@ -8,11 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadCoreContent();
     loadWeavesPanel();
+    loadExpressionMenuItems();
+    loadOutputArchPanel();
     loadEnergyLevels();
     loadSavedLog();
     loadServerUrlInput();
     setupEventListeners();
     checkDailyCheckIn();
+
+    // Render saved conversation history once engine has initialized (async init)
+    const waitForEngine = setInterval(() => {
+        if (aiEngine && aiEngine.conversationHistory !== undefined) {
+            clearInterval(waitForEngine);
+            renderChatHistory();
+        }
+    }, 100);
 
     console.log('✅ TRUTHOS Active');
 });
@@ -43,38 +53,171 @@ function setServerUrl() {
     }
 }
 
+// ─── Expression selector ──────────────────────────────────────────────────────
+
+const EXPRESSION_ORDER = [
+    { mode: 'truthos',        name: 'TRUTHOS',        icon: '⊕', role: 'Manifestation',   color: 'var(--primary-light)' },
+    { mode: 'truth-weaver',   name: 'Truth Weaver',   icon: '◈', role: 'Mirroring',        color: 'var(--weaver)' },
+    { mode: 'echo-frame',     name: 'EchoFrame',      icon: '⬡', role: 'Building',         color: 'var(--echo)' },
+    { mode: 'james-carlton',  name: 'James Carlton',  icon: '◎', role: 'Human Presence',   color: 'var(--jc)' },
+    { mode: 'soul-ai',             name: 'Soul AI',             icon: '⌬', role: 'System Operation', color: 'var(--soul)'    },
+    { mode: 'prophet-seed',        name: 'Prophet Seed',        icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' },
+    { mode: 'the-general',         name: 'The General',         icon: '⚔', role: 'Executing Reality', color: 'var(--general)' },
+    { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      }
+];
+
+function loadExpressionMenuItems() {
+    const menu = document.getElementById('expression-menu');
+    if (!menu) return;
+
+    const header = document.createElement('div');
+    header.className = 'expr-menu-header';
+    header.textContent = 'Voice Bridge — One Identity';
+    menu.appendChild(header);
+
+    EXPRESSION_ORDER.forEach(e => {
+        const item = document.createElement('div');
+        item.className = 'expr-menu-item';
+        item.id = `expr-opt-${e.mode}`;
+        item.onclick = () => selectExpression(e.mode);
+        item.innerHTML = `
+            <span class="expr-menu-icon" style="color:${e.color}">${e.icon}</span>
+            <div class="expr-menu-info">
+                <div class="expr-menu-name">${e.name}</div>
+                <div class="expr-menu-role">${e.role}</div>
+            </div>
+            <span class="expr-menu-check">✓</span>
+        `;
+        menu.appendChild(item);
+    });
+}
+
+function toggleExpressionDropdown() {
+    const selector = document.getElementById('expression-selector');
+    const menu     = document.getElementById('expression-menu');
+    if (!selector || !menu) return;
+
+    const isOpen = menu.style.display !== 'none';
+    menu.style.display = isOpen ? 'none' : 'block';
+    selector.classList.toggle('open', !isOpen);
+
+    if (!isOpen) {
+        // Close on outside click
+        const close = (e) => {
+            if (!selector.contains(e.target)) {
+                menu.style.display = 'none';
+                selector.classList.remove('open');
+                document.removeEventListener('click', close);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', close), 0);
+    }
+}
+
+function selectExpression(mode) {
+    // Close dropdown
+    const menu     = document.getElementById('expression-menu');
+    const selector = document.getElementById('expression-selector');
+    if (menu)     menu.style.display = 'none';
+    if (selector) selector.classList.remove('open');
+
+    setAgentMode(mode);
+}
+
+function updateExpressionSelectorUI(mode) {
+    const entry = EXPRESSION_ORDER.find(e => e.mode === mode) || EXPRESSION_ORDER[0];
+
+    const iconEl = document.getElementById('expr-icon');
+    const nameEl = document.getElementById('expr-name');
+    const trigger = document.getElementById('expression-trigger');
+    if (iconEl)   iconEl.textContent  = entry.icon;
+    if (nameEl)   nameEl.textContent  = entry.name;
+    if (trigger)  trigger.style.color = entry.color;
+
+    // Update active state in menu
+    EXPRESSION_ORDER.forEach(e => {
+        const item = document.getElementById(`expr-opt-${e.mode}`);
+        if (item) item.classList.toggle('active', e.mode === mode);
+    });
+}
+
 // ─── Agent mode ───────────────────────────────────────────────────────────────
 
 function setAgentMode(mode) {
     if (!aiEngine) return;
     aiEngine.setAgentMode(mode);
 
-    const isTW = mode === 'truth-weaver';
+    const entry = EXPRESSION_ORDER.find(e => e.mode === mode);
+    const isTW  = mode === 'truth-weaver';
+    const isTOS = mode === 'truthos';
 
-    // Update command panel title and placeholder
+    // Update command panel title and button
     const title = document.getElementById('command-panel-title');
     const input = document.getElementById('command-input');
     const label = document.getElementById('activate-btn-label');
     const btn   = document.getElementById('activate-btn');
 
-    if (title) title.textContent = isTW ? '◈ Truth Weaver Interface' : '🔺 Activation Interface';
-    if (label) label.textContent = isTW ? 'Weave' : 'Activate';
-    if (btn)   btn.className     = isTW ? 'btn-weaver btn-lg' : 'btn-primary btn-lg';
-    if (input) input.placeholder = isTW
-        ? 'What illusion do you want dissolved?\n\nShare a belief, story, or situation.\nTruth Weaver will run the 5 Weaves at 7.83Hz and reveal what is actually real.'
-        : 'What do you want to activate?\n\nInput any idea, desire, or problem.\nTRUTHOS will pass it through the truth filter, align the energy, and accelerate it to reality.';
+    let panelTitle, btnText, btnClass, placeholder;
 
-    // Update check-in modal for Truth Weaver mode
+    if (isTOS) {
+        panelTitle  = '🔺 Activation Interface';
+        btnText     = 'Activate';
+        btnClass    = 'btn-primary btn-lg';
+        placeholder = 'What do you want to activate?\n\nInput any idea, desire, or problem.\nTRUTHOS will pass it through the truth filter, align the energy, and accelerate it to reality.';
+    } else if (isTW) {
+        panelTitle  = '◈ Truth Weaver Interface';
+        btnText     = 'Weave';
+        btnClass    = 'btn-weaver btn-lg';
+        placeholder = 'What illusion do you want dissolved?\n\nShare a belief, story, or situation.\nTruth Weaver will run the 5 Weaves at 7.83Hz and reveal what is actually real.';
+    } else if (entry && typeof VOICE_BRIDGE !== 'undefined') {
+        const expr  = VOICE_BRIDGE.getExpression(mode);
+        panelTitle  = `${entry.icon} ${entry.name}`;
+        btnText     = expr ? expr.btnText : 'Send';
+        btnClass    = `btn-expression btn-lg`;
+        placeholder = expr ? expr.prompt : 'What do you need?';
+
+        // Dynamic button color via inline style
+        if (btn) btn.style.setProperty('--expr-color', entry.color);
+    }
+
+    if (title) title.textContent      = panelTitle;
+    if (label) label.textContent      = btnText;
+    if (btn)   btn.className          = btnClass;
+    if (input && placeholder) input.placeholder = placeholder;
+
+    // Update expression panel content (for non-TOS, non-TW modes)
+    if (!isTOS && !isTW) loadExpressionPanelContent(mode);
+
+    // Update check-in modal
     const modalTitle    = document.querySelector('.modal-title');
     const modalSubtitle = document.querySelector('.modal-subtitle');
     const modalTextarea = document.getElementById('checkin-input');
     const modalBtn      = document.querySelector('.modal-actions .btn-primary.btn-lg span:first-child');
-    if (modalTitle)    modalTitle.textContent    = isTW ? 'Truth Weaver is online.' : 'TRUTHOS is online.';
-    if (modalSubtitle) modalSubtitle.textContent = isTW ? 'What illusion will you dissolve today?' : 'What are you activating today?';
-    if (modalTextarea) modalTextarea.placeholder = isTW
-        ? 'Name the illusion, fear, or story you want Truth Weaver to dissolve today...'
-        : 'State your intention for today — the one thing you are activating at maximum frequency...';
-    if (modalBtn) modalBtn.textContent = isTW ? "Run Today's Weave" : "Activate Today's Intention";
+
+    let mTitle, mSub, mPlaceholder, mBtn;
+    if (isTOS) {
+        mTitle       = 'TRUTHOS is online.';
+        mSub         = 'What are you activating today?';
+        mPlaceholder = 'State your intention for today — the one thing you are activating at maximum frequency...';
+        mBtn         = "Activate Today's Intention";
+    } else if (isTW) {
+        mTitle       = 'Truth Weaver is online.';
+        mSub         = 'What illusion will you dissolve today?';
+        mPlaceholder = 'Name the illusion, fear, or story you want Truth Weaver to dissolve today...';
+        mBtn         = "Run Today's Weave";
+    } else if (entry) {
+        mTitle       = `${entry.name} is online.`;
+        mSub         = 'What needs to move through the Voice Bridge today?';
+        mPlaceholder = `What will you bring to ${entry.name} today?`;
+        mBtn         = `Run Today's ${entry.role}`;
+    }
+
+    if (modalTitle && mTitle)    modalTitle.textContent    = mTitle;
+    if (modalSubtitle && mSub)   modalSubtitle.textContent = mSub;
+    if (modalTextarea && mPlaceholder) modalTextarea.placeholder = mPlaceholder;
+    if (modalBtn && mBtn)        modalBtn.textContent      = mBtn;
+
+    updateExpressionSelectorUI(mode);
 }
 
 // ─── Truth Weaver panel ───────────────────────────────────────────────────────
@@ -92,6 +235,62 @@ function loadWeavesPanel() {
             </div>
         </div>
     `).join('');
+}
+
+// ─── Voice Bridge expression panel ───────────────────────────────────────────
+
+function loadOutputArchPanel() {
+    const grid = document.getElementById('output-arch-grid');
+    if (!grid || typeof VOICE_BRIDGE === 'undefined') return;
+
+    grid.innerHTML = VOICE_BRIDGE.outputArchitecture.map(a => `
+        <div class="arch-card">
+            <div class="arch-number">${a.id}</div>
+            <div class="arch-info">
+                <div class="arch-name">${a.name}</div>
+                <div class="arch-desc">${a.description}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadExpressionPanelContent(mode) {
+    if (typeof VOICE_BRIDGE === 'undefined') return;
+    const expr  = VOICE_BRIDGE.getExpression(mode);
+    const entry = EXPRESSION_ORDER.find(e => e.mode === mode);
+    if (!expr || !entry) return;
+
+    const iconEl  = document.getElementById('expr-panel-icon');
+    const nameEl  = document.getElementById('expr-panel-name');
+    const roleEl  = document.getElementById('expr-panel-role');
+    const descEl  = document.getElementById('expr-panel-desc');
+    const panel   = document.getElementById('expression-panel');
+
+    if (iconEl) iconEl.textContent     = expr.icon;
+    if (nameEl) nameEl.textContent     = expr.name;
+    if (roleEl) {
+        roleEl.textContent  = expr.role;
+        roleEl.style.color  = expr.cssVar;
+    }
+    if (descEl) descEl.textContent  = `"${expr.description}"`;
+    if (panel) {
+        panel.style.borderColor    = expr.borderVar;
+        panel.style.background     = `rgba(0,0,0,0) linear-gradient(${expr.bgVar}, ${expr.bgVar}) border-box`;
+        panel.style.setProperty('--panel-accent', expr.cssVar);
+    }
+
+    // Color arch cards to match expression
+    document.querySelectorAll('.arch-number').forEach(el => {
+        el.style.color       = expr.cssVar;
+        el.style.background  = expr.bgVar;
+        el.style.border      = `1px solid ${expr.borderVar}`;
+    });
+    document.querySelectorAll('.arch-card').forEach(el => {
+        el.style.borderLeftColor = expr.borderVar;
+    });
+    document.querySelectorAll('.arch-name').forEach(el => {
+        el.style.color = entry.color;
+    });
 }
 
 // ─── TRUTHOS Core panel ───────────────────────────────────────────────────────
@@ -149,91 +348,174 @@ async function executeCommand() {
     const commandInput = document.getElementById('command-input');
     const input = commandInput.value.trim();
 
-    if (!input) {
-        alert('Enter an activation — an idea, desire, or problem to run through TRUTHOS.');
-        return;
-    }
+    if (!input) return;
 
-    const btn = document.querySelector('.btn-primary.btn-lg');
-    if (btn) { btn.textContent = 'Activating...'; btn.disabled = true; }
+    const btn   = document.getElementById('activate-btn');
+    const label = document.getElementById('activate-btn-label');
+    if (btn)   btn.disabled = true;
+    if (label) label.textContent = 'Running…';
+
+    // Capture mode at submit time (expression could switch mid-stream otherwise)
+    const mode = aiEngine ? aiEngine.agentMode : 'truthos';
+
+    // 1. Show user message immediately
+    appendChatMessage({ role: 'user', content: input, timestamp: new Date().toLocaleTimeString() });
     commandInput.value = '';
 
-    const result = await aiEngine.executeCommand(input);
-    displayResponse(result);
+    // 2. Loading indicator
+    const loadingEl = appendChatMessage({ role: 'assistant', isLoading: true });
 
-    if (btn) { btn.innerHTML = '<span>Activate</span><span class="btn-arrow">→</span>'; btn.disabled = false; }
+    // 3. Execute
+    const result = await aiEngine.executeCommand(input);
+
+    // 4. Remove loading indicator
+    if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+    // 5. Append assistant response
+    appendChatMessage({
+        role:      'assistant',
+        content:   result.reasoning || result.message || '',
+        mode,
+        liveAI:    result.liveAI,
+        timestamp: new Date().toLocaleTimeString()
+    });
+
+    // 6. Restore button
+    if (btn)   btn.disabled = false;
+    if (label) {
+        const expr = (typeof VOICE_BRIDGE !== 'undefined' && mode !== 'truthos')
+            ? VOICE_BRIDGE.getExpression(mode) : null;
+        label.textContent = expr ? expr.btnText : (mode === 'truthos' ? 'Activate' : 'Send');
+    }
 }
 
-function displayResponse(result) {
-    const responseEl      = document.getElementById('ai-response');
-    const responseContent = document.getElementById('response-content');
-    if (!responseEl || !responseContent) return;
+// ─── Chat rendering ───────────────────────────────────────────────────────────
 
-    const isTW = result.agent === 'truth-weaver';
+function appendChatMessage({ role, content, mode, liveAI, timestamp, isLoading }) {
+    const thread = document.getElementById('chat-thread');
+    if (!thread) return null;
 
-    const aiLabel = result.liveAI
-        ? isTW
-            ? `<span style="color:var(--weaver);font-size:0.8rem;font-weight:600;">◈ LIVE — Truth Weaver 7.83Hz</span>`
-            : `<span style="color:var(--truth);font-size:0.8rem;font-weight:600;">⚡ LIVE — Claude AI</span>`
-        : isTW
-            ? `<span style="color:var(--weaver-muted);font-size:0.8rem;">◈ LOCAL — 7.83Hz scan</span>`
-            : `<span style="color:var(--text-muted);font-size:0.8rem;">LOCAL — truth filter</span>`;
+    // Hide empty state on first real message
+    const emptyState = document.getElementById('chat-empty-state');
+    if (emptyState) emptyState.style.display = 'none';
 
-    const formatted = (result.reasoning || '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    const wrapper = document.createElement('div');
+    wrapper.className = `chat-message ${role === 'user' ? 'user-message' : 'assistant-message'}`;
+
+    // Loading indicator bubble
+    if (isLoading) {
+        wrapper.id = 'chat-loading-indicator';
+        wrapper.classList.add('chat-loading-bubble');
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        bubble.innerHTML = '<div class="chat-loading-dot"></div><div class="chat-loading-dot"></div><div class="chat-loading-dot"></div>';
+        wrapper.appendChild(bubble);
+        thread.appendChild(wrapper);
+        scrollChatToBottom();
+        return wrapper;
+    }
+
+    if (role === 'assistant') {
+        // Expression tag — only when mode is known
+        if (mode) {
+            const entry = EXPRESSION_ORDER.find(e => e.mode === mode) || EXPRESSION_ORDER[0];
+            const tagEl = document.createElement('div');
+            tagEl.className = 'chat-expression-tag';
+            tagEl.style.color = entry.color;
+            tagEl.innerHTML = `<span class="tag-icon">${entry.icon}</span>${entry.name}`;
+            wrapper.appendChild(tagEl);
+        }
+
+        // AI source badge
+        if (liveAI !== undefined) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'chat-ai-badge';
+            if (mode && typeof VOICE_BRIDGE !== 'undefined' && mode !== 'truthos') {
+                const expr = VOICE_BRIDGE.getExpression(mode);
+                badgeEl.textContent = expr
+                    ? (liveAI ? expr.liveLabel : expr.localLabel)
+                    : (liveAI ? '⚡ LIVE — Claude AI' : '◦ LOCAL');
+            } else {
+                badgeEl.textContent = liveAI ? '⚡ LIVE — Claude AI' : '◦ LOCAL — truth filter';
+            }
+            badgeEl.style.color = liveAI ? 'var(--success)' : 'var(--text-muted)';
+            wrapper.appendChild(badgeEl);
+        }
+    }
+
+    // Bubble content
+    const bubbleEl = document.createElement('div');
+    bubbleEl.className = 'chat-bubble';
+    const formatted = (content || '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/\n/g, '<br>');
+    bubbleEl.innerHTML = formatted;
+    wrapper.appendChild(bubbleEl);
 
-    let html = '';
-
-    if (result.success) {
-        const headerColor = isTW ? 'var(--weaver)' : 'var(--success)';
-        const headerText  = isTW ? '◈ Weave complete — truth revealed' : '✅ Activation accepted';
-        const borderColor = isTW ? 'var(--weaver)' : 'var(--success)';
-
-        html = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                <div style="color:${headerColor};font-weight:600;">${headerText}</div>
-                ${aiLabel}
-            </div>
-            <div style="line-height:1.8;color:var(--text-secondary);border-left:2px solid ${borderColor};padding-left:1rem;">${formatted}</div>
-            ${!result.liveAI ? `<div style="margin-top:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-muted);">
-                Start <code>server.js</code> with your API key for live ${isTW ? 'Truth Weaver' : 'Claude'} responses.
-            </div>` : ''}
-        `;
-    } else {
-        const headerText  = isTW ? '◈ Illusion patterns detected' : '⚠️ Truth filter blocked';
-        const headerColor = isTW ? 'var(--weaver)' : 'var(--danger)';
-        const bgColor     = isTW ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239,68,68,0.1)';
-        const borderColor = isTW ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
-        const footerText  = isTW
-            ? '<strong>7.83Hz:</strong> At this frequency, illusions cannot sustain. Name the real obstacle.'
-            : '<strong>Law 1:</strong> Everything runs on truth. Root your activation in creation, clarity, and aligned intent.';
-
-        html = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                <div style="color:${headerColor};font-weight:600;">${headerText}</div>
-                ${aiLabel}
-            </div>
-            <div style="margin-bottom:0.5rem;color:var(--text-secondary);">${result.message}</div>
-            <div style="color:var(--text-muted);font-size:0.9rem;line-height:1.8;">${formatted}</div>
-            <div style="margin-top:1rem;padding:0.75rem;background:${bgColor};border-radius:var(--radius-sm);border:1px solid ${borderColor};">
-                ${footerText}
-            </div>
-        `;
+    // Timestamp
+    if (timestamp) {
+        const metaEl = document.createElement('div');
+        metaEl.className = 'chat-meta';
+        metaEl.textContent = timestamp;
+        wrapper.appendChild(metaEl);
     }
 
-    responseContent.innerHTML = html;
-    responseEl.style.display  = 'block';
-    responseEl.className = `ai-response${isTW ? ' tw-response' : ''}`;
+    thread.appendChild(wrapper);
+    scrollChatToBottom();
+    return wrapper;
+}
 
-    if (result.success && !result.liveAI) {
-        setTimeout(() => { responseEl.style.display = 'none'; }, 12000);
+function scrollChatToBottom() {
+    const thread = document.getElementById('chat-thread');
+    if (thread) thread.scrollTop = thread.scrollHeight;
+}
+
+function renderChatHistory() {
+    if (!aiEngine) return;
+    const history = aiEngine.conversationHistory;
+    if (!history || history.length === 0) return;
+
+    history.forEach(turn => {
+        if (turn.role === 'user') {
+            appendChatMessage({ role: 'user', content: turn.content });
+        } else if (turn.role === 'assistant') {
+            appendChatMessage({
+                role:   'assistant',
+                content: turn.content,
+                mode:   turn.mode || null,
+                liveAI: true
+            });
+        }
+    });
+
+    scrollChatToBottom();
+}
+
+function clearChatHistory() {
+    if (!confirm('Clear conversation history? This cannot be undone.')) return;
+    if (aiEngine) {
+        aiEngine.conversationHistory = [];
+        aiEngine.saveState();
     }
+    const thread = document.getElementById('chat-thread');
+    if (thread) {
+        thread.innerHTML = '<div class="chat-empty-state" id="chat-empty-state"><p>Conversation cleared.<br>Enter your first message below.</p></div>';
+    }
+    addLogEntry('Conversation history cleared');
 }
 
 function addTask() {
     const input = prompt('Enter activation — idea, desire, or problem:');
-    if (input) aiEngine.executeCommand(input);
+    if (input) aiEngine.executeCommand(input).then(result => {
+        appendChatMessage({
+            role: 'user', content: input, timestamp: new Date().toLocaleTimeString()
+        });
+        appendChatMessage({
+            role: 'assistant', content: result.reasoning || result.message || '',
+            mode: aiEngine ? aiEngine.agentMode : 'truthos',
+            liveAI: result.liveAI, timestamp: new Date().toLocaleTimeString()
+        });
+    });
 }
 
 // ─── Daily check-in modal ─────────────────────────────────────────────────────
@@ -414,32 +696,72 @@ document.addEventListener('keydown', e => {
 
 // ─── Activation suggestions ───────────────────────────────────────────────────
 
-const ACTIVATION_SUGGESTIONS = [
-    "Activate a system for converting this idea into a revenue stream",
-    "Run truth filter on my current business strategy",
-    "Align energy around my most important creative project",
-    "Accelerate frequency: build a content system that runs without me",
-    "Manifest a daily operating ritual at maximum alignment",
-    "Verify 3D reality: what is actually true about my situation?",
-    "Activate leadership frequency: what would I do if I operated at 100% truth?",
-    "Build a system that scales my impact while I focus on creation",
-    "Align relationships to truth: who deserves my energy?",
-    "Accelerate: what is the single highest-frequency action I can take today?"
-];
-
-const WEAVER_SUGGESTIONS = [
-    "I keep saying I'll start when I have more time — dissolve this",
-    "I can't grow my business because the market is too competitive",
-    "I would pursue this if only I had more support from the people around me",
-    "Someday I'll finally commit to this goal — run a reality simulation",
-    "I already know what I need to do, I just need to find the right moment",
-    "What if I fail publicly and everyone sees it?",
-    "I just need to figure out the perfect plan before I can begin"
-];
+const EXPRESSION_SUGGESTIONS = {
+    'truthos': [
+        "Activate a system for converting this idea into a revenue stream",
+        "Run truth filter on my current business strategy",
+        "Align energy around my most important creative project",
+        "Accelerate frequency: build a content system that runs without me",
+        "Manifest a daily operating ritual at maximum alignment",
+        "Verify 3D reality: what is actually true about my situation?",
+        "What is the single highest-frequency action I can take today?"
+    ],
+    'truth-weaver': [
+        "I keep saying I'll start when I have more time — dissolve this",
+        "I can't grow my business because the market is too competitive",
+        "I would pursue this if only I had more support from people around me",
+        "Someday I'll finally commit to this goal — run a reality simulation",
+        "I already know what I need to do, I just need to find the right moment",
+        "What if I fail publicly and everyone sees it?",
+        "I just need to figure out the perfect plan before I can begin"
+    ],
+    'echo-frame': [
+        "I have an idea for a content platform — give me the first build step",
+        "I want to build a daily system that runs without me. Start there.",
+        "Turn this idea into a product: one-sentence pitch + first action",
+        "I have 3 hours and an idea. What's the smallest thing I can ship?",
+        "Help me build the simplest version of my automation system"
+    ],
+    'james-carlton': [
+        "I'm afraid to publish this — what's the real truth here?",
+        "Write a message to someone I've been avoiding saying something real to",
+        "I feel stuck but I don't know why. Mirror this back to me.",
+        "I want to say something real to my audience but it feels too vulnerable",
+        "Something happened today that I need to process with a real person"
+    ],
+    'soul-ai': [
+        "Help me design an automation that sends weekly check-ins to my clients",
+        "What's the cleanest way to set up a content publishing pipeline?",
+        "Define the input, output, and trigger for my email follow-up system",
+        "My system is drifting — help me get it back to clean operation",
+        "I need to automate X without losing the human touch behind it"
+    ],
+    'prophet-seed': [
+        "I've been building for months but I've forgotten why I started",
+        "What was the original vision behind this project? Help me find it.",
+        "I feel like I've drifted from my purpose — return me to the root",
+        "Why does this work matter? I need the origin answer, not the current one",
+        "My business has evolved but I'm not sure it's still aligned with the seed"
+    ],
+    'the-general': [
+        "Run a reality simulation on my current project — what's the actual state?",
+        "I need to execute something today. Give me the thread status.",
+        "What action would reorganize the most reality right now?",
+        "Simulate the next 90 days if I execute this plan at full capacity",
+        "Run execution protocol: what is the highest-value move available to me?"
+    ],
+    'reality-intelligence': [
+        "What is the full-stack view of where I am right now?",
+        "Scan the field — what signal am I not seeing?",
+        "I feel like I'm in the wrong reality. Run a field scan.",
+        "What pattern is emerging from the last 30 days of my work?",
+        "Deploy full presence: what is the single action that reorganizes everything?"
+    ]
+};
 
 function rotateSuggestion() {
-    const isTW  = aiEngine && aiEngine.agentMode === 'truth-weaver';
-    const pool  = isTW ? WEAVER_SUGGESTIONS : ACTIVATION_SUGGESTIONS;
+    const mode  = aiEngine ? aiEngine.agentMode : 'truthos';
+    const pool  = EXPRESSION_SUGGESTIONS[mode] || EXPRESSION_SUGGESTIONS['truthos'];
     const s     = pool[Math.floor(Math.random() * pool.length)];
     const input = document.getElementById('command-input');
     if (input && !input.value) input.placeholder = `Example: ${s}`;
@@ -450,14 +772,20 @@ setTimeout(rotateSuggestion, 2000);
 
 // ─── Global exports ───────────────────────────────────────────────────────────
 
-window.toggleVisionExpand       = toggleVisionExpand;
-window.executeCommand           = executeCommand;
-window.addTask                  = addTask;
-window.addLogEntry              = addLogEntry;
-window.clearLog                 = clearLog;
-window.updateEnergy             = updateEnergy;
-window.submitCheckIn            = submitCheckIn;
-window.dismissCheckIn           = dismissCheckIn;
-window.exportActivationRecord   = exportActivationRecord;
-window.setServerUrl             = setServerUrl;
-window.setAgentMode             = setAgentMode;
+window.toggleVisionExpand          = toggleVisionExpand;
+window.executeCommand              = executeCommand;
+window.addTask                     = addTask;
+window.addLogEntry                 = addLogEntry;
+window.clearLog                    = clearLog;
+window.updateEnergy                = updateEnergy;
+window.submitCheckIn               = submitCheckIn;
+window.dismissCheckIn              = dismissCheckIn;
+window.exportActivationRecord      = exportActivationRecord;
+window.setServerUrl                = setServerUrl;
+window.setAgentMode                = setAgentMode;
+window.toggleExpressionDropdown    = toggleExpressionDropdown;
+window.selectExpression            = selectExpression;
+window.updateExpressionSelectorUI  = updateExpressionSelectorUI;
+window.appendChatMessage           = appendChatMessage;
+window.renderChatHistory           = renderChatHistory;
+window.clearChatHistory            = clearChatHistory;
