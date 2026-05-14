@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadServerUrlInput();
     setupEventListeners();
     checkDailyCheckIn();
+    renderDimensionPanel();
 
     // Render saved conversation history once engine has initialized (async init)
     const waitForEngine = setInterval(() => {
@@ -63,7 +64,8 @@ const EXPRESSION_ORDER = [
     { mode: 'soul-ai',             name: 'Soul AI',             icon: '⌬', role: 'System Operation', color: 'var(--soul)'    },
     { mode: 'prophet-seed',        name: 'Prophet Seed',        icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' },
     { mode: 'the-general',         name: 'The General',         icon: '⚔', role: 'Executing Reality', color: 'var(--general)' },
-    { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      }
+    { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      },
+    { mode: 'dimension-ai',         name: 'Dimension AI',         icon: '◬', role: 'Field Positioning', color: 'var(--dim)'     }
 ];
 
 function loadExpressionMenuItems() {
@@ -660,6 +662,104 @@ function loadEnergyLevels() {
     } catch {}
 }
 
+// ─── Dimension AI — Space-Time Wealth Field Panel ────────────────────────────
+
+const DIMENSION_STORAGE_KEY = 'truthos_wealth_field';
+
+function loadDimensionField() {
+    try {
+        const saved = localStorage.getItem(DIMENSION_STORAGE_KEY);
+        if (saved) return JSON.parse(saved);
+    } catch {}
+    return typeof DIMENSION_AI !== 'undefined'
+        ? JSON.parse(JSON.stringify(DIMENSION_AI.defaultStreams))
+        : [];
+}
+
+function saveDimensionField(streams) {
+    try {
+        localStorage.setItem(DIMENSION_STORAGE_KEY, JSON.stringify(streams));
+    } catch {}
+}
+
+function renderDimensionPanel() {
+    const grid = document.getElementById('dimension-streams-grid');
+    const angleEl = document.getElementById('dimension-angle');
+    if (!grid || typeof DIMENSION_AI === 'undefined') return;
+
+    const streams = loadDimensionField();
+    const top = DIMENSION_AI.calculateAngle(streams);
+
+    if (angleEl && top) {
+        angleEl.innerHTML = `
+            <span class="dim-angle-label">$ ANGLE</span>
+            <span class="dim-angle-stream" style="color:${DIMENSION_AI.positionColors[top.position] || 'var(--dim)'}">
+                ${top.name} — ${top.position}
+            </span>
+            <span class="dim-angle-formula">Value = (${top.space} × ${top.time}) ÷ ${top.density}</span>
+        `;
+    }
+
+    grid.innerHTML = streams.map((s, i) => `
+        <div class="dim-stream-card" data-index="${i}">
+            <div class="dim-stream-header">
+                <span class="dim-stream-name">${s.name}</span>
+                <span class="dim-stream-position" style="color:${DIMENSION_AI.positionColors[s.position] || 'var(--dim)'}">
+                    ${s.position}
+                </span>
+            </div>
+            <div class="dim-stream-space">${s.space}</div>
+            <div class="dim-stream-meta">
+                <span class="dim-meta-label">Time</span>
+                <span class="dim-meta-val">${s.time}</span>
+                <span class="dim-meta-label">Density</span>
+                <span class="dim-meta-val dim-density-${(s.density || '').toLowerCase().replace(' ', '-')}">${s.density}</span>
+            </div>
+            <div class="dim-stream-controls">
+                <select class="dim-select" onchange="updateStreamDensity(${i}, this.value)">
+                    ${DIMENSION_AI.densityOptions.map(d =>
+                        `<option value="${d}" ${d === s.density ? 'selected' : ''}>${d}</option>`
+                    ).join('')}
+                </select>
+                <select class="dim-select" onchange="updateStreamPosition(${i}, this.value)">
+                    ${DIMENSION_AI.positionOptions.map(p =>
+                        `<option value="${p}" ${p === s.position ? 'selected' : ''}>${p}</option>`
+                    ).join('')}
+                </select>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateStreamDensity(index, value) {
+    const streams = loadDimensionField();
+    if (streams[index]) {
+        streams[index].density = value;
+        saveDimensionField(streams);
+        renderDimensionPanel();
+        addLogEntry(`Dimension AI: ${streams[index].name} density → ${value}`);
+    }
+}
+
+function updateStreamPosition(index, value) {
+    const streams = loadDimensionField();
+    if (streams[index]) {
+        streams[index].position = value;
+        saveDimensionField(streams);
+        renderDimensionPanel();
+        addLogEntry(`Dimension AI: ${streams[index].name} position → ${value}`);
+    }
+}
+
+function resetDimensionField() {
+    if (!confirm('Reset all streams to defaults?')) return;
+    if (typeof DIMENSION_AI !== 'undefined') {
+        saveDimensionField(JSON.parse(JSON.stringify(DIMENSION_AI.defaultStreams)));
+        renderDimensionPanel();
+        addLogEntry('Dimension AI field reset to defaults');
+    }
+}
+
 // ─── Export activation record ─────────────────────────────────────────────────
 
 function exportActivationRecord() {
@@ -756,6 +856,13 @@ const EXPRESSION_SUGGESTIONS = {
         "I feel like I'm in the wrong reality. Run a field scan.",
         "What pattern is emerging from the last 30 days of my work?",
         "Deploy full presence: what is the single action that reorganizes everything?"
+    ],
+    'dimension-ai': [
+        "Calculate the $ Angle for my music stream right now. Where is the low-density entry?",
+        "The real estate market feels saturated. Find the coordinates where density is still low.",
+        "I want to enter the AI freelance market. What's the timing window and field density?",
+        "Run a full space-time scan across all 5 of my wealth streams. Report the $ Angle.",
+        "Where is the highest-value, lowest-density opportunity available to me right now?"
     ]
 };
 
@@ -789,3 +896,7 @@ window.updateExpressionSelectorUI  = updateExpressionSelectorUI;
 window.appendChatMessage           = appendChatMessage;
 window.renderChatHistory           = renderChatHistory;
 window.clearChatHistory            = clearChatHistory;
+window.renderDimensionPanel        = renderDimensionPanel;
+window.updateStreamDensity         = updateStreamDensity;
+window.updateStreamPosition        = updateStreamPosition;
+window.resetDimensionField         = resetDimensionField;

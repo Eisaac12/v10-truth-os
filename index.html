@@ -230,6 +230,29 @@
                 </div>
             </section>
 
+            <!-- Dimension AI — Space-Time Wealth Field -->
+            <section class="panel dimension-panel" id="dimension-panel">
+                <div class="panel-header">
+                    <h2>◬ Dimension AI — Wealth Field</h2>
+                    <div style="display:flex;gap:0.5rem;align-items:center;">
+                        <button class="btn-icon" onclick="resetDimensionField()" title="Reset to defaults">↺</button>
+                        <button class="btn-sm btn-ghost" onclick="setAgentMode('dimension-ai')">◬ Activate</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="dim-axes">
+                        <div class="dim-axis"><span class="dim-axis-label">X Space</span>Where value emerges</div>
+                        <div class="dim-axis"><span class="dim-axis-label">Y Time</span>When it crystallizes</div>
+                        <div class="dim-axis"><span class="dim-axis-label">Z Density</span>Energy concentrated</div>
+                    </div>
+                    <div class="dim-angle" id="dimension-angle">
+                        <span class="dim-angle-label">$ ANGLE</span>
+                        <span class="dim-angle-stream">Scanning field…</span>
+                    </div>
+                    <div class="dim-streams-grid" id="dimension-streams-grid"></div>
+                </div>
+            </section>
+
             <!-- Frequency Alignment -->
             <section class="panel energy-panel">
                 <div class="panel-header">
@@ -279,6 +302,7 @@
     <script src="master-vision.js"></script>
     <script src="truth-weaver.js"></script>
     <script src="voice-bridge.js"></script>
+    <script src="dimension-ai.js"></script>
     <script src="ai-engine.js"></script>
     <script src="app.js"></script>
 </body>

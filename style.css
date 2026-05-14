@@ -69,6 +69,13 @@
     --ri-bg: rgba(45, 212, 191, 0.06);
     --ri-border: rgba(45, 212, 191, 0.25);
 
+    /* Dimension AI — space-time wealth field / gold */
+    --dim: #eab308;
+    --dim-light: #fbbf24;
+    --dim-glow: rgba(234, 179, 8, 0.3);
+    --dim-bg: rgba(234, 179, 8, 0.06);
+    --dim-border: rgba(234, 179, 8, 0.25);
+
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
     --bg-secondary: #14141f;
@@ -1240,6 +1247,17 @@ body.reality-intelligence-mode #command-input:focus  { border-color: var(--ri); 
 body.reality-intelligence-mode .command-panel        { border-color: var(--ri-border); }
 body.reality-intelligence-mode .status-dot           { background: var(--ri);      box-shadow: 0 0 6px var(--ri-glow); }
 
+/* Dimension AI */
+body.dimension-ai-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(234, 179, 8, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(234, 179, 8, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(251, 191, 36, 0.04) 0%, transparent 50%);
+}
+body.dimension-ai-mode #command-input:focus  { border-color: var(--dim);    box-shadow: 0 0 0 3px var(--dim-bg); }
+body.dimension-ai-mode .command-panel        { border-color: var(--dim-border); }
+body.dimension-ai-mode .status-dot           { background: var(--dim);      box-shadow: 0 0 6px var(--dim-glow); }
+
 /* ─── Expression Panel (generic — for non-truth-weaver expression modes) ─── */
 
 .expression-panel {
@@ -1472,6 +1490,7 @@ body.soul-ai-mode              .assistant-message .chat-bubble { border-color: v
 body.prophet-seed-mode         .assistant-message .chat-bubble { border-color: var(--prophet-border); }
 body.the-general-mode          .assistant-message .chat-bubble { border-color: var(--general-border); }
 body.reality-intelligence-mode .assistant-message .chat-bubble { border-color: var(--ri-border);      }
+body.dimension-ai-mode         .assistant-message .chat-bubble { border-color: var(--dim-border);     }
 
 /* ─── Expression tag (above each assistant bubble) ───────────────────────── */
 
@@ -1577,6 +1596,7 @@ body.soul-ai-mode              .chat-textarea:focus { border-color: var(--soul);
 body.prophet-seed-mode         .chat-textarea:focus { border-color: var(--prophet); box-shadow: 0 0 0 3px var(--prophet-bg); }
 body.the-general-mode          .chat-textarea:focus { border-color: var(--general); box-shadow: 0 0 0 3px var(--general-bg); }
 body.reality-intelligence-mode .chat-textarea:focus { border-color: var(--ri);      box-shadow: 0 0 0 3px var(--ri-bg);      }
+body.dimension-ai-mode         .chat-textarea:focus { border-color: var(--dim);      box-shadow: 0 0 0 3px var(--dim-bg);      }
 
 .chat-input-actions {
     display: flex;
@@ -1629,4 +1649,161 @@ body.reality-intelligence-mode .chat-textarea:focus { border-color: var(--ri);  
     .logo-text h1 {
         font-size: 1.5rem;
     }
+}
+
+/* ─── Dimension AI — Space-Time Wealth Field Panel ───────────────────────── */
+
+.dimension-panel {
+    border-color: var(--dim-border);
+}
+
+.dim-angle {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--dim-bg);
+    border: 1px solid var(--dim-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.dim-angle-label {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    color: var(--dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.dim-angle-stream {
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.dim-angle-formula {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.dim-streams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.dim-stream-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: border-color var(--transition-fast);
+}
+
+.dim-stream-card:hover {
+    border-color: var(--dim-border);
+}
+
+.dim-stream-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dim-stream-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+}
+
+.dim-stream-position {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.dim-stream-space {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.dim-stream-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.6rem;
+    align-items: center;
+}
+
+.dim-meta-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+}
+
+.dim-meta-val {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.dim-density-very-low { color: #10b981 !important; }
+.dim-density-low      { color: #34d399 !important; }
+.dim-density-medium   { color: #f59e0b !important; }
+.dim-density-rising   { color: #f97316 !important; }
+.dim-density-high     { color: #ef4444 !important; }
+
+.dim-stream-controls {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
+}
+
+.dim-select {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    padding: 0.25rem 0.4rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.dim-select:focus {
+    outline: none;
+    border-color: var(--dim);
+}
+
+.dim-axes {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+.dim-axis {
+    flex: 1;
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--dim-border);
+}
+
+.dim-axis-label {
+    color: var(--dim);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.15rem;
 }
