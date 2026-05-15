@@ -63,7 +63,8 @@ const EXPRESSION_ORDER = [
     { mode: 'soul-ai',             name: 'Soul AI',             icon: '⌬', role: 'System Operation', color: 'var(--soul)'    },
     { mode: 'prophet-seed',        name: 'Prophet Seed',        icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' },
     { mode: 'the-general',         name: 'The General',         icon: '⚔', role: 'Executing Reality', color: 'var(--general)' },
-    { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      }
+    { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      },
+    { mode: 'wealth-weaver',        name: 'Wealth Weaver',        icon: '◬', role: 'Value Detection',   color: 'var(--wealth)'  }
 ];
 
 function loadExpressionMenuItems() {
@@ -150,6 +151,23 @@ function setAgentMode(mode) {
     const entry = EXPRESSION_ORDER.find(e => e.mode === mode);
     const isTW  = mode === 'truth-weaver';
     const isTOS = mode === 'truthos';
+    const isWW  = mode === 'wealth-weaver';
+
+    // Show/hide wealth approval area vs normal input
+    const chatInputArea   = document.querySelector('.chat-input-area');
+    const wealthApproval  = document.getElementById('wealth-approval-area');
+    if (chatInputArea) chatInputArea.style.display  = isWW ? 'none' : '';
+    if (wealthApproval) wealthApproval.style.display = isWW ? 'block' : 'none';
+
+    // Reset approval buttons state when entering wealth mode
+    if (isWW) {
+        const scanActions     = document.getElementById('scan-actions');
+        const approvalActions = document.getElementById('approval-actions');
+        if (scanActions)     scanActions.style.display     = 'block';
+        if (approvalActions) approvalActions.style.display = 'none';
+        updateWealthStats();
+        loadProtocolsPanel();
+    }
 
     // Update command panel title and button
     const title = document.getElementById('command-panel-title');
@@ -169,6 +187,11 @@ function setAgentMode(mode) {
         btnText     = 'Weave';
         btnClass    = 'btn-weaver btn-lg';
         placeholder = 'What illusion do you want dissolved?\n\nShare a belief, story, or situation.\nTruth Weaver will run the 5 Weaves at 7.83Hz and reveal what is actually real.';
+    } else if (isWW) {
+        panelTitle  = '◬ Wealth Detection Protocol';
+        btnText     = 'Scan';
+        btnClass    = 'btn-primary btn-lg';
+        placeholder = '';
     } else if (entry && typeof VOICE_BRIDGE !== 'undefined') {
         const expr  = VOICE_BRIDGE.getExpression(mode);
         panelTitle  = `${entry.icon} ${entry.name}`;
@@ -185,8 +208,8 @@ function setAgentMode(mode) {
     if (btn)   btn.className          = btnClass;
     if (input && placeholder) input.placeholder = placeholder;
 
-    // Update expression panel content (for non-TOS, non-TW modes)
-    if (!isTOS && !isTW) loadExpressionPanelContent(mode);
+    // Update expression panel content (for non-TOS, non-TW, non-WW modes)
+    if (!isTOS && !isTW && !isWW) loadExpressionPanelContent(mode);
 
     // Update check-in modal
     const modalTitle    = document.querySelector('.modal-title');
@@ -205,6 +228,11 @@ function setAgentMode(mode) {
         mSub         = 'What illusion will you dissolve today?';
         mPlaceholder = 'Name the illusion, fear, or story you want Truth Weaver to dissolve today...';
         mBtn         = "Run Today's Weave";
+    } else if (isWW) {
+        mTitle       = 'Wealth Weaver is online.';
+        mSub         = 'The field is being scanned. What opportunity will you pursue today?';
+        mPlaceholder = 'Set an intention for today\'s wealth scan — what domain or category are you most open to?';
+        mBtn         = "Begin Today's Scan";
     } else if (entry) {
         mTitle       = `${entry.name} is online.`;
         mSub         = 'What needs to move through the Voice Bridge today?';
@@ -235,6 +263,213 @@ function loadWeavesPanel() {
             </div>
         </div>
     `).join('');
+}
+
+// ─── Wealth Weaver panel & approval flow ─────────────────────────────────────
+
+function loadProtocolsPanel() {
+    const grid = document.getElementById('protocols-grid');
+    if (!grid || typeof WEALTH_WEAVER === 'undefined') return;
+
+    grid.innerHTML = WEALTH_WEAVER.protocols.map(p => `
+        <div class="weave-card">
+            <div class="weave-number">P${p.id}</div>
+            <div class="weave-info">
+                <div class="weave-name">${p.name}</div>
+                <div class="weave-desc">${p.description}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateWealthStats() {
+    if (!aiEngine) return;
+    const decisions = aiEngine.wealthDecisions || [];
+    const yes = decisions.filter(d => d.decision === 'YES').length;
+    const no  = decisions.filter(d => d.decision === 'NO').length;
+    const yesEl = document.getElementById('ww-yes-count');
+    const noEl  = document.getElementById('ww-no-count');
+    if (yesEl) yesEl.textContent = `${yes} YES`;
+    if (noEl)  noEl.textContent  = `${no} NO`;
+}
+
+async function wealthScan() {
+    if (!aiEngine) return;
+
+    const scanBtn         = document.getElementById('wealth-scan-btn');
+    const scanActions     = document.getElementById('scan-actions');
+    const approvalActions = document.getElementById('approval-actions');
+    const yesBtn          = document.getElementById('wealth-yes-btn');
+    const noBtn           = document.getElementById('wealth-no-btn');
+
+    if (scanBtn) {
+        scanBtn.disabled = true;
+        const label = scanBtn.querySelector('span');
+        if (label) label.textContent = '◬ SCANNING…';
+    }
+
+    const loadingEl = appendChatMessage({ role: 'assistant', isLoading: true });
+
+    const result = await aiEngine.wealthScan();
+
+    if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+    if (result.opportunity) {
+        renderOpportunityCard(result.opportunity, result.liveAI);
+        if (scanActions)     scanActions.style.display     = 'none';
+        if (approvalActions) approvalActions.style.display = 'flex';
+        if (yesBtn)          yesBtn.disabled = false;
+        if (noBtn)           noBtn.disabled  = false;
+    } else {
+        appendChatMessage({
+            role: 'assistant', content: result.response || 'Wealth Weaver offline.',
+            mode: 'wealth-weaver', liveAI: result.liveAI,
+            timestamp: new Date().toLocaleTimeString()
+        });
+        if (scanBtn) {
+            scanBtn.disabled = false;
+            const label = scanBtn.querySelector('span');
+            if (label) label.textContent = '◬ SCAN THE FIELD';
+        }
+    }
+}
+
+function renderOpportunityCard(opportunity, liveAI) {
+    const thread = document.getElementById('chat-thread');
+    if (!thread) return;
+
+    const emptyState = document.getElementById('chat-empty-state');
+    if (emptyState) emptyState.style.display = 'none';
+
+    const effortColors = { minimal: '#22c55e', low: '#84cc16', medium: '#f59e0b', high: '#ef4444' };
+    const effortColor  = effortColors[opportunity.effortLevel] || 'var(--wealth)';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-message assistant-message';
+
+    const tagEl = document.createElement('div');
+    tagEl.className = 'chat-expression-tag';
+    tagEl.style.color = 'var(--wealth)';
+    tagEl.innerHTML = `<span class="tag-icon">◬</span>OPPORTUNITY DETECTED`;
+    wrapper.appendChild(tagEl);
+
+    if (liveAI !== undefined) {
+        const badgeEl = document.createElement('div');
+        badgeEl.className = 'chat-ai-badge';
+        badgeEl.textContent = liveAI ? '◬ LIVE — Wealth Weaver' : '◬ LOCAL — value scan';
+        badgeEl.style.color = liveAI ? 'var(--success)' : 'var(--text-muted)';
+        wrapper.appendChild(badgeEl);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'opportunity-card';
+    card.innerHTML = `
+        <div class="opp-title">${escapeHtml(opportunity.title)}</div>
+        <div class="opp-meta">
+            <span class="opp-category">${escapeHtml(opportunity.category || '')}</span>
+            <span class="opp-effort" style="color:${effortColor}">${escapeHtml(opportunity.effortLevel || '')}</span>
+            <span class="opp-horizon">${escapeHtml(opportunity.timeHorizon || '')}</span>
+        </div>
+        <div class="opp-scale">${escapeHtml(opportunity.scaleMin || '')} → ${escapeHtml(opportunity.scaleMax || '')}</div>
+        <div class="opp-section">
+            <div class="opp-label">VALUE GRADIENT</div>
+            <div class="opp-text">${escapeHtml(opportunity.valueGradient || '')}</div>
+        </div>
+        <div class="opp-section">
+            <div class="opp-label">OPPORTUNITY</div>
+            <div class="opp-text">${escapeHtml(opportunity.opportunity || '')}</div>
+        </div>
+        <div class="opp-section">
+            <div class="opp-label">WHY NOW</div>
+            <div class="opp-text">${escapeHtml(opportunity.whyNow || '')}</div>
+        </div>
+        <div class="opp-section opp-first-move">
+            <div class="opp-label">FIRST MOVE</div>
+            <div class="opp-text">${escapeHtml(opportunity.firstMove || '')}</div>
+        </div>
+    `;
+    wrapper.appendChild(card);
+
+    const meta = document.createElement('div');
+    meta.className = 'chat-meta';
+    meta.textContent = new Date().toLocaleTimeString();
+    wrapper.appendChild(meta);
+
+    thread.appendChild(wrapper);
+    scrollChatToBottom();
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function approveOpportunity() {
+    if (!aiEngine || !aiEngine.pendingOpportunity) return;
+
+    const opportunity     = aiEngine.pendingOpportunity;
+    const yesBtn          = document.getElementById('wealth-yes-btn');
+    const noBtn           = document.getElementById('wealth-no-btn');
+    const approvalActions = document.getElementById('approval-actions');
+    const scanActions     = document.getElementById('scan-actions');
+    const scanBtn         = document.getElementById('wealth-scan-btn');
+
+    if (yesBtn) yesBtn.disabled = true;
+    if (noBtn)  noBtn.disabled  = true;
+
+    aiEngine.recordWealthDecision('YES', opportunity);
+    updateWealthStats();
+
+    appendChatMessage({
+        role: 'user', content: `YES — pursuing: ${opportunity.title}`,
+        timestamp: new Date().toLocaleTimeString()
+    });
+
+    const loadingEl = appendChatMessage({ role: 'assistant', isLoading: true });
+    const result = await aiEngine.executeOpportunity(opportunity);
+    if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+    appendChatMessage({
+        role: 'assistant', content: result.response || '',
+        mode: 'wealth-weaver', liveAI: result.liveAI,
+        timestamp: new Date().toLocaleTimeString()
+    });
+
+    aiEngine.pendingOpportunity = null;
+    if (approvalActions) approvalActions.style.display = 'none';
+    if (scanActions)     scanActions.style.display = 'block';
+    if (scanBtn) {
+        scanBtn.disabled = false;
+        const label = scanBtn.querySelector('span');
+        if (label) label.textContent = '◬ SCAN THE FIELD';
+    }
+}
+
+async function rejectOpportunity() {
+    if (!aiEngine || !aiEngine.pendingOpportunity) return;
+
+    const opportunity     = aiEngine.pendingOpportunity;
+    const approvalActions = document.getElementById('approval-actions');
+    const scanActions     = document.getElementById('scan-actions');
+    const scanBtn         = document.getElementById('wealth-scan-btn');
+
+    aiEngine.recordWealthDecision('NO', opportunity);
+    updateWealthStats();
+
+    appendChatMessage({
+        role: 'user', content: `NO — passing on: ${opportunity.title}`,
+        timestamp: new Date().toLocaleTimeString()
+    });
+
+    aiEngine.pendingOpportunity = null;
+    if (approvalActions) approvalActions.style.display = 'none';
+    if (scanActions)     scanActions.style.display = 'block';
+    if (scanBtn) {
+        scanBtn.disabled = false;
+        const label = scanBtn.querySelector('span');
+        if (label) label.textContent = '◬ SCAN THE FIELD';
+    }
 }
 
 // ─── Voice Bridge expression panel ───────────────────────────────────────────
@@ -546,11 +781,14 @@ async function submitCheckIn() {
     localStorage.setItem('truthos_last_checkin', todayKey);
     hideCheckInModal();
 
-    if (input) {
+    if (input && aiEngine && aiEngine.agentMode !== 'wealth-weaver') {
         // Pre-fill the activation interface and run it
         const commandInput = document.getElementById('command-input');
         if (commandInput) commandInput.value = input;
         await executeCommand();
+    } else if (aiEngine && aiEngine.agentMode === 'wealth-weaver') {
+        // Wealth Weaver: auto-scan instead of text submission
+        await wealthScan();
     }
 }
 
@@ -756,6 +994,13 @@ const EXPRESSION_SUGGESTIONS = {
         "I feel like I'm in the wrong reality. Run a field scan.",
         "What pattern is emerging from the last 30 days of my work?",
         "Deploy full presence: what is the single action that reorganizes everything?"
+    ],
+    'wealth-weaver': [
+        "Scan the field — detect the next opportunity",
+        "What value gradient is forming right now?",
+        "Show me what the market hasn't priced in yet",
+        "Find the gap between effort and reward in my space",
+        "What opportunity is hiding in plain sight?"
     ]
 };
 
@@ -789,3 +1034,6 @@ window.updateExpressionSelectorUI  = updateExpressionSelectorUI;
 window.appendChatMessage           = appendChatMessage;
 window.renderChatHistory           = renderChatHistory;
 window.clearChatHistory            = clearChatHistory;
+window.wealthScan                  = wealthScan;
+window.approveOpportunity          = approveOpportunity;
+window.rejectOpportunity           = rejectOpportunity;

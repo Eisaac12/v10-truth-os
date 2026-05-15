@@ -69,6 +69,13 @@
     --ri-bg: rgba(45, 212, 191, 0.06);
     --ri-border: rgba(45, 212, 191, 0.25);
 
+    /* Wealth Weaver — value detection / green */
+    --wealth: #22c55e;
+    --wealth-light: #4ade80;
+    --wealth-glow: rgba(34, 197, 94, 0.3);
+    --wealth-bg: rgba(34, 197, 94, 0.06);
+    --wealth-border: rgba(34, 197, 94, 0.25);
+
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
     --bg-secondary: #14141f;
@@ -1240,6 +1247,177 @@ body.reality-intelligence-mode #command-input:focus  { border-color: var(--ri); 
 body.reality-intelligence-mode .command-panel        { border-color: var(--ri-border); }
 body.reality-intelligence-mode .status-dot           { background: var(--ri);      box-shadow: 0 0 6px var(--ri-glow); }
 
+body.wealth-weaver-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 25% 75%, rgba(34, 197, 94, 0.1) 0%, transparent 60%),
+        radial-gradient(ellipse at 75% 25%, rgba(34, 197, 94, 0.06) 0%, transparent 50%);
+}
+body.wealth-weaver-mode .command-panel        { border-color: var(--wealth-border); }
+body.wealth-weaver-mode .status-dot           { background: var(--wealth); box-shadow: 0 0 6px var(--wealth-glow); }
+
+/* Wealth Weaver panel */
+.wealth-weaver-panel {
+    border-color: var(--wealth-border);
+}
+.ww-belief {
+    color: var(--wealth-light);
+    font-style: italic;
+    margin-bottom: var(--spacing-md);
+    font-size: 0.9rem;
+}
+.ww-stats {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+.ww-stat {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid currentColor;
+}
+.ww-yes { color: var(--success); }
+.ww-no  { color: var(--danger); }
+
+/* Wealth approval area */
+.wealth-approval-area {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+.scan-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+.btn-wealth-scan {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
+    border: 1px solid var(--wealth-border);
+    color: var(--wealth-light);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all 0.2s ease;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+}
+.btn-wealth-scan:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.1));
+    box-shadow: 0 0 20px var(--wealth-glow);
+}
+.btn-wealth-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+.approval-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+.btn-yes, .btn-no {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border: 2px solid currentColor;
+    transition: all 0.2s ease;
+    font-family: var(--font-mono);
+}
+.btn-yes {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--success);
+    border-color: var(--success);
+}
+.btn-yes:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+}
+.btn-no {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+.btn-no:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.18);
+}
+.btn-yes:disabled, .btn-no:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Opportunity card */
+.opportunity-card {
+    background: var(--wealth-bg);
+    border: 1px solid var(--wealth-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+.opp-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--wealth-light);
+    letter-spacing: 0.02em;
+}
+.opp-meta {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+.opp-category, .opp-effort, .opp-horizon {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    opacity: 0.85;
+}
+.opp-category { color: var(--wealth); }
+.opp-horizon  { color: var(--text-muted); }
+.opp-scale {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--wealth-light);
+}
+.opp-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.opp-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--wealth);
+    opacity: 0.7;
+}
+.opp-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.opp-first-move .opp-text {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Protocols grid (mirrors weaves-grid) */
+.protocols-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+}
+
 /* ─── Expression Panel (generic — for non-truth-weaver expression modes) ─── */
 
 .expression-panel {
@@ -1472,6 +1650,7 @@ body.soul-ai-mode              .assistant-message .chat-bubble { border-color: v
 body.prophet-seed-mode         .assistant-message .chat-bubble { border-color: var(--prophet-border); }
 body.the-general-mode          .assistant-message .chat-bubble { border-color: var(--general-border); }
 body.reality-intelligence-mode .assistant-message .chat-bubble { border-color: var(--ri-border);      }
+body.wealth-weaver-mode        .assistant-message .chat-bubble { border-color: var(--wealth-border);   }
 
 /* ─── Expression tag (above each assistant bubble) ───────────────────────── */
 
@@ -1577,6 +1756,7 @@ body.soul-ai-mode              .chat-textarea:focus { border-color: var(--soul);
 body.prophet-seed-mode         .chat-textarea:focus { border-color: var(--prophet); box-shadow: 0 0 0 3px var(--prophet-bg); }
 body.the-general-mode          .chat-textarea:focus { border-color: var(--general); box-shadow: 0 0 0 3px var(--general-bg); }
 body.reality-intelligence-mode .chat-textarea:focus { border-color: var(--ri);      box-shadow: 0 0 0 3px var(--ri-bg);      }
+body.wealth-weaver-mode        .chat-textarea:focus { border-color: var(--wealth);   box-shadow: 0 0 0 3px var(--wealth-bg);  }
 
 .chat-input-actions {
     display: flex;
