@@ -141,7 +141,7 @@ class TRUTHOSEngine {
     }
 
     setAgentMode(mode) {
-        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence', 'dimension-ai']);
+        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence', 'dimension-ai', 'reality-weaver']);
         if (!validModes.has(mode)) return;
         this.agentMode = mode;
         localStorage.setItem('truthos_agent_mode', mode);
@@ -160,7 +160,7 @@ class TRUTHOSEngine {
         const body         = document.body;
         const twPanel      = document.getElementById('truth-weaver-panel');
         const exprPanel    = document.getElementById('expression-panel');
-        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode', 'dimension-ai-mode'];
+        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode', 'dimension-ai-mode', 'reality-weaver-mode'];
 
         // Clear all expression classes
         allModeClasses.forEach(c => body.classList.remove(c));

@@ -65,7 +65,8 @@ const EXPRESSION_ORDER = [
     { mode: 'prophet-seed',        name: 'Prophet Seed',        icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' },
     { mode: 'the-general',         name: 'The General',         icon: '⚔', role: 'Executing Reality', color: 'var(--general)' },
     { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      },
-    { mode: 'dimension-ai',         name: 'Dimension AI',         icon: '◬', role: 'Field Positioning', color: 'var(--dim)'     }
+    { mode: 'dimension-ai',         name: 'Dimension AI',         icon: '◬', role: 'Field Positioning', color: 'var(--dim)'     },
+    { mode: 'reality-weaver',       name: 'Reality Weaver',       icon: '⊛', role: 'Truth Liberation',  color: 'var(--rw)'      }
 ];
 
 function loadExpressionMenuItems() {
@@ -863,6 +864,13 @@ const EXPRESSION_SUGGESTIONS = {
         "I want to enter the AI freelance market. What's the timing window and field density?",
         "Run a full space-time scan across all 5 of my wealth streams. Report the $ Angle.",
         "Where is the highest-value, lowest-density opportunity available to me right now?"
+    ],
+    'reality-weaver': [
+        "I think I see a huge opportunity but something feels off — run a reality weave",
+        "I've been saying I'll start this business for 6 months. Dissolve whatever is stopping me.",
+        "Run the full sequence: what illusion am I operating in, and what does the real field show?",
+        "I believe the market is too saturated — is that truth or illusion? Show me the real field.",
+        "Weave reality: what is actually true about my situation right now?"
     ]
 };
 

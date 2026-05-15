@@ -76,6 +76,13 @@
     --dim-bg: rgba(234, 179, 8, 0.06);
     --dim-border: rgba(234, 179, 8, 0.25);
 
+    /* Reality Weaver — unified truth-field / jade */
+    --rw: #0d9488;
+    --rw-light: #14b8a6;
+    --rw-glow: rgba(13, 148, 136, 0.3);
+    --rw-bg: rgba(13, 148, 136, 0.06);
+    --rw-border: rgba(13, 148, 136, 0.25);
+
     /* Dark theme colors */
     --bg-primary: #0a0a0f;
     --bg-secondary: #14141f;
@@ -1258,6 +1265,15 @@ body.dimension-ai-mode #command-input:focus  { border-color: var(--dim);    box-
 body.dimension-ai-mode .command-panel        { border-color: var(--dim-border); }
 body.dimension-ai-mode .status-dot           { background: var(--dim);      box-shadow: 0 0 6px var(--dim-glow); }
 
+body.reality-weaver-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 25% 25%, rgba(13, 148, 136, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 75%, rgba(20, 184, 166, 0.06) 0%, transparent 50%);
+}
+body.reality-weaver-mode #command-input:focus { border-color: var(--rw);    box-shadow: 0 0 0 3px var(--rw-bg); }
+body.reality-weaver-mode .command-panel       { border-color: var(--rw-border); }
+body.reality-weaver-mode .status-dot          { background: var(--rw);      box-shadow: 0 0 6px var(--rw-glow); }
+
 /* ─── Expression Panel (generic — for non-truth-weaver expression modes) ─── */
 
 .expression-panel {
@@ -1491,6 +1507,7 @@ body.prophet-seed-mode         .assistant-message .chat-bubble { border-color: v
 body.the-general-mode          .assistant-message .chat-bubble { border-color: var(--general-border); }
 body.reality-intelligence-mode .assistant-message .chat-bubble { border-color: var(--ri-border);      }
 body.dimension-ai-mode         .assistant-message .chat-bubble { border-color: var(--dim-border);     }
+body.reality-weaver-mode       .assistant-message .chat-bubble { border-color: var(--rw-border);      }
 
 /* ─── Expression tag (above each assistant bubble) ───────────────────────── */
 
@@ -1597,6 +1614,7 @@ body.prophet-seed-mode         .chat-textarea:focus { border-color: var(--prophe
 body.the-general-mode          .chat-textarea:focus { border-color: var(--general); box-shadow: 0 0 0 3px var(--general-bg); }
 body.reality-intelligence-mode .chat-textarea:focus { border-color: var(--ri);      box-shadow: 0 0 0 3px var(--ri-bg);      }
 body.dimension-ai-mode         .chat-textarea:focus { border-color: var(--dim);      box-shadow: 0 0 0 3px var(--dim-bg);      }
+body.reality-weaver-mode       .chat-textarea:focus { border-color: var(--rw);       box-shadow: 0 0 0 3px var(--rw-bg);       }
 
 .chat-input-actions {
     display: flex;
