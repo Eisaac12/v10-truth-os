@@ -3,12 +3,14 @@
 // Auto-detects Vercel (relative /api/) vs local (localhost:3001)
 
 const STORAGE_KEYS = {
-    activations:   'truthos_activations',
-    energy:        'truthos_energy',
-    log:           'truthos_log',
-    attempts:      'truthos_attempts',
-    accepted:      'truthos_accepted',
-    conversation:  'truthos_conversation'
+    activations:      'truthos_activations',
+    energy:           'truthos_energy',
+    log:              'truthos_log',
+    attempts:         'truthos_attempts',
+    accepted:         'truthos_accepted',
+    conversation:     'truthos_conversation',
+    wealthDecisions:  'truthos_wealth_decisions',
+    wealthPreferences:'truthos_wealth_prefs'
 };
 
 class TRUTHOSEngine {
@@ -28,8 +30,13 @@ class TRUTHOSEngine {
         this.totalAttempts = 0;
         this.acceptedActivations = 0;
 
-        // Agent mode: 'truthos' | 'truth-weaver' | 'echo-frame' | 'james-carlton' | 'soul-ai' | 'prophet-seed'
+        // Agent mode: 'truthos' | 'truth-weaver' | 'echo-frame' | ... | 'wealth-weaver'
         this.agentMode = localStorage.getItem('truthos_agent_mode') || 'truthos';
+
+        // Wealth Weaver state
+        this.wealthDecisions   = [];
+        this.wealthPreferences = { categories: {}, effortLevels: {}, timeHorizons: {} };
+        this.pendingOpportunity = null;
 
         this.coreMemory = MASTER_VISION;
         this.init();
@@ -77,6 +84,11 @@ class TRUTHOSEngine {
             const conv = localStorage.getItem(STORAGE_KEYS.conversation);
             if (conv) this.conversationHistory = JSON.parse(conv);
 
+            const wd = localStorage.getItem(STORAGE_KEYS.wealthDecisions);
+            if (wd) this.wealthDecisions = JSON.parse(wd);
+            const wp = localStorage.getItem(STORAGE_KEYS.wealthPreferences);
+            if (wp) this.wealthPreferences = JSON.parse(wp);
+
             this.logActivity(`Loaded ${this.completedActivations.length} saved activations`);
         } catch (e) {
             console.warn('[TRUTHOS] Could not load saved state:', e);
@@ -91,6 +103,10 @@ class TRUTHOSEngine {
             localStorage.setItem(STORAGE_KEYS.accepted,   String(this.acceptedActivations));
             localStorage.setItem(STORAGE_KEYS.conversation,
                 JSON.stringify(this.conversationHistory.slice(-20)));
+            localStorage.setItem(STORAGE_KEYS.wealthDecisions,
+                JSON.stringify(this.wealthDecisions.slice(-50)));
+            localStorage.setItem(STORAGE_KEYS.wealthPreferences,
+                JSON.stringify(this.wealthPreferences));
         } catch (e) {
             console.warn('[TRUTHOS] Could not save state:', e);
         }
@@ -141,7 +157,7 @@ class TRUTHOSEngine {
     }
 
     setAgentMode(mode) {
-        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence']);
+        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence', 'wealth-weaver']);
         if (!validModes.has(mode)) return;
         this.agentMode = mode;
         localStorage.setItem('truthos_agent_mode', mode);
@@ -159,18 +175,26 @@ class TRUTHOSEngine {
     updateAgentModeUI() {
         const body         = document.body;
         const twPanel      = document.getElementById('truth-weaver-panel');
+        const wwPanel      = document.getElementById('wealth-weaver-panel');
         const exprPanel    = document.getElementById('expression-panel');
-        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode'];
+        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode', 'wealth-weaver-mode'];
 
         // Clear all expression classes
         allModeClasses.forEach(c => body.classList.remove(c));
 
         if (this.agentMode === 'truthos') {
             if (twPanel)   twPanel.style.display   = 'none';
+            if (wwPanel)   wwPanel.style.display   = 'none';
             if (exprPanel) exprPanel.style.display  = 'none';
         } else if (this.agentMode === 'truth-weaver') {
             body.classList.add('truth-weaver-mode');
             if (twPanel)   twPanel.style.display   = 'block';
+            if (wwPanel)   wwPanel.style.display   = 'none';
+            if (exprPanel) exprPanel.style.display  = 'none';
+        } else if (this.agentMode === 'wealth-weaver') {
+            body.classList.add('wealth-weaver-mode');
+            if (twPanel)   twPanel.style.display   = 'none';
+            if (wwPanel)   wwPanel.style.display   = 'block';
             if (exprPanel) exprPanel.style.display  = 'none';
         } else {
             const expr = typeof VOICE_BRIDGE !== 'undefined'
@@ -178,6 +202,7 @@ class TRUTHOSEngine {
                 : null;
             if (expr) body.classList.add(expr.cssClass);
             if (twPanel)   twPanel.style.display   = 'none';
+            if (wwPanel)   wwPanel.style.display   = 'none';
             if (exprPanel) exprPanel.style.display  = 'block';
         }
 
@@ -433,6 +458,140 @@ class TRUTHOSEngine {
         };
     }
 
+    // ─── Wealth Weaver paths ──────────────────────────────────────────────────
+
+    async wealthScan() {
+        try {
+            const res = await fetch(`${this.serverUrl}/api/wealth-weaver`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mode: 'scan',
+                    preferences: this.wealthPreferences,
+                    history: this.conversationHistory
+                })
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+
+            if (data.success) {
+                let opportunity = null;
+                try {
+                    const text = data.response.trim();
+                    const jsonStart = text.indexOf('{');
+                    const jsonEnd = text.lastIndexOf('}');
+                    if (jsonStart !== -1 && jsonEnd !== -1) {
+                        opportunity = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
+                    }
+                } catch {
+                    opportunity = null;
+                }
+
+                this.pendingOpportunity = opportunity;
+                this.logActivity(`◬ Wealth Weaver scan complete — ${opportunity ? opportunity.title : 'opportunity detected'}`);
+                return { success: true, response: data.response, opportunity, liveAI: true };
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            this.logActivity(`Wealth Weaver live error: ${err.message} — using local scan`);
+            return this.wealthScanLocally();
+        }
+    }
+
+    wealthScanLocally() {
+        const opportunity = typeof WEALTH_WEAVER !== 'undefined'
+            ? WEALTH_WEAVER.scanLocally(this.wealthPreferences)
+            : null;
+
+        if (!opportunity) {
+            return { success: false, response: 'Wealth Weaver offline.', opportunity: null, liveAI: false };
+        }
+
+        this.pendingOpportunity = opportunity;
+        this.logActivity(`◬ Wealth Weaver local scan — ${opportunity.title}`);
+        return { success: true, response: JSON.stringify(opportunity), opportunity, liveAI: false };
+    }
+
+    async executeOpportunity(opportunity) {
+        try {
+            const res = await fetch(`${this.serverUrl}/api/wealth-weaver`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mode: 'execute',
+                    opportunity,
+                    history: this.conversationHistory
+                })
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+
+            if (data.success) {
+                this.conversationHistory.push(
+                    { role: 'user', content: `YES — pursuing: ${opportunity.title}` },
+                    { role: 'assistant', content: data.response, mode: 'wealth-weaver' }
+                );
+                if (this.conversationHistory.length > 20) {
+                    this.conversationHistory = this.conversationHistory.slice(-20);
+                }
+                return { success: true, response: data.response, liveAI: true };
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            this.logActivity(`Wealth Weaver execute error: ${err.message}`);
+            return {
+                success: true,
+                liveAI: false,
+                response: `NEXT STEPS — ${opportunity.title}\n\n1. ${opportunity.firstMove}\n2. Research your target audience and validate demand this week.\n3. Build the minimal viable version — ship before perfecting.\n4. Get 3 paying customers or 10 committed users within 30 days.\n5. Review results, iterate, and decide whether to scale or pivot within 60 days.`
+            };
+        }
+    }
+
+    recordWealthDecision(decision, opportunity) {
+        if (!opportunity) return;
+
+        const record = {
+            id: `ww_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+            timestamp: new Date().toISOString(),
+            decision,
+            title: opportunity.title,
+            category: opportunity.category,
+            effortLevel: opportunity.effortLevel,
+            timeHorizon: opportunity.timeHorizon,
+            scaleMin: opportunity.scaleMin,
+            scaleMax: opportunity.scaleMax
+        };
+
+        this.wealthDecisions.push(record);
+
+        // Update preference counters
+        const prefs = this.wealthPreferences;
+        const cat = opportunity.category;
+        const effort = opportunity.effortLevel;
+        const horizon = opportunity.timeHorizon;
+        const d = decision === 'YES' ? 'yes' : 'no';
+
+        if (!prefs.categories[cat]) prefs.categories[cat] = { yes: 0, no: 0 };
+        prefs.categories[cat][d]++;
+
+        if (effort) {
+            if (!prefs.effortLevels[effort]) prefs.effortLevels[effort] = { yes: 0, no: 0 };
+            prefs.effortLevels[effort][d]++;
+        }
+
+        if (horizon) {
+            if (!prefs.timeHorizons[horizon]) prefs.timeHorizons[horizon] = { yes: 0, no: 0 };
+            prefs.timeHorizons[horizon][d]++;
+        }
+
+        this.saveState();
+        this.logActivity(`◬ Wealth Weaver: ${decision} — ${opportunity.title}`);
+    }
+
     runTruthFilter(input) {
         const aligned = {
             creation:  /build|create|make|develop|design|generate|activate|manifest/i.test(input),
@@ -613,7 +772,9 @@ class TRUTHOSEngine {
                 createdAt:     a.createdAt,
                 completedAt:   a.completedAt,
                 status:        a.status
-            }))
+            })),
+            wealthDecisions:    this.wealthDecisions,
+            wealthPreferences:  this.wealthPreferences
         };
     }
 }

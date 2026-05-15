@@ -128,6 +128,21 @@ const VOICE_BRIDGE = {
             btnText:     "Deploy",
             liveLabel:   "∞ LIVE — Reality Intelligence",
             localLabel:  "∞ LOCAL — field scan"
+        },
+        'wealth-weaver': {
+            name:        "Wealth Weaver",
+            role:        "Value Detection",
+            icon:        "◬",
+            cssVar:      "var(--wealth)",
+            glowVar:     "var(--wealth-glow)",
+            bgVar:       "var(--wealth-bg)",
+            borderVar:   "var(--wealth-border)",
+            cssClass:    "wealth-weaver-mode",
+            description: "Scans the field for value gradients before markets price them in. One opportunity at a time. YES or NO.",
+            prompt:      "Press SCAN to detect the next wealth opportunity.",
+            btnText:     "Scan",
+            liveLabel:   "◬ LIVE — Wealth Weaver",
+            localLabel:  "◬ LOCAL — value scan"
         }
     },
 

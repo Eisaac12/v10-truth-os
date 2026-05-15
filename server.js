@@ -7,6 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const Anthropic = require('@anthropic-ai/sdk');
 const VOICE_BRIDGE = require('./voice-bridge');
+const WEALTH_WEAVER = require('./wealth-weaver');
 
 const app = express();
 app.use(cors());
@@ -278,6 +279,59 @@ app.post('/api/voice-bridge', async (req, res) => {
         });
     } catch (err) {
         console.error(`[Voice Bridge / ${expression}] API error:`, err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Wealth Weaver endpoint — value detection agent
+app.post('/api/wealth-weaver', async (req, res) => {
+    const { mode = 'scan', preferences, opportunity } = req.body;
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+        return res.status(500).json({
+            success: false,
+            error: 'ANTHROPIC_API_KEY not set. Add it to your .env file.'
+        });
+    }
+
+    const history = Array.isArray(req.body.history) ? req.body.history : [];
+    const safeHistory = history
+        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+        .slice(-20);
+
+    const systemPrompt = `${VOICE_BRIDGE.rootIdentity}\n\n${WEALTH_WEAVER.systemPrompt}`;
+
+    let userMessage;
+    if (mode === 'execute' && opportunity) {
+        userMessage = `mode: execute\n\nThe user approved this opportunity:\n${JSON.stringify(opportunity, null, 2)}\n\nGenerate 5 concrete next steps.`;
+    } else {
+        const prefContext = WEALTH_WEAVER.buildPreferenceContext(preferences || {});
+        userMessage = `mode: scan${prefContext ? '\n\nUser preferences:' + prefContext : ''}\n\nScan the field. Return one wealth opportunity as valid JSON only.`;
+    }
+
+    try {
+        const notionContext = await fetchNotionContext();
+        const systemWithContext = injectNotionContext(systemPrompt, notionContext);
+
+        const message = await client.messages.create({
+            model: 'claude-opus-4-7',
+            max_tokens: 2048,
+            system: systemWithContext,
+            messages: [...safeHistory, { role: 'user', content: userMessage }]
+        });
+
+        const text = message.content[0].text;
+
+        res.json({
+            success: true,
+            response: text,
+            mode,
+            agent: 'wealth-weaver',
+            inputTokens: message.usage.input_tokens,
+            outputTokens: message.usage.output_tokens
+        });
+    } catch (err) {
+        console.error('[Wealth Weaver] API error:', err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });

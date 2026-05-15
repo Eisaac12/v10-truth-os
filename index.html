@@ -123,6 +123,21 @@
                 </div>
             </section>
 
+            <!-- Wealth Weaver Panel (visible only in wealth-weaver mode) -->
+            <section class="panel wealth-weaver-panel" id="wealth-weaver-panel" style="display:none;">
+                <div class="panel-header">
+                    <h2><span class="ww-icon">◬</span> Wealth Weaver</h2>
+                    <div class="ww-stats">
+                        <span id="ww-yes-count" class="ww-stat ww-yes">0 YES</span>
+                        <span id="ww-no-count" class="ww-stat ww-no">0 NO</span>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <p class="ww-belief">"Value moves before markets price it."</p>
+                    <div class="protocols-grid" id="protocols-grid"></div>
+                </div>
+            </section>
+
             <!-- Voice Bridge Expression Panel (visible for non-truth-weaver expression modes) -->
             <section class="panel expression-panel" id="expression-panel" style="display:none;">
                 <div class="panel-header">
@@ -213,6 +228,20 @@
                         </div>
                     </div>
 
+                    <!-- Wealth Weaver approval interface (shown in wealth-weaver mode) -->
+                    <div class="wealth-approval-area" id="wealth-approval-area" style="display:none;">
+                        <div class="scan-actions" id="scan-actions">
+                            <button class="btn-wealth-scan btn-lg" id="wealth-scan-btn" onclick="wealthScan()">
+                                <span>◬ SCAN THE FIELD</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                        <div class="approval-actions" id="approval-actions" style="display:none;">
+                            <button class="btn-yes btn-lg" id="wealth-yes-btn" onclick="approveOpportunity()">YES — Pursue →</button>
+                            <button class="btn-no btn-lg" id="wealth-no-btn" onclick="rejectOpportunity()">NO — Pass</button>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -279,6 +308,7 @@
     <script src="master-vision.js"></script>
     <script src="truth-weaver.js"></script>
     <script src="voice-bridge.js"></script>
+    <script src="wealth-weaver.js"></script>
     <script src="ai-engine.js"></script>
     <script src="app.js"></script>
 </body>
