@@ -9,6 +9,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const VOICE_BRIDGE = require('./voice-bridge');
 const WEALTH_WEAVER = require('./wealth-weaver');
 const { fetchMarketSignals, injectMarketSignals } = require('./api/_market-signals');
+const { sendTelegramAlert } = require('./api/_telegram-alert');
 
 const app = express();
 app.use(cors());
@@ -332,6 +333,16 @@ app.post('/api/wealth-weaver', async (req, res) => {
         });
 
         const text = message.content[0].text;
+
+        // ALERT thread — fire Telegram push for high-signal scan results
+        if (mode === 'scan') {
+            try {
+                const parsed = JSON.parse(text);
+                sendTelegramAlert(parsed).catch(() => {});
+            } catch {
+                // Not valid JSON — skip alert
+            }
+        }
 
         res.json({
             success: true,
