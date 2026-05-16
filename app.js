@@ -404,7 +404,8 @@ function renderRealityStack() {
         { id: 'L5', name: 'CONSCIOUS AWARENESS',   desc: 'Preparing human gate — user is the One Voice' },
         { id: 'L6', name: 'PHYSICAL ACTION',       desc: 'Breaking into 5 concrete next steps' },
         { id: 'L7', name: 'FEEDBACK LOOP',         desc: 'Recording decisions, verifying 3D outcomes' },
-        { id: 'L8', name: 'EVOLUTIONARY ADAPT.',   desc: 'Learning from YES/NO, biasing future scans' }
+        { id: 'L8', name: 'REALITY VERIFICATION',  desc: 'Cross-validating outputs against ground truth signals' },
+        { id: 'L9', name: 'EVOLUTIONARY INTEL.',   desc: 'Compounding pattern recognition and strategic accuracy' }
     ];
 
     const wrapper = document.createElement('div');

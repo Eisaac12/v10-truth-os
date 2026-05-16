@@ -1687,7 +1687,7 @@ body.wealth-weaver-mode .status-dot           { background: var(--wealth); box-s
 /* Protocols grid (mirrors weaves-grid) */
 .protocols-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 6px;
 }
 
