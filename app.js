@@ -167,6 +167,7 @@ function setAgentMode(mode) {
         if (approvalActions) approvalActions.style.display = 'none';
         updateWealthStats();
         loadProtocolsPanel();
+        showActiveBuild();
         // Refresh signal status on mode entry
         fetch(`${aiEngine.serverUrl}/api/market-signals`)
             .then(r => r.json())
@@ -464,6 +465,12 @@ async function approveOpportunity() {
         timestamp: new Date().toLocaleTimeString()
     });
 
+    // BUILD thread — parse steps and render interactive tracker
+    if (result.response) {
+        const build = aiEngine.startBuild(opportunity, result.response);
+        if (build && build.steps.length > 0) renderBuildTracker(build);
+    }
+
     aiEngine.pendingOpportunity = null;
     if (approvalActions) approvalActions.style.display = 'none';
     if (scanActions)     scanActions.style.display = 'block';
@@ -498,6 +505,99 @@ async function rejectOpportunity() {
         const label = scanBtn.querySelector('span');
         if (label) label.textContent = '◬ SCAN THE FIELD';
     }
+}
+
+function renderBuildTracker(build) {
+    const thread = document.getElementById('chat-thread');
+    if (!thread || !build) return;
+
+    const done  = build.steps.filter(s => s.done).length;
+    const total = build.steps.length;
+    const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const stepsHtml = build.steps.map(step => `
+        <div class="build-step ${step.done ? 'done' : ''}" id="build-step-${step.id}" data-step="${step.id}">
+            <button class="build-step-check ${step.done ? 'checked' : ''}"
+                    onclick="markStepDone('${step.id}')"
+                    aria-label="Mark step ${step.num} done"
+                    ${step.done ? 'disabled' : ''}>
+                ${step.done ? '✓' : step.num}
+            </button>
+            <span class="build-step-text">${escapeHtml(step.text)}</span>
+        </div>
+    `).join('');
+
+    const el = document.createElement('div');
+    el.className = 'chat-message build-tracker-message';
+    el.id = `build-tracker-${build.id}`;
+    el.innerHTML = `
+        <div class="build-tracker">
+            <div class="build-tracker-header">
+                <span class="build-tracker-icon">⚙</span>
+                <span class="build-tracker-title">BUILD — ${escapeHtml(build.title)}</span>
+                <span class="build-progress-label">${done}/${total} steps</span>
+            </div>
+            <div class="build-progress-bar-wrap">
+                <div class="build-progress-bar" id="build-progress-${build.id}" style="width:${pct}%"></div>
+            </div>
+            <div class="build-steps" id="build-steps-${build.id}">${stepsHtml}</div>
+            <div class="build-tracker-footer">
+                <button class="build-clear-btn" onclick="clearActiveBuild()">✕ Clear Build</button>
+                ${build.completedAt ? '<span class="build-complete-badge">✓ BUILD COMPLETE</span>' : ''}
+            </div>
+        </div>
+    `;
+    thread.appendChild(el);
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function markStepDone(stepId) {
+    if (!aiEngine) return;
+    const build = aiEngine.completeStep(stepId);
+    if (!build) return;
+
+    // Update the step UI
+    const stepEl = document.getElementById(`build-step-${stepId}`);
+    if (stepEl) {
+        stepEl.classList.add('done');
+        const btn = stepEl.querySelector('.build-step-check');
+        if (btn) { btn.textContent = '✓'; btn.classList.add('checked'); btn.disabled = true; }
+    }
+
+    // Update progress bar
+    const done  = build.steps.filter(s => s.done).length;
+    const total = build.steps.length;
+    const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+    const bar = document.getElementById(`build-progress-${build.id}`);
+    if (bar) bar.style.width = `${pct}%`;
+
+    const label = document.querySelector(`#build-tracker-${build.id} .build-progress-label`);
+    if (label) label.textContent = `${done}/${total} steps`;
+
+    // Show complete badge when all done
+    if (build.completedAt) {
+        const footer = document.querySelector(`#build-tracker-${build.id} .build-tracker-footer`);
+        if (footer && !footer.querySelector('.build-complete-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'build-complete-badge';
+            badge.textContent = '✓ BUILD COMPLETE';
+            footer.appendChild(badge);
+        }
+    }
+}
+
+function clearActiveBuild() {
+    if (!aiEngine) return;
+    aiEngine.clearActiveBuild();
+    // Remove tracker from DOM
+    const existing = document.querySelector('[id^="build-tracker-"]');
+    if (existing) existing.remove();
+}
+
+function showActiveBuild() {
+    if (!aiEngine || !aiEngine.activeBuild) return;
+    const existing = document.querySelector('[id^="build-tracker-"]');
+    if (!existing) renderBuildTracker(aiEngine.activeBuild);
 }
 
 // ─── Voice Bridge expression panel ───────────────────────────────────────────
@@ -1066,3 +1166,5 @@ window.wealthScan                  = wealthScan;
 window.approveOpportunity          = approveOpportunity;
 window.rejectOpportunity           = rejectOpportunity;
 window.updateSignalIndicators      = updateSignalIndicators;
+window.markStepDone                = markStepDone;
+window.clearActiveBuild            = clearActiveBuild;

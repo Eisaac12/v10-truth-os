@@ -1297,6 +1297,142 @@ body.wealth-weaver-mode .status-dot           { background: var(--wealth); box-s
     color: var(--text-muted);
     margin-left: auto;
 }
+
+/* BUILD thread tracker */
+.build-tracker-message {
+    margin: var(--spacing-md) 0;
+}
+.build-tracker {
+    background: rgba(34, 197, 94, 0.04);
+    border: 1px solid var(--wealth-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    font-family: var(--font-mono);
+}
+.build-tracker-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+.build-tracker-icon {
+    color: var(--wealth);
+    font-size: 1rem;
+}
+.build-tracker-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--wealth-light);
+    flex: 1;
+    letter-spacing: 0.03em;
+}
+.build-progress-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+.build-progress-bar-wrap {
+    height: 3px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 2px;
+    margin-bottom: var(--spacing-md);
+    overflow: hidden;
+}
+.build-progress-bar {
+    height: 100%;
+    background: var(--wealth);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+.build-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: var(--spacing-sm);
+}
+.build-step {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.02);
+    transition: background 0.2s ease, opacity 0.3s ease;
+}
+.build-step.done {
+    opacity: 0.5;
+    background: rgba(34, 197, 94, 0.04);
+}
+.build-step-check {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--wealth-border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+.build-step-check:hover:not(:disabled) {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: var(--wealth);
+    color: var(--wealth);
+}
+.build-step-check.checked {
+    background: var(--wealth);
+    border-color: var(--wealth);
+    color: #000;
+    cursor: default;
+}
+.build-step-text {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    padding-top: 2px;
+}
+.build-step.done .build-step-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+.build-tracker-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.build-clear-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+.build-clear-btn:hover {
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+.build-complete-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--wealth);
+    letter-spacing: 0.08em;
+    margin-left: auto;
+}
+
 .ww-stats {
     display: flex;
     gap: var(--spacing-sm);

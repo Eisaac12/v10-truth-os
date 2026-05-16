@@ -10,7 +10,8 @@ const STORAGE_KEYS = {
     accepted:         'truthos_accepted',
     conversation:     'truthos_conversation',
     wealthDecisions:  'truthos_wealth_decisions',
-    wealthPreferences:'truthos_wealth_prefs'
+    wealthPreferences:'truthos_wealth_prefs',
+    activeBuild:      'truthos_active_build'
 };
 
 class TRUTHOSEngine {
@@ -37,6 +38,7 @@ class TRUTHOSEngine {
         this.wealthDecisions   = [];
         this.wealthPreferences = { categories: {}, effortLevels: {}, timeHorizons: {} };
         this.pendingOpportunity = null;
+        this.activeBuild = null; // BUILD thread — active opportunity being executed
 
         this.coreMemory = MASTER_VISION;
         this.init();
@@ -88,6 +90,8 @@ class TRUTHOSEngine {
             if (wd) this.wealthDecisions = JSON.parse(wd);
             const wp = localStorage.getItem(STORAGE_KEYS.wealthPreferences);
             if (wp) this.wealthPreferences = JSON.parse(wp);
+            const ab = localStorage.getItem(STORAGE_KEYS.activeBuild);
+            if (ab) this.activeBuild = JSON.parse(ab);
 
             this.logActivity(`Loaded ${this.completedActivations.length} saved activations`);
         } catch (e) {
@@ -107,6 +111,11 @@ class TRUTHOSEngine {
                 JSON.stringify(this.wealthDecisions.slice(-50)));
             localStorage.setItem(STORAGE_KEYS.wealthPreferences,
                 JSON.stringify(this.wealthPreferences));
+            if (this.activeBuild) {
+                localStorage.setItem(STORAGE_KEYS.activeBuild, JSON.stringify(this.activeBuild));
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.activeBuild);
+            }
         } catch (e) {
             console.warn('[TRUTHOS] Could not save state:', e);
         }
@@ -590,6 +599,59 @@ class TRUTHOSEngine {
 
         this.saveState();
         this.logActivity(`◬ Wealth Weaver: ${decision} — ${opportunity.title}`);
+    }
+
+    // ─── BUILD thread ─────────────────────────────────────────────────────────
+
+    parseNextSteps(responseText) {
+        const steps = [];
+        for (const line of responseText.split('\n')) {
+            const match = line.match(/^(\d+)\.\s+(.+)/);
+            if (match && steps.length < 5) {
+                steps.push({
+                    id:   `step_${match[1]}`,
+                    num:  parseInt(match[1], 10),
+                    text: match[2].trim(),
+                    done: false,
+                    doneAt: null
+                });
+            }
+        }
+        return steps;
+    }
+
+    startBuild(opportunity, nextStepsText) {
+        const steps = this.parseNextSteps(nextStepsText);
+        this.activeBuild = {
+            id:          `build_${Date.now()}`,
+            title:       opportunity.title,
+            category:    opportunity.category,
+            effortLevel: opportunity.effortLevel,
+            scaleMin:    opportunity.scaleMin,
+            scaleMax:    opportunity.scaleMax,
+            steps,
+            startedAt:   new Date().toISOString(),
+            completedAt: null
+        };
+        this.saveState();
+        return this.activeBuild;
+    }
+
+    completeStep(stepId) {
+        if (!this.activeBuild) return;
+        const step = this.activeBuild.steps.find(s => s.id === stepId);
+        if (!step) return;
+        step.done   = true;
+        step.doneAt = new Date().toISOString();
+        const allDone = this.activeBuild.steps.every(s => s.done);
+        if (allDone) this.activeBuild.completedAt = new Date().toISOString();
+        this.saveState();
+        return this.activeBuild;
+    }
+
+    clearActiveBuild() {
+        this.activeBuild = null;
+        this.saveState();
     }
 
     runTruthFilter(input) {
