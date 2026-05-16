@@ -281,7 +281,10 @@ function loadProtocolsPanel() {
 
     grid.innerHTML = WEALTH_WEAVER.nodes.map(node => `
         <div class="node-card ${node.id === currentNodeId ? 'node-next' : ''}" id="node-${node.id}">
-            <div class="node-id">${node.id}</div>
+            <div class="node-id">
+                <span class="node-layer">L${node.layer}</span>
+                <span class="node-code">${node.id}</span>
+            </div>
             <div class="node-info">
                 <div class="node-name">${node.name}</div>
                 <div class="node-role">${node.role}</div>
