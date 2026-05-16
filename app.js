@@ -277,15 +277,33 @@ function loadProtocolsPanel() {
     const grid = document.getElementById('protocols-grid');
     if (!grid || typeof WEALTH_WEAVER === 'undefined') return;
 
-    grid.innerHTML = WEALTH_WEAVER.protocols.map(p => `
-        <div class="weave-card">
-            <div class="weave-number">P${p.id}</div>
-            <div class="weave-info">
-                <div class="weave-name">${p.name}</div>
-                <div class="weave-desc">${p.description}</div>
+    const currentNodeId = aiEngine?.currentNodeId || WEALTH_WEAVER.nodes[0]?.id;
+
+    grid.innerHTML = WEALTH_WEAVER.nodes.map(node => `
+        <div class="node-card ${node.id === currentNodeId ? 'node-next' : ''}" id="node-${node.id}">
+            <div class="node-id">${node.id}</div>
+            <div class="node-info">
+                <div class="node-name">${node.name}</div>
+                <div class="node-role">${node.role}</div>
             </div>
+            <div class="node-status-dot"></div>
         </div>
     `).join('');
+}
+
+function highlightActiveNode(firedNodeId) {
+    document.querySelectorAll('.node-card').forEach(el => {
+        el.classList.remove('node-active', 'node-next');
+    });
+    const activeEl = document.getElementById(`node-${firedNodeId}`);
+    if (activeEl) activeEl.classList.add('node-active');
+
+    // Mark the next node that will fire
+    const nextId = aiEngine?.currentNodeId;
+    if (nextId && nextId !== firedNodeId) {
+        const nextEl = document.getElementById(`node-${nextId}`);
+        if (nextEl) nextEl.classList.add('node-next');
+    }
 }
 
 function updateWealthStats() {
@@ -341,10 +359,11 @@ async function wealthScan() {
 
     if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
 
+    if (result.node)    highlightActiveNode(result.node.id);
     if (result.signals) updateSignalIndicators(result.signals);
 
     if (result.opportunity) {
-        renderOpportunityCard(result.opportunity, result.liveAI);
+        renderOpportunityCard(result.opportunity, result.liveAI, result.node);
         if (scanActions)     scanActions.style.display     = 'none';
         if (approvalActions) approvalActions.style.display = 'flex';
         if (yesBtn)          yesBtn.disabled = false;
@@ -363,7 +382,7 @@ async function wealthScan() {
     }
 }
 
-function renderOpportunityCard(opportunity, liveAI) {
+function renderOpportunityCard(opportunity, liveAI, node) {
     const thread = document.getElementById('chat-thread');
     if (!thread) return;
 
@@ -390,9 +409,18 @@ function renderOpportunityCard(opportunity, liveAI) {
         wrapper.appendChild(badgeEl);
     }
 
+    const nodeHtml = node ? `
+        <div class="opp-node-badge">
+            <span class="node-badge-id">${escapeHtml(node.id)}</span>
+            <span class="node-badge-sep">·</span>
+            <span class="node-badge-name">${escapeHtml(node.name)}</span>
+        </div>
+    ` : '';
+
     const card = document.createElement('div');
     card.className = 'opportunity-card';
     card.innerHTML = `
+        ${nodeHtml}
         <div class="opp-title">${escapeHtml(opportunity.title)}</div>
         <div class="opp-meta">
             <span class="opp-category">${escapeHtml(opportunity.category || '')}</span>

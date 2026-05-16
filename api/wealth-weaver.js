@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { mode = 'scan', preferences, opportunity, history = [] } = req.body || {};
+    const { mode = 'scan', preferences, opportunity, nodeId, history = [] } = req.body || {};
 
     if (!process.env.ANTHROPIC_API_KEY) {
         return res.status(500).json({
@@ -32,7 +32,16 @@ module.exports = async (req, res) => {
             .slice(-20)
         : [];
 
-    const systemPrompt = `${ROOT_IDENTITY}\n\n${WEALTH_WEAVER.systemPrompt}`;
+    // Select intelligence node for scan
+    let selectedNode = null;
+    if (mode === 'scan') {
+        selectedNode = WEALTH_WEAVER.nodes.find(n => n.id === nodeId)
+            || WEALTH_WEAVER.nodes[Math.floor(Math.random() * WEALTH_WEAVER.nodes.length)];
+    }
+    const nodeContext = selectedNode
+        ? `\n\nACTIVE NODE: ${selectedNode.id} — ${selectedNode.name}\nSCAN FOCUS: ${selectedNode.scanFocus}`
+        : '';
+    const systemPrompt = `${ROOT_IDENTITY}\n\n${WEALTH_WEAVER.systemPrompt}${nodeContext}`;
 
     let userMessage;
     let signalsMetadata = null;
@@ -84,6 +93,7 @@ module.exports = async (req, res) => {
             response: text,
             mode,
             agent: 'wealth-weaver',
+            node: selectedNode ? { id: selectedNode.id, name: selectedNode.name, role: selectedNode.role } : null,
             signals: signalsMetadata,
             inputTokens: message.usage.input_tokens,
             outputTokens: message.usage.output_tokens

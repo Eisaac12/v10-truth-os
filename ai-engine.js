@@ -39,6 +39,7 @@ class TRUTHOSEngine {
         this.wealthPreferences = { categories: {}, effortLevels: {}, timeHorizons: {} };
         this.pendingOpportunity = null;
         this.activeBuild = null; // BUILD thread — active opportunity being executed
+        this.currentNodeId = null; // Intelligence node round-robin (ARIA → KIRA → ... → VERTEX)
 
         this.coreMemory = MASTER_VISION;
         this.init();
@@ -476,6 +477,7 @@ class TRUTHOSEngine {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     mode: 'scan',
+                    nodeId: this.currentNodeId,
                     preferences: this.wealthPreferences,
                     history: this.conversationHistory
                 })
@@ -497,9 +499,17 @@ class TRUTHOSEngine {
                     opportunity = null;
                 }
 
+                // Advance node round-robin and tag opportunity with detecting node
+                if (data.node) {
+                    const nodes = typeof WEALTH_WEAVER !== 'undefined' ? WEALTH_WEAVER.nodes : [];
+                    const idx = nodes.findIndex(n => n.id === data.node.id);
+                    this.currentNodeId = nodes.length > 0 ? nodes[(idx + 1) % nodes.length].id : null;
+                    if (opportunity) opportunity.detectedBy = data.node.id;
+                }
+
                 this.pendingOpportunity = opportunity;
-                this.logActivity(`◬ Wealth Weaver scan complete — ${opportunity ? opportunity.title : 'opportunity detected'}`);
-                return { success: true, response: data.response, opportunity, liveAI: true };
+                this.logActivity(`◬ ${data.node ? data.node.id : 'Wealth Weaver'} scan — ${opportunity ? opportunity.title : 'opportunity detected'}`);
+                return { success: true, response: data.response, opportunity, liveAI: true, node: data.node || null, signals: data.signals || null };
             } else {
                 throw new Error(data.error);
             }
@@ -572,7 +582,8 @@ class TRUTHOSEngine {
             effortLevel: opportunity.effortLevel,
             timeHorizon: opportunity.timeHorizon,
             scaleMin: opportunity.scaleMin,
-            scaleMax: opportunity.scaleMax
+            scaleMax: opportunity.scaleMax,
+            detectedBy: opportunity.detectedBy || null
         };
 
         this.wealthDecisions.push(record);

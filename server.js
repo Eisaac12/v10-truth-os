@@ -287,7 +287,7 @@ app.post('/api/voice-bridge', async (req, res) => {
 
 // Wealth Weaver endpoint — value detection agent
 app.post('/api/wealth-weaver', async (req, res) => {
-    const { mode = 'scan', preferences, opportunity } = req.body;
+    const { mode = 'scan', preferences, opportunity, nodeId } = req.body;
 
     if (!process.env.ANTHROPIC_API_KEY) {
         return res.status(500).json({
@@ -301,7 +301,16 @@ app.post('/api/wealth-weaver', async (req, res) => {
         .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
         .slice(-20);
 
-    const systemPrompt = `${VOICE_BRIDGE.rootIdentity}\n\n${WEALTH_WEAVER.systemPrompt}`;
+    // Select intelligence node for scan
+    let selectedNode = null;
+    if (mode === 'scan') {
+        selectedNode = WEALTH_WEAVER.nodes.find(n => n.id === nodeId)
+            || WEALTH_WEAVER.nodes[Math.floor(Math.random() * WEALTH_WEAVER.nodes.length)];
+    }
+    const nodeContext = selectedNode
+        ? `\n\nACTIVE NODE: ${selectedNode.id} — ${selectedNode.name}\nSCAN FOCUS: ${selectedNode.scanFocus}`
+        : '';
+    const systemPrompt = `${VOICE_BRIDGE.rootIdentity}\n\n${WEALTH_WEAVER.systemPrompt}${nodeContext}`;
 
     let userMessage;
     let signalsMetadata = null;
@@ -349,6 +358,7 @@ app.post('/api/wealth-weaver', async (req, res) => {
             response: text,
             mode,
             agent: 'wealth-weaver',
+            node: selectedNode ? { id: selectedNode.id, name: selectedNode.name, role: selectedNode.role } : null,
             signals: signalsMetadata,
             inputTokens: message.usage.input_tokens,
             outputTokens: message.usage.output_tokens

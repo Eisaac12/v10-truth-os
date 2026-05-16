@@ -1583,7 +1583,105 @@ body.wealth-weaver-mode .status-dot           { background: var(--wealth); box-s
 .protocols-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-sm);
+    gap: 6px;
+}
+
+/* Intelligence node cards */
+.node-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.3s ease, background 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.node-card.node-next {
+    border-color: rgba(34, 197, 94, 0.25);
+    background: rgba(34, 197, 94, 0.03);
+}
+.node-card.node-active {
+    border-color: var(--wealth);
+    background: rgba(34, 197, 94, 0.08);
+}
+.node-id {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--wealth);
+    opacity: 0.9;
+    min-width: 38px;
+    flex-shrink: 0;
+}
+.node-info {
+    flex: 1;
+    min-width: 0;
+}
+.node-name {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.node-role {
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+.node-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.node-card.node-active .node-status-dot {
+    background: var(--wealth);
+    box-shadow: 0 0 6px var(--wealth-glow);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.node-card.node-next .node-status-dot {
+    background: rgba(34, 197, 94, 0.4);
+}
+
+/* Node badge on opportunity card */
+.opp-node-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 4px 8px;
+    background: rgba(34, 197, 94, 0.06);
+    border: 1px solid var(--wealth-border);
+    border-radius: var(--radius-sm);
+    width: fit-content;
+}
+.node-badge-id {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--wealth);
+    letter-spacing: 0.1em;
+}
+.node-badge-sep {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+.node-badge-name {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
 }
 
 /* ─── Expression Panel (generic — for non-truth-weaver expression modes) ─── */

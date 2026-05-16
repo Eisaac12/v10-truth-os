@@ -13,6 +13,65 @@ const WEALTH_WEAVER = {
         { id: 5, name: "ACTION THRESHOLD",  description: "The one move that opens the door" }
     ],
 
+    nodes: [
+        {
+            id: 'ARIA',
+            name: 'Sentiment Oracle',
+            role: 'Reads emotional currents of markets',
+            specialty: 'sentiment',
+            scanFocus: 'Focus on sentiment-driven opportunities: emerging trends driven by public enthusiasm, fear, or shifting narratives. Identify information asymmetries between market sentiment and actual underlying value.'
+        },
+        {
+            id: 'KIRA',
+            name: 'Momentum Weaver',
+            role: 'Detects micro-movements before they become trends',
+            specialty: 'momentum',
+            scanFocus: 'Focus on momentum opportunities: sectors or products with accelerating adoption curves, viral coefficients, or structural tailwinds. Find the play before mainstream pricing catches up.'
+        },
+        {
+            id: 'NOVA',
+            name: 'Risk Cartographer',
+            role: 'Maps hidden risks and emergent opportunities',
+            specialty: 'risk',
+            scanFocus: 'Focus on risk-adjusted opportunities: low-downside, high-upside asymmetries where risk has been overpriced by the market, creating value for clear-eyed actors who can tolerate short-term uncertainty.'
+        },
+        {
+            id: 'ZENITH',
+            name: 'Arbitrage Hunter',
+            role: 'Hunts price discrepancies before they close',
+            specialty: 'arbitrage',
+            scanFocus: 'Focus on arbitrage opportunities: information gaps between adjacent markets, pricing inefficiencies between platforms, skill arbitrage in underserved markets, and geographic or temporal price gaps.'
+        },
+        {
+            id: 'PHASE',
+            name: 'Volatility Reader',
+            role: 'Reads volatility patterns and timing windows',
+            specialty: 'volatility',
+            scanFocus: 'Focus on timing-critical opportunities created by market disruption, regulatory change, or technological phase shifts. Identify exactly why this window is temporary and what closes it.'
+        },
+        {
+            id: 'LUMEN',
+            name: 'Macro Synthesist',
+            role: 'Synthesizes big-picture macro trends into plays',
+            specialty: 'macro',
+            scanFocus: 'Focus on macro-driven opportunities: large structural shifts (demographic, technological, regulatory, cultural) creating new markets or destroying old ones. Find the concrete play at the leading edge of the wave.'
+        },
+        {
+            id: 'SIGNAL',
+            name: 'Pattern Oracle',
+            role: 'Decodes recurring patterns before they repeat',
+            specialty: 'patterns',
+            scanFocus: 'Focus on pattern-based opportunities: proven business model patterns applied in new contexts, distribution patterns that succeeded in analogous markets, and behavioral patterns that foreshadow demand shifts.'
+        },
+        {
+            id: 'VERTEX',
+            name: 'Execution Architect',
+            role: 'Coordinates multi-step wealth strategies',
+            specialty: 'execution',
+            scanFocus: 'Focus on execution-edge opportunities: markets where current players are operationally weak and superior execution creates a durable advantage. Find the wedge where better operations win immediately.'
+        }
+    ],
+
     categories: [
         'digital-product', 'service', 'content', 'community', 'investment',
         'arbitrage', 'consulting', 'licensing', 'partnership', 'infrastructure'
