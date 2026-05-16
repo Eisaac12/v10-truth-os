@@ -1298,6 +1298,111 @@ body.wealth-weaver-mode .status-dot           { background: var(--wealth); box-s
     margin-left: auto;
 }
 
+/* Reality Stack scan visualization */
+.reality-stack-message {
+    margin: var(--spacing-md) 0;
+}
+.reality-stack {
+    font-family: var(--font-mono);
+    background: rgba(34, 197, 94, 0.03);
+    border: 1px solid var(--wealth-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+.stack-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(34, 197, 94, 0.12);
+    background: rgba(34, 197, 94, 0.05);
+}
+.stack-icon {
+    color: var(--wealth);
+    font-size: 0.9rem;
+}
+.stack-title {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--wealth);
+}
+.stack-layers {
+    padding: 6px 0;
+}
+.stack-layer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 14px;
+    opacity: 0.25;
+    transition: opacity 0.25s ease;
+}
+.stack-layer.layer-active {
+    opacity: 1;
+}
+.stack-layer.layer-done {
+    opacity: 0.5;
+}
+.layer-dot {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    width: 14px;
+    text-align: center;
+    margin-top: 2px;
+    transition: color 0.2s ease;
+}
+.stack-layer.layer-active .layer-dot {
+    color: var(--wealth);
+    animation: pulse 0.7s ease-in-out infinite;
+}
+.stack-layer.layer-done .layer-dot {
+    color: var(--wealth);
+    opacity: 0.7;
+}
+.layer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.layer-id-name {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+.stack-layer-id {
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: var(--wealth);
+    opacity: 0.7;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+}
+.stack-layer-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    transition: color 0.2s ease;
+}
+.stack-layer.layer-active .stack-layer-name {
+    color: var(--wealth-light);
+}
+.stack-layer.layer-done .stack-layer-name {
+    color: var(--text-secondary);
+}
+.stack-layer-desc {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding-left: 2px;
+}
+.stack-layer.layer-active .stack-layer-desc {
+    color: var(--text-secondary);
+}
+
 /* BUILD thread tracker */
 .build-tracker-message {
     margin: var(--spacing-md) 0;

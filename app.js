@@ -356,11 +356,15 @@ async function wealthScan() {
         if (label) label.textContent = '◬ SCANNING…';
     }
 
-    const loadingEl = appendChatMessage({ role: 'assistant', isLoading: true });
+    // Show animated Reality Stack instead of plain loading bubble
+    const stackEl = renderRealityStack();
 
     const result = await aiEngine.wealthScan();
 
-    if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+    // Complete all layers then remove
+    completeRealityStack(stackEl);
+    await new Promise(r => setTimeout(r, 350));
+    if (stackEl && stackEl.parentNode) stackEl.parentNode.removeChild(stackEl);
 
     if (result.node)    highlightActiveNode(result.node.id);
     if (result.signals) updateSignalIndicators(result.signals);
@@ -383,6 +387,94 @@ async function wealthScan() {
             if (label) label.textContent = '◬ SCAN THE FIELD';
         }
     }
+}
+
+function renderRealityStack() {
+    const thread = document.getElementById('chat-thread');
+    if (!thread) return null;
+
+    const emptyState = document.getElementById('chat-empty-state');
+    if (emptyState) emptyState.style.display = 'none';
+
+    const LAYERS = [
+        { id: 'L1', name: 'QUANTUM DETECTION',     desc: 'Scanning unpriced value gradients across 10 dimensions' },
+        { id: 'L2', name: 'INFORMATION PATTERN',   desc: 'Reading market signals, timing windows, asymmetries' },
+        { id: 'L3', name: 'SYMBOLIC MEANING',      desc: 'Framing opportunity with Reality Weaver clarity' },
+        { id: 'L4', name: 'LOGICAL STRUCTURE',     desc: 'Mapping preference context, effort/reward architecture' },
+        { id: 'L5', name: 'CONSCIOUS AWARENESS',   desc: 'Preparing human gate — user is the One Voice' },
+        { id: 'L6', name: 'PHYSICAL ACTION',       desc: 'Breaking into 5 concrete next steps' },
+        { id: 'L7', name: 'FEEDBACK LOOP',         desc: 'Recording decisions, verifying 3D outcomes' },
+        { id: 'L8', name: 'EVOLUTIONARY ADAPT.',   desc: 'Learning from YES/NO, biasing future scans' }
+    ];
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-message reality-stack-message';
+    wrapper.id = 'reality-stack-active';
+
+    wrapper.innerHTML = `
+        <div class="reality-stack">
+            <div class="stack-header">
+                <span class="stack-icon">◬</span>
+                <span class="stack-title">REALITY WEAVER WEALTH PROTOCOL v1.0</span>
+            </div>
+            <div class="stack-layers">
+                ${LAYERS.map((l, i) => `
+                    <div class="stack-layer" id="stack-layer-${i}">
+                        <div class="layer-dot">◦</div>
+                        <div class="layer-content">
+                            <div class="layer-id-name">
+                                <span class="stack-layer-id">${l.id}</span>
+                                <span class="stack-layer-name">${l.name}</span>
+                            </div>
+                            <div class="stack-layer-desc">└─ ${l.desc}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    thread.appendChild(wrapper);
+    scrollChatToBottom();
+
+    // Animate layers sequentially — fire one every 420ms
+    let idx = 0;
+    const tick = setInterval(() => {
+        // Mark previous layer done
+        if (idx > 0) {
+            const prev = document.getElementById(`stack-layer-${idx - 1}`);
+            if (prev) {
+                prev.classList.remove('layer-active');
+                prev.classList.add('layer-done');
+                const dot = prev.querySelector('.layer-dot');
+                if (dot) dot.textContent = '●';
+            }
+        }
+        const cur = document.getElementById(`stack-layer-${idx}`);
+        if (cur) {
+            cur.classList.add('layer-active');
+            const dot = cur.querySelector('.layer-dot');
+            if (dot) dot.textContent = '◉';
+        }
+        idx++;
+        if (idx >= LAYERS.length) clearInterval(tick);
+    }, 420);
+
+    wrapper._stackInterval = tick;
+    wrapper._stackLength   = LAYERS.length;
+    return wrapper;
+}
+
+function completeRealityStack(stackEl) {
+    if (!stackEl) return;
+    if (stackEl._stackInterval) clearInterval(stackEl._stackInterval);
+    // Flash all layers done instantly
+    stackEl.querySelectorAll('.stack-layer').forEach(layer => {
+        layer.classList.remove('layer-active');
+        layer.classList.add('layer-done');
+        const dot = layer.querySelector('.layer-dot');
+        if (dot) dot.textContent = '●';
+    });
 }
 
 function renderOpportunityCard(opportunity, liveAI, node) {
