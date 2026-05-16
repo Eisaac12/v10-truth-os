@@ -8,6 +8,7 @@ const cors = require('cors');
 const Anthropic = require('@anthropic-ai/sdk');
 const VOICE_BRIDGE = require('./voice-bridge');
 const WEALTH_WEAVER = require('./wealth-weaver');
+const { fetchMarketSignals, injectMarketSignals } = require('./api/_market-signals');
 
 const app = express();
 app.use(cors());
@@ -302,11 +303,21 @@ app.post('/api/wealth-weaver', async (req, res) => {
     const systemPrompt = `${VOICE_BRIDGE.rootIdentity}\n\n${WEALTH_WEAVER.systemPrompt}`;
 
     let userMessage;
+    let signalsMetadata = null;
+
     if (mode === 'execute' && opportunity) {
         userMessage = `mode: execute\n\nThe user approved this opportunity:\n${JSON.stringify(opportunity, null, 2)}\n\nGenerate 5 concrete next steps.`;
     } else {
         const prefContext = WEALTH_WEAVER.buildPreferenceContext(preferences || {});
         userMessage = `mode: scan${prefContext ? '\n\nUser preferences:' + prefContext : ''}\n\nScan the field. Return one wealth opportunity as valid JSON only.`;
+
+        try {
+            const signals = await fetchMarketSignals();
+            userMessage = injectMarketSignals(userMessage, signals);
+            if (signals) signalsMetadata = { fetchedAt: signals.fetchedAt, sources: signals.sources };
+        } catch {
+            // Signals are optional — scan proceeds without them
+        }
     }
 
     try {
@@ -327,12 +338,28 @@ app.post('/api/wealth-weaver', async (req, res) => {
             response: text,
             mode,
             agent: 'wealth-weaver',
+            signals: signalsMetadata,
             inputTokens: message.usage.input_tokens,
             outputTokens: message.usage.output_tokens
         });
     } catch (err) {
         console.error('[Wealth Weaver] API error:', err.message);
         res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Market signals status endpoint
+app.get('/api/market-signals', async (req, res) => {
+    try {
+        const signals = await fetchMarketSignals();
+        res.json({
+            success: true,
+            fetchedAt: signals?.fetchedAt || null,
+            sources: signals?.sources || {},
+            signalCount: (signals?.hackerNews?.length || 0) + (signals?.reddit?.length || 0)
+        });
+    } catch (err) {
+        res.json({ success: false, error: err.message });
     }
 });
 

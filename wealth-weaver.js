@@ -57,6 +57,8 @@ NEXT STEPS — [opportunity title]
 
 Be specific, time-bound, and achievable with existing resources.
 
+When LIVE MARKET SIGNALS are provided in the prompt, prioritize them. The signals show what the startup/tech community is discussing RIGHT NOW. Surface an opportunity that connects to these real current trends — this is what makes the scan live and grounded in the field's actual state.
+
 FREQUENCY CHECK: Is this grounded in real-world action? Is this ethical and legal? Is this one specific opportunity?`,
 
     localOpportunities: [

@@ -167,6 +167,11 @@ function setAgentMode(mode) {
         if (approvalActions) approvalActions.style.display = 'none';
         updateWealthStats();
         loadProtocolsPanel();
+        // Refresh signal status on mode entry
+        fetch(`${aiEngine.serverUrl}/api/market-signals`)
+            .then(r => r.json())
+            .then(d => { if (d.success && d.fetchedAt) updateSignalIndicators({ fetchedAt: d.fetchedAt, sources: d.sources }); })
+            .catch(() => {});
     }
 
     // Update command panel title and button
@@ -293,6 +298,27 @@ function updateWealthStats() {
     if (noEl)  noEl.textContent  = `${no} NO`;
 }
 
+function updateSignalIndicators(signals) {
+    const hnEl     = document.getElementById('signal-hn');
+    const redditEl = document.getElementById('signal-reddit');
+    const ageEl    = document.getElementById('signal-age');
+
+    if (hnEl) {
+        const live = signals.sources?.hackerNews;
+        hnEl.textContent = live ? '● HackerNews' : '◦ HackerNews';
+        hnEl.style.color = live ? 'var(--success, #22c55e)' : '';
+    }
+    if (redditEl) {
+        const live = signals.sources?.reddit;
+        redditEl.textContent = live ? '● Reddit' : '◦ Reddit';
+        redditEl.style.color = live ? 'var(--success, #22c55e)' : '';
+    }
+    if (ageEl && signals.fetchedAt) {
+        const mins = Math.round((Date.now() - new Date(signals.fetchedAt)) / 60000);
+        ageEl.textContent = mins < 1 ? 'just now' : `${mins}m ago`;
+    }
+}
+
 async function wealthScan() {
     if (!aiEngine) return;
 
@@ -313,6 +339,8 @@ async function wealthScan() {
     const result = await aiEngine.wealthScan();
 
     if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+    if (result.signals) updateSignalIndicators(result.signals);
 
     if (result.opportunity) {
         renderOpportunityCard(result.opportunity, result.liveAI);
@@ -1037,3 +1065,4 @@ window.clearChatHistory            = clearChatHistory;
 window.wealthScan                  = wealthScan;
 window.approveOpportunity          = approveOpportunity;
 window.rejectOpportunity           = rejectOpportunity;
+window.updateSignalIndicators      = updateSignalIndicators;
