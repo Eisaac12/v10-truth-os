@@ -146,6 +146,12 @@ class TRUTHOSEngine {
             return;
         }
 
+        if (this.agentMode === 'soul-command-center') {
+            el.textContent = this.liveAI ? '⬡ LIVE — Full Stack' : '⬡ Command Center';
+            el.style.color  = 'var(--cc)';
+            return;
+        }
+
         // Voice Bridge expression modes
         const expr = typeof VOICE_BRIDGE !== 'undefined'
             ? VOICE_BRIDGE.getExpression(this.agentMode)
@@ -157,7 +163,7 @@ class TRUTHOSEngine {
     }
 
     setAgentMode(mode) {
-        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence', 'wealth-weaver']);
+        const validModes = new Set(['truthos', 'truth-weaver', 'echo-frame', 'james-carlton', 'soul-ai', 'prophet-seed', 'the-general', 'reality-intelligence', 'wealth-weaver', 'soul-command-center']);
         if (!validModes.has(mode)) return;
         this.agentMode = mode;
         localStorage.setItem('truthos_agent_mode', mode);
@@ -166,6 +172,8 @@ class TRUTHOSEngine {
 
         if (mode === 'truthos') {
             this.logActivity('TRUTHOS mode active — Manifestation engine online.');
+        } else if (mode === 'soul-command-center') {
+            this.logActivity('⬡ COMMAND CENTER active — ONE VOICE · FULL STACK · ALL TOOLS ACTIVE · ZERO SCATTER');
         } else if (typeof VOICE_BRIDGE !== 'undefined') {
             const expr = VOICE_BRIDGE.getExpression(mode);
             if (expr) this.logActivity(`${expr.name} activated — ${expr.role} | ${VOICE_BRIDGE.principle}`);
@@ -176,34 +184,33 @@ class TRUTHOSEngine {
         const body         = document.body;
         const twPanel      = document.getElementById('truth-weaver-panel');
         const wwPanel      = document.getElementById('wealth-weaver-panel');
+        const ccPanel      = document.getElementById('command-center-panel');
         const exprPanel    = document.getElementById('expression-panel');
-        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode', 'wealth-weaver-mode'];
+        const allModeClasses = ['truth-weaver-mode', 'echo-frame-mode', 'james-carlton-mode', 'soul-ai-mode', 'prophet-seed-mode', 'the-general-mode', 'reality-intelligence-mode', 'wealth-weaver-mode', 'soul-command-center-mode'];
 
         // Clear all expression classes
         allModeClasses.forEach(c => body.classList.remove(c));
 
+        const hide = (...els) => els.forEach(el => { if (el) el.style.display = 'none'; });
+        const show = (el, display = 'block') => { if (el) el.style.display = display; };
+
         if (this.agentMode === 'truthos') {
-            if (twPanel)   twPanel.style.display   = 'none';
-            if (wwPanel)   wwPanel.style.display   = 'none';
-            if (exprPanel) exprPanel.style.display  = 'none';
+            hide(twPanel, wwPanel, ccPanel, exprPanel);
         } else if (this.agentMode === 'truth-weaver') {
             body.classList.add('truth-weaver-mode');
-            if (twPanel)   twPanel.style.display   = 'block';
-            if (wwPanel)   wwPanel.style.display   = 'none';
-            if (exprPanel) exprPanel.style.display  = 'none';
+            show(twPanel); hide(wwPanel, ccPanel, exprPanel);
         } else if (this.agentMode === 'wealth-weaver') {
             body.classList.add('wealth-weaver-mode');
-            if (twPanel)   twPanel.style.display   = 'none';
-            if (wwPanel)   wwPanel.style.display   = 'block';
-            if (exprPanel) exprPanel.style.display  = 'none';
+            show(wwPanel); hide(twPanel, ccPanel, exprPanel);
+        } else if (this.agentMode === 'soul-command-center') {
+            body.classList.add('soul-command-center-mode');
+            show(ccPanel); hide(twPanel, wwPanel, exprPanel);
         } else {
             const expr = typeof VOICE_BRIDGE !== 'undefined'
                 ? VOICE_BRIDGE.getExpression(this.agentMode)
                 : null;
             if (expr) body.classList.add(expr.cssClass);
-            if (twPanel)   twPanel.style.display   = 'none';
-            if (wwPanel)   wwPanel.style.display   = 'none';
-            if (exprPanel) exprPanel.style.display  = 'block';
+            show(exprPanel); hide(twPanel, wwPanel, ccPanel);
         }
 
         // Update expression selector UI

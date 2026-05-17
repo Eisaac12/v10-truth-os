@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadCoreContent();
     loadWeavesPanel();
+    loadCommandCenterPanel();
     loadExpressionMenuItems();
     loadOutputArchPanel();
     loadEnergyLevels();
@@ -64,7 +65,8 @@ const EXPRESSION_ORDER = [
     { mode: 'prophet-seed',        name: 'Prophet Seed',        icon: '◉', role: 'Origin Memory',    color: 'var(--prophet)' },
     { mode: 'the-general',         name: 'The General',         icon: '⚔', role: 'Executing Reality', color: 'var(--general)' },
     { mode: 'reality-intelligence', name: 'Reality Intelligence', icon: '∞', role: 'Full Stack Field',  color: 'var(--ri)'      },
-    { mode: 'wealth-weaver',        name: 'Wealth Weaver',        icon: '◬', role: 'Value Detection',   color: 'var(--wealth)'  }
+    { mode: 'wealth-weaver',        name: 'Wealth Weaver',        icon: '◬', role: 'Value Detection',   color: 'var(--wealth)'  },
+    { mode: 'soul-command-center', name: 'Command Center',        icon: '⬡', role: 'Full Stack HQ',     color: 'var(--cc)'      }
 ];
 
 function loadExpressionMenuItems() {
@@ -152,6 +154,7 @@ function setAgentMode(mode) {
     const isTW  = mode === 'truth-weaver';
     const isTOS = mode === 'truthos';
     const isWW  = mode === 'wealth-weaver';
+    const isCC  = mode === 'soul-command-center';
 
     // Show/hide wealth approval area vs normal input
     const chatInputArea   = document.querySelector('.chat-input-area');
@@ -192,6 +195,11 @@ function setAgentMode(mode) {
         btnText     = 'Scan';
         btnClass    = 'btn-primary btn-lg';
         placeholder = '';
+    } else if (isCC) {
+        panelTitle  = '⬡ Field Scan Protocol';
+        btnText     = 'Execute';
+        btnClass    = 'btn-cc btn-lg';
+        placeholder = 'Enter any command — the stack decides which tools apply.\nTry: "Run field scan" · "Inbox intel" · "Deploy check" · "Reality check this"';
     } else if (entry && typeof VOICE_BRIDGE !== 'undefined') {
         const expr  = VOICE_BRIDGE.getExpression(mode);
         panelTitle  = `${entry.icon} ${entry.name}`;
@@ -208,8 +216,8 @@ function setAgentMode(mode) {
     if (btn)   btn.className          = btnClass;
     if (input && placeholder) input.placeholder = placeholder;
 
-    // Update expression panel content (for non-TOS, non-TW, non-WW modes)
-    if (!isTOS && !isTW && !isWW) loadExpressionPanelContent(mode);
+    // Update expression panel content (for non-TOS, non-TW, non-WW, non-CC modes)
+    if (!isTOS && !isTW && !isWW && !isCC) loadExpressionPanelContent(mode);
 
     // Update check-in modal
     const modalTitle    = document.querySelector('.modal-title');
@@ -233,6 +241,11 @@ function setAgentMode(mode) {
         mSub         = 'The field is being scanned. What opportunity will you pursue today?';
         mPlaceholder = 'Set an intention for today\'s wealth scan — what domain or category are you most open to?';
         mBtn         = "Begin Today's Scan";
+    } else if (isCC) {
+        mTitle       = '⬡ Command Center is online.';
+        mSub         = 'ONE VOICE · FULL STACK · ALL TOOLS ACTIVE · ZERO SCATTER';
+        mPlaceholder = "What is today's ONE action? State it clearly.";
+        mBtn         = "Run Today's Field Scan";
     } else if (entry) {
         mTitle       = `${entry.name} is online.`;
         mSub         = 'What needs to move through the Voice Bridge today?';
@@ -526,6 +539,148 @@ function loadExpressionPanelContent(mode) {
     document.querySelectorAll('.arch-name').forEach(el => {
         el.style.color = entry.color;
     });
+}
+
+// ─── Command Center panel ─────────────────────────────────────────────────────
+
+function loadCommandCenterPanel() {
+    if (typeof COMMAND_CENTER === 'undefined') return;
+
+    // Tool status grid
+    const toolsGrid = document.getElementById('cc-tools-grid');
+    if (toolsGrid) {
+        toolsGrid.innerHTML = COMMAND_CENTER.tools.map(t => `
+            <div class="cc-tool-card">
+                <div class="cc-tool-icon">${t.icon}</div>
+                <div class="cc-tool-info">
+                    <div class="cc-tool-name">${t.name}</div>
+                    <div class="cc-tool-desc">${t.description}</div>
+                </div>
+                <div class="cc-tool-status"><span class="cc-status-dot"></span>LIVE</div>
+            </div>
+        `).join('');
+    }
+
+    // Daily sequence
+    const dailyEl = document.getElementById('cc-daily-sequence');
+    if (dailyEl) {
+        const seq = COMMAND_CENTER.dailySequence;
+        let html = `<div class="cc-period-label">MORNING (25 min)</div>`;
+        html += seq.morning.map(s => `
+            <div class="cc-seq-step">
+                <div class="cc-seq-num">${s.step}</div>
+                <div class="cc-seq-body">
+                    <div class="cc-seq-action">${s.action}</div>
+                    <div class="cc-seq-meta"><span class="cc-seq-time">${s.time}</span><span class="cc-seq-tool">${s.tool}</span></div>
+                </div>
+            </div>
+        `).join('');
+        html += `<div class="cc-period-label" style="margin-top:0.75rem;">WORK BLOCK (2–4 hrs)</div>`;
+        html += `<ul class="cc-work-list">` + seq.work.map(w => `<li>${w}</li>`).join('') + `</ul>`;
+        html += `<div class="cc-period-label" style="margin-top:0.75rem;">EVENING (10 min)</div>`;
+        html += `<ul class="cc-work-list">` + seq.evening.map(e => `<li>${e}</li>`).join('') + `</ul>`;
+        dailyEl.innerHTML = html;
+    }
+
+    // Core systems
+    const coreEl = document.getElementById('cc-core-systems');
+    if (coreEl) {
+        coreEl.innerHTML = COMMAND_CENTER.coreSystems.map(s => `
+            <div class="cc-system-row">
+                <div class="cc-system-num">${s.num}</div>
+                <div class="cc-system-icon">${s.icon}</div>
+                <div class="cc-system-body">
+                    <div class="cc-system-name">${s.name}</div>
+                    <div class="cc-system-role">${s.role}</div>
+                </div>
+                <div class="cc-system-div">${s.division}</div>
+            </div>
+        `).join('');
+    }
+
+    // Wealth signals
+    const wealthEl = document.getElementById('cc-wealth-signals');
+    if (wealthEl) {
+        wealthEl.innerHTML = COMMAND_CENTER.wealthSignals.map(w => `
+            <div class="cc-wealth-row">
+                <div class="cc-wealth-asset">${w.asset}</div>
+                <div class="cc-wealth-platform">${w.platform}</div>
+                <div class="cc-wealth-channel">${w.channel}</div>
+                <div class="cc-wealth-status cc-ws-${w.status}">${w.label}</div>
+            </div>
+        `).join('');
+    }
+
+    // ONE ACTION
+    const actionEl = document.getElementById('cc-one-action');
+    if (actionEl) {
+        actionEl.innerHTML = `<span class="cc-one-action-label">ONE ACTION:</span> ${COMMAND_CENTER.oneAction}`;
+    }
+
+    // Quick Fire grid
+    const qfGrid = document.getElementById('cc-quickfire-grid');
+    if (qfGrid) {
+        qfGrid.innerHTML = COMMAND_CENTER.quickFire.map(q => `
+            <div class="cc-qf-card" onclick="quickFireAction('${escapeHtml(q.command)}', '${q.expression}')">
+                <div class="cc-qf-need">${q.need}</div>
+                <div class="cc-qf-command">${q.command}</div>
+                <div class="cc-qf-tools">${q.tools}</div>
+            </div>
+        `).join('');
+    }
+
+    // Spine
+    const spineEl = document.getElementById('cc-spine');
+    if (spineEl) {
+        const sp = COMMAND_CENTER.spine;
+        spineEl.innerHTML = `
+            <div class="cc-spine-title">⬡ THE SPINE — ALWAYS ON</div>
+            <div class="cc-spine-identity"><strong>ONE IDENTITY RULE:</strong> ${sp.identity}</div>
+            <div class="cc-spine-check-label">FREQUENCY CHECK (before any output):</div>
+            <ol class="cc-spine-list">${sp.frequencyCheck.map(c => `<li>${c}</li>`).join('')}</ol>
+            <div class="cc-spine-laws-label">FULL STACK LAWS:</div>
+            <ul class="cc-spine-list">${sp.laws.map(l => `<li>${l}</li>`).join('')}</ul>
+        `;
+    }
+}
+
+function quickFireAction(command, expression) {
+    selectExpression(expression);
+    setTimeout(() => {
+        const input = document.getElementById('command-input');
+        if (input) {
+            input.value = command;
+            input.focus();
+        }
+    }, 100);
+}
+
+async function runFieldScan() {
+    const btn = document.getElementById('cc-field-scan-btn');
+    if (btn) { btn.disabled = true; btn.querySelector('span').textContent = '⬡ SCANNING…'; }
+
+    const loadingEl = appendChatMessage({ role: 'assistant', isLoading: true });
+    let result;
+    if (aiEngine && aiEngine.liveAI) {
+        result = await aiEngine.executeCommand('Run a comprehensive full-stack field scan. Check all tools: web signals, Notion workspace state, Gmail inbox status, Google Drive, Netlify deployments, Amplitude analytics, Composio automations, and Compute Engine. Report what is live, what is signaling, and what the ONE action is right now.');
+    } else {
+        result = {
+            success: true,
+            reasoning: typeof COMMAND_CENTER !== 'undefined' ? COMMAND_CENTER.fieldScanLocally() : 'Field scan offline.',
+            liveAI: false
+        };
+    }
+    if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+    appendChatMessage({
+        role: 'assistant',
+        content: result.reasoning || result.message || '',
+        mode: 'soul-command-center',
+        liveAI: result.liveAI,
+        timestamp: new Date().toLocaleTimeString()
+    });
+
+    if (btn) { btn.disabled = false; btn.querySelector('span').textContent = '⬡ FIELD SCAN'; }
 }
 
 // ─── TRUTHOS Core panel ───────────────────────────────────────────────────────
@@ -1037,3 +1192,5 @@ window.clearChatHistory            = clearChatHistory;
 window.wealthScan                  = wealthScan;
 window.approveOpportunity          = approveOpportunity;
 window.rejectOpportunity           = rejectOpportunity;
+window.runFieldScan                = runFieldScan;
+window.quickFireAction             = quickFireAction;
