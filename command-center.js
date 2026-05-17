@@ -45,13 +45,13 @@ const COMMAND_CENTER = {
     ],
 
     wealthSignals: [
-        { asset: 'Law of Return Journal · $17',        platform: 'Selar.co', channel: 'WhatsApp Broadcast', status: 'launch-now', label: 'LAUNCH NOW' },
-        { asset: 'Law of Return Journal · $17',        platform: 'Gumroad',  channel: 'Social post',        status: 'launch-now', label: 'LAUNCH NOW' },
-        { asset: 'TruthOS Strategy Session · $300–500', platform: 'Direct',  channel: 'Outreach',           status: 'active',     label: 'ACTIVE'    },
-        { asset: 'TruthOS Retainer · $1,500–3,000/mo', platform: 'Direct',  channel: 'Clients',            status: 'active',     label: 'ACTIVE'    }
+        { asset: 'Digital Product — Tier 1',      platform: 'Platform A', channel: 'Channel 1', status: 'launch-now', label: 'LAUNCH NOW' },
+        { asset: 'Digital Product — Tier 1',      platform: 'Platform B', channel: 'Channel 2', status: 'launch-now', label: 'LAUNCH NOW' },
+        { asset: 'Strategy Session — Premium',     platform: 'Direct',     channel: 'Outreach',  status: 'active',     label: 'ACTIVE'    },
+        { asset: 'Retainer — Ongoing Engagement',  platform: 'Direct',     channel: 'Clients',   status: 'active',     label: 'ACTIVE'    }
     ],
 
-    oneAction: "Send the WhatsApp broadcast. That is the only task until it's done.",
+    oneAction: 'Your ONE action for today — update this with your current focus.',
 
     quickFire: [
         { need: 'Scan the field',      command: 'Run field scan',              tools: 'Web + Notion + Gmail', expression: 'reality-intelligence' },
@@ -99,7 +99,7 @@ const COMMAND_CENTER = {
             `⬟  COMPUTE ENGINE — LIVE — cloud infrastructure up`,
             ``,
             `[ONE ACTION NOW]`,
-            this.oneAction,
+            COMMAND_CENTER.oneAction,
             ``,
             `[SPINE STATUS]`,
             `Identity: ONE VOICE · FULL STACK · ZERO SCATTER`,
