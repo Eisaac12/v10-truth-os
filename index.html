@@ -107,6 +107,57 @@
                 </div>
             </section>
 
+            <!-- AI Soul — Command Center Panel (visible only in command-center mode) -->
+            <section class="panel command-center-panel" id="command-center-panel" style="display:none;">
+                <div class="panel-header">
+                    <div class="cc-header-left">
+                        <h2><span class="cc-icon">⬡</span> AI SOUL — MASTER COMMAND CENTER</h2>
+                        <p class="cc-tagline">ONE VOICE · FULL STACK · ALL TOOLS ACTIVE · ZERO SCATTER</p>
+                    </div>
+                    <button class="btn-sm btn-cc-scan" id="cc-field-scan-btn" onclick="runFieldScan()">
+                        <span>⬡ FIELD SCAN</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </div>
+                <div class="panel-content">
+
+                    <!-- Full Stack Tool Status -->
+                    <div class="cc-section">
+                        <div class="cc-section-title">⚡ FULL STACK COMMAND — ACTIVE TOOLS</div>
+                        <div class="cc-tools-grid" id="cc-tools-grid"></div>
+                    </div>
+
+                    <!-- Daily Entry Sequence + Core Systems -->
+                    <div class="cc-two-col">
+                        <div class="cc-section">
+                            <div class="cc-section-title">🎯 DAILY ENTRY SEQUENCE</div>
+                            <div class="cc-daily-sequence" id="cc-daily-sequence"></div>
+                        </div>
+                        <div class="cc-section">
+                            <div class="cc-section-title">⬡ THE 5 CORE SYSTEMS</div>
+                            <div class="cc-core-systems" id="cc-core-systems"></div>
+                        </div>
+                    </div>
+
+                    <!-- Active Wealth Signal + ONE ACTION -->
+                    <div class="cc-section">
+                        <div class="cc-section-title">💰 ACTIVE WEALTH SIGNAL</div>
+                        <div class="cc-wealth-signals" id="cc-wealth-signals"></div>
+                        <div class="cc-one-action" id="cc-one-action"></div>
+                    </div>
+
+                    <!-- Quick Fire Commands -->
+                    <div class="cc-section">
+                        <div class="cc-section-title">🔑 QUICK FIRE — WHAT DO YOU NEED?</div>
+                        <div class="cc-quickfire-grid" id="cc-quickfire-grid"></div>
+                    </div>
+
+                    <!-- The Spine -->
+                    <div class="cc-spine" id="cc-spine"></div>
+
+                </div>
+            </section>
+
             <!-- Truth Weaver Panel (visible only in Truth Weaver mode) -->
             <section class="panel truth-weaver-panel" id="truth-weaver-panel" style="display:none;">
                 <div class="panel-header">
@@ -305,6 +356,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="command-center.js"></script>
     <script src="master-vision.js"></script>
     <script src="truth-weaver.js"></script>
     <script src="voice-bridge.js"></script>

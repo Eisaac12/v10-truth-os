@@ -69,6 +69,13 @@
     --ri-bg: rgba(45, 212, 191, 0.06);
     --ri-border: rgba(45, 212, 191, 0.25);
 
+    /* Command Center — master HQ / gold */
+    --cc: #f59e0b;
+    --cc-light: #fbbf24;
+    --cc-glow: rgba(245, 158, 11, 0.3);
+    --cc-bg: rgba(245, 158, 11, 0.06);
+    --cc-border: rgba(245, 158, 11, 0.25);
+
     /* Wealth Weaver — value detection / green */
     --wealth: #22c55e;
     --wealth-light: #4ade80;
@@ -1809,4 +1816,557 @@ body.wealth-weaver-mode        .chat-textarea:focus { border-color: var(--wealth
     .logo-text h1 {
         font-size: 1.5rem;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI SOUL — MASTER COMMAND CENTER
+   ONE VOICE · FULL STACK · ALL TOOLS ACTIVE · ZERO SCATTER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Panel container ──────────────────────────────────────────────────────── */
+
+.command-center-panel {
+    grid-column: 1 / -1;
+    border-color: var(--cc-border) !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(251, 191, 36, 0.03)) !important;
+}
+
+.cc-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.command-center-panel .panel-header h2 {
+    color: var(--cc-light);
+}
+
+.cc-icon {
+    color: var(--cc);
+    margin-right: 4px;
+    text-shadow: 0 0 12px var(--cc-glow);
+}
+
+.cc-tagline {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* ─── Field Scan button ────────────────────────────────────────────────────── */
+
+.btn-cc-scan {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    border: 1px solid var(--cc-border);
+    color: var(--cc-light);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all 0.2s ease;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-cc-scan:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(245, 158, 11, 0.12));
+    box-shadow: 0 0 20px var(--cc-glow);
+}
+
+.btn-cc-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Section structure ────────────────────────────────────────────────────── */
+
+.cc-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.cc-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cc);
+    opacity: 0.85;
+    margin-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--cc-border);
+    padding-bottom: 6px;
+}
+
+.cc-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 900px) {
+    .cc-two-col { grid-template-columns: 1fr; }
+}
+
+/* ─── Tool Status Grid ─────────────────────────────────────────────────────── */
+
+.cc-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.cc-tool-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px var(--spacing-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--cc-border);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.cc-tool-card:hover {
+    border-color: var(--cc-border);
+    border-left-color: var(--cc);
+    background: var(--cc-bg);
+}
+
+.cc-tool-icon {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.cc-tool-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cc-tool-name {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--cc-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cc-tool-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-top: 1px;
+}
+
+.cc-tool-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--success);
+    flex-shrink: 0;
+}
+
+.cc-status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--success);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ─── Daily Sequence ───────────────────────────────────────────────────────── */
+
+.cc-period-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cc);
+    opacity: 0.65;
+    margin-bottom: 6px;
+}
+
+.cc-seq-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    margin-bottom: 5px;
+    border-left: 2px solid var(--cc-border);
+}
+
+.cc-seq-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--cc);
+    background: var(--cc-bg);
+    border: 1px solid var(--cc-border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    flex-shrink: 0;
+    line-height: 1.6;
+}
+
+.cc-seq-body { flex: 1; }
+
+.cc-seq-action {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 3px;
+}
+
+.cc-seq-meta {
+    display: flex;
+    gap: 8px;
+}
+
+.cc-seq-time {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--cc-light);
+    opacity: 0.75;
+}
+
+.cc-seq-tool {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.cc-work-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: none;
+}
+
+.cc-work-list li {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    padding: 3px 0;
+    position: relative;
+}
+
+.cc-work-list li::before {
+    content: '—';
+    position: absolute;
+    left: -1.2rem;
+    color: var(--cc-border);
+}
+
+/* ─── Core Systems ─────────────────────────────────────────────────────────── */
+
+.cc-system-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    margin-bottom: 5px;
+    border-left: 2px solid var(--cc-border);
+    transition: border-color var(--transition-fast);
+}
+
+.cc-system-row:hover {
+    border-left-color: var(--cc);
+}
+
+.cc-system-num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--cc);
+    background: var(--cc-bg);
+    border: 1px solid var(--cc-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+}
+
+.cc-system-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.cc-system-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.cc-system-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cc-system-role {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 1px;
+}
+
+.cc-system-div {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--cc);
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+/* ─── Wealth Signals ───────────────────────────────────────────────────────── */
+
+.cc-wealth-signals {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.cc-wealth-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    transition: border-color var(--transition-fast);
+}
+
+.cc-wealth-row:hover { border-color: var(--cc-border); }
+
+.cc-wealth-asset {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.cc-wealth-platform,
+.cc-wealth-channel {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.cc-wealth-status {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+}
+
+.cc-ws-launch-now { color: var(--warning); }
+.cc-ws-active     { color: var(--success); }
+
+.cc-one-action {
+    margin-top: var(--spacing-sm);
+    padding: 10px 14px;
+    background: var(--cc-bg);
+    border: 1px solid var(--cc-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.cc-one-action-label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--cc);
+    text-transform: uppercase;
+    margin-right: 8px;
+}
+
+/* ─── Quick Fire Grid ──────────────────────────────────────────────────────── */
+
+.cc-quickfire-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.cc-qf-card {
+    padding: 10px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--border-color);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cc-qf-card:hover {
+    border-color: var(--cc-border);
+    border-left-color: var(--cc);
+    background: var(--cc-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.cc-qf-need {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.cc-qf-command {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--cc-light);
+    font-weight: 600;
+}
+
+.cc-qf-tools {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+/* ─── The Spine ────────────────────────────────────────────────────────────── */
+
+.cc-spine {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--cc-border);
+    border-left: 3px solid var(--cc);
+    margin-top: var(--spacing-sm);
+}
+
+.cc-spine-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--cc);
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-sm);
+}
+
+.cc-spine-identity {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.cc-spine-identity strong { color: var(--text-primary); }
+
+.cc-spine-check-label,
+.cc-spine-laws-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--cc);
+    opacity: 0.7;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    margin-top: var(--spacing-sm);
+}
+
+.cc-spine-list {
+    margin: 0;
+    padding-left: 1.4rem;
+}
+
+.cc-spine-list li {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 2px 0;
+    line-height: 1.5;
+}
+
+/* ─── Body mode — cosmic background shift ──────────────────────────────────── */
+
+body.soul-command-center-mode .cosmic-background {
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(245, 158, 11, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 70%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+}
+
+body.soul-command-center-mode .command-panel    { border-color: var(--cc-border); }
+body.soul-command-center-mode .status-dot       { background: var(--cc); box-shadow: 0 0 6px var(--cc-glow); }
+body.soul-command-center-mode .chat-textarea:focus {
+    border-color: var(--cc);
+    box-shadow: 0 0 0 3px var(--cc-bg);
+}
+body.soul-command-center-mode .assistant-message .chat-bubble { border-color: var(--cc-border); }
+
+/* ─── Command Center chat expression tag ───────────────────────────────────── */
+
+.btn-cc {
+    background: linear-gradient(135deg, rgba(245,158,11,0.7), var(--cc));
+    color: #000;
+    font-weight: 700;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    box-shadow: 0 2px 8px rgba(245,158,11,0.25);
+}
+
+.btn-cc:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+}
+
+.btn-cc .btn-arrow {
+    font-size: 1.3rem;
+    transition: transform var(--transition-fast);
+}
+
+.btn-cc:hover .btn-arrow { transform: translateX(4px); }
+
+/* ─── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .cc-tools-grid       { grid-template-columns: 1fr; }
+    .cc-quickfire-grid   { grid-template-columns: 1fr 1fr; }
+    .cc-wealth-row       { grid-template-columns: 1fr auto; gap: 6px; }
+    .cc-wealth-platform,
+    .cc-wealth-channel   { display: none; }
+}
+
+@media (max-width: 480px) {
+    .cc-quickfire-grid { grid-template-columns: 1fr; }
 }
